@@ -6,6 +6,106 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;800&display=swap" rel="stylesheet">
 
+    <style>
+        body,
+        html,
+        #chat {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        @keyframes append-animate {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+
+            to {
+                height: auto;
+                opacity: 1;
+            }
+        }
+
+        .chat-message {
+            animation: append-animate .3s linear;
+            transition: max-height 0.3s ease-out;
+            height: auto;
+        }
+        
+        .msg-text>img {
+            width: 1rem;
+        }
+    </style>
+
+    <style type="text" id="enable-bubbles">
+        #chat {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .chat-message {
+            margin: 0 5px 5px 5px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid #ffe0f0;
+            border-radius: 6px;
+        }
+
+        .msg-text,
+        .msg-user {
+            padding: 0.4rem;
+            display: block;
+            color: white;
+        }
+
+        .msg-user {
+            background: #ffe0f0;
+            font-weight: bold;
+            color: black;
+        }
+
+        .msg-pronoun {
+            right: 1em;
+            position: absolute;
+        }
+    </style>
+
+    <style id="enable-horizontal" type="text">
+        #chat {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-end;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .chat-message {
+            margin-left: 1rem;
+            float: left;
+        }
+
+        .msg-user, .msg-text {
+            padding: 0.4rem;
+        }
+    </style>
+
+    <style id="horizontal-bubbles" type="text">
+        .msg-pronoun {
+            position: inherit;
+        }
+
+        .msg-user {
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat"></div>
 
     <script>
         function htmlentities(str) {
@@ -14,8 +114,61 @@
             });
         }
 
-        const WS_URI = "ws://localhost:8080/";
-        let socket, pronouns, pronouns_users = {};
+        function parseURL() {
+            let url = new URL(document.URL);
+
+            if (url.searchParams.get("ws_uri") !== null) {
+                ws_uri = decodeURI(url.searchParams.get("ws_uri"));
+            } else {
+                ws_uri = 'ws://localhost:8080/';
+            }
+
+            let bubbles = url.searchParams.get("bubbles");
+            let direction = url.searchParams.get("direction");
+
+            if (bubbles === 'true') {
+                console.log('Enabled bubble display');
+                document.getElementById('enable-bubbles').removeAttribute('type');
+            }
+
+            if (direction === 'horizontal') {
+                console.log('Set text to horizontal scroll direction');
+                document.getElementById('enable-horizontal').removeAttribute('type');
+            }
+
+            if (bubbles === 'true' && direction === 'horizontal') {
+                document.getElementById('horizontal-bubbles').removeAttribute('type');
+            }
+
+            let background_color = null;
+            if (url.searchParams.get("background_color") !== null) {
+                background_color = '#' +  url.searchParams.get("background_color");
+            }
+
+            let text_color = null;
+            if (url.searchParams.get("text_color") !== null) {
+                text_color = '#' +  url.searchParams.get("text_color");
+            }
+
+            let default_color = null;
+            if (url.searchParams.get("default_color") !== null) {
+                default_color = '#' +  url.searchParams.get("default_color");
+            }
+
+            return {
+                'background_color': background_color,
+                'text_color': text_color,
+                'default_color': default_color,
+                'ws_uri': ws_uri
+            }
+        }
+
+        const config = parseURL();
+
+        console.log(['Loaded config', config]);
+
+        let socket, pronouns_users = {},
+            pronouns;
 
         // Fill the pronoun cache
         fetch('https://pronouns.alejo.io/api/pronouns').then(response => response.json()).then(data => {
@@ -48,31 +201,45 @@
         function add_message(author, author_color, message, pronoun = "", emotes = []) {
             let text_color = 'black';
 
+            console.log(['CONFIG IN ADD_MESSAGE', config]);
+            if (config['background_color'] !== null) {
+                author_color = config['background_color'];
+            }
+
             if (!author_color) {
-                author_color = '#ffe0f0';
+                if (config['default_color'] !== null) {
+                    author_color = config['default_color'];
+                } else {
+                    author_color = '#ffe0f0';
+                }
             } else {
                 let color = author_color.replace('#', '');
                 let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
                 let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
                 let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
 
-                let brightness = Math.round(((parseInt(color_r) * 299) + 
-                                                (parseInt(color_g) * 587) +
-                                                (parseInt(color_b) * 114)) / 1000);
-                
+                let brightness = Math.round(((parseInt(color_r) * 299) +
+                    (parseInt(color_g) * 587) +
+                    (parseInt(color_b) * 114)) / 1000);
+
                 if (brightness < 125) {
                     text_color = 'white';
                 }
 
             }
 
+            if (config['text_color'] !== null) {
+                text_color = config['text_color'];
+            }
+
             let div_message = document.createElement('div');
             div_message.classList.add('chat-message');
-            div_message.style = `border-color: ${author_color}`;
+            div_message.style['border-color'] = author_color;
 
             let el_user = document.createElement('span');
             el_user.classList.add('msg-user');
-            el_user.style = `background: ${author_color}; color: ${text_color}`;
+            el_user.style['background'] = author_color;
+            el_user.style['color'] = text_color;
 
             let el_pronoun = document.createElement('span');
             el_pronoun.classList.add('msg-pronoun');
@@ -108,7 +275,7 @@
         console.log(['Pronouns', pronouns]);
 
         function connectws() {
-            socket = new WebSocket(WS_URI);
+            socket = new WebSocket(config['ws_uri']);
 
             socket.onmessage = async (event) => {
                 const wsdata = JSON.parse(event.data);
@@ -141,7 +308,7 @@
                     }
                 }));
 
-                console.log(`Connected to ${WS_URI}`);
+                console.log(`Connected to ${config['ws_uri']}`);
             };
 
             socket.onclose = function () {
@@ -151,73 +318,6 @@
 
         connectws();
     </script>
-
-    <style>
-        body,
-        html,
-        #chat {
-            background: transparent;
-            padding: 0;
-            margin: 0;
-            height: 100%;
-            width: 100%;
-            font-family: 'Open Sans', sans-serif;
-        }
-
-        @keyframes append-animate {
-            from {
-                height: 0;
-                opacity: 0;
-            }
-
-            to {
-                height: auto;
-                opacity: 1;
-            }
-        }
-
-        #chat {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .chat-message {
-            background-color: rgba(0, 0, 0, 0.6);
-            margin: 0 5px 5px 5px;
-            animation: append-animate .3s linear;
-            transition: max-height 0.3s ease-out;
-            height: auto;
-            border-radius: 6px;
-            border: 2px solid #ffe0f0;
-        }
-
-        .msg-text,
-        .msg-user {
-            padding: 0.4rem;
-            display: block;
-            color: white;
-        }
-
-        .msg-text>img {
-            width: 1rem;
-        }
-
-        .msg-user {
-            background: #ffe0f0;
-            font-weight: bold;
-            color: black;
-        }
-
-        .msg-pronoun {
-            right: 1em;
-            position: absolute;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="chat"></div>
 </body>
 
 </html>
