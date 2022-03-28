@@ -8,6 +8,12 @@
 
 
     <script>
+        function htmlentities(str) {
+            return str.replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+                return '&#' + i.charCodeAt(0) + ';';
+            });
+        }
+
         const WS_URI = "ws://localhost:8080/";
         let socket, pronouns, pronouns_users = {};
 
@@ -15,7 +21,6 @@
         fetch('https://pronouns.alejo.io/api/pronouns').then(response => response.json()).then(data => {
             pronouns = data;
         });
-
 
         async function fetch_pronoun(user) {
             if (user in pronouns_users) {
@@ -56,18 +61,16 @@
 
             el_user.innerText = author;
 
-            if (emotes.length > 0) {
-                for (const emote in emotes) {
-                    let el_emote = document.createElement('img');
-                    el_emote.src = emotes[emote].imageUrl;
+            message = htmlentities(message);
 
-                    message = message.replace(emotes[emote].name, el_emote.outerHTML);
-                }
+            for (const emote in emotes) {
+                let el_emote = document.createElement('img');
+                el_emote.src = emotes[emote].imageUrl;
 
-                el_message.innerHTML = message;
-            } else {
-                el_message.innerText = message;
+                message = message.replace(emotes[emote].name, el_emote.outerHTML);
             }
+
+            el_message.innerHTML = message;
 
             if (pronoun !== false) {
                 el_pronoun.innerText = `(${pronoun})`;
