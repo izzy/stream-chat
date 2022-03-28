@@ -46,12 +46,33 @@
         }
 
         function add_message(author, author_color, message, pronoun = "", emotes = []) {
+            let text_color = 'black';
+
+            if (!author_color) {
+                author_color = '#ffe0f0';
+            } else {
+                let color = author_color.replace('#', '');
+                let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
+                let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
+                let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
+
+                let brightness = Math.round(((parseInt(color_r) * 299) + 
+                                                (parseInt(color_g) * 587) +
+                                                (parseInt(color_b) * 114)) / 1000);
+                
+                if (brightness < 125) {
+                    text_color = 'white';
+                }
+
+            }
+
             let div_message = document.createElement('div');
             div_message.classList.add('chat-message');
+            div_message.style = `border-color: ${author_color}`;
 
             let el_user = document.createElement('span');
             el_user.classList.add('msg-user');
-            el_user.style = `color: ${author_color}`;
+            el_user.style = `background: ${author_color}; color: ${text_color}`;
 
             let el_pronoun = document.createElement('span');
             el_pronoun.classList.add('msg-pronoun');
@@ -162,13 +183,13 @@
         }
 
         .chat-message {
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.6);
             margin: 0 5px 5px 5px;
             animation: append-animate .3s linear;
             transition: max-height 0.3s ease-out;
             height: auto;
             border-radius: 6px;
-            border: 2px solid rgb(255, 224, 240);
+            border: 2px solid #ffe0f0;
         }
 
         .msg-text,
@@ -183,7 +204,7 @@
         }
 
         .msg-user {
-            background: rgb(255, 224, 240);
+            background: #ffe0f0;
             font-weight: bold;
             color: black;
         }
