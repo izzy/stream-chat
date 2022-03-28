@@ -1,2 +1,2 @@
 # twitch-chat
-Twitch Chat Overlay for StreamerBot's websocket that includes pronouns from https://pronouns.alejo.io/
+Twitch Chat Overlay for OBS based on StreamerBot's websocket, using pronouns from https://pronouns.alejo.io/
