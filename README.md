@@ -11,7 +11,8 @@ file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 
 ### direction
 
-Set to "horizontal" this will 
+Set to "horizontal" this will scroll the text from right to left instead of bottom to top.
+
 ### bubbles (set to "true" to enable)
 
 Displays bubbles instead of the standard chat log display
