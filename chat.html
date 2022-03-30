@@ -35,8 +35,13 @@
             transition: max-height 0.3s ease-out;
             height: auto;
         }
-        
-        .msg-text>img {
+
+        .msg-badges {
+            padding: 0rem 0.3rem;
+            vertical-align: middle;
+        }
+
+        .msg-text>img, .msg-badges>img {
             width: 1rem;
         }
     </style>
@@ -53,13 +58,13 @@
             background-color: rgba(0, 0, 0, 0.6);
             border: 2px solid #ffe0f0;
             border-radius: 6px;
+            color: white;
         }
 
         .msg-text,
         .msg-user {
             padding: 0.4rem;
             display: block;
-            color: white;
         }
 
         .msg-user {
@@ -108,6 +113,15 @@
     <div id="chat"></div>
 
     <script>
+        const chat_badges = {
+            'staff': 'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/1',
+            'admin': 'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/1',
+            'broadcaster': 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1',
+            'moderator': 'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1',
+            'verified': 'https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3',
+            'vip': 'https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3'
+        }
+
         function htmlentities(str) {
             return str.replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
                 return '&#' + i.charCodeAt(0) + ';';
@@ -123,10 +137,18 @@
                 ws_uri = 'ws://localhost:8080/';
             }
 
+            let is_true = (v, d = false) => {
+                if (v === undefined || v === null) {
+                    return d;
+                }
+
+                return String(v).toLowerCase() === 'true' || String(v) === '1';
+            }
+
             let bubbles = url.searchParams.get("bubbles");
             let direction = url.searchParams.get("direction");
 
-            if (bubbles === 'true') {
+            if (is_true(bubbles)) {
                 console.log('Enabled bubble display');
                 document.getElementById('enable-bubbles').removeAttribute('type');
             }
@@ -136,29 +158,34 @@
                 document.getElementById('enable-horizontal').removeAttribute('type');
             }
 
-            if (bubbles === 'true' && direction === 'horizontal') {
+            if (is_true(bubbles) && direction === 'horizontal') {
                 document.getElementById('horizontal-bubbles').removeAttribute('type');
             }
 
             let background_color = null;
             if (url.searchParams.get("background_color") !== null) {
-                background_color = '#' +  url.searchParams.get("background_color");
+                background_color = '#' + url.searchParams.get("background_color");
             }
 
             let text_color = null;
             if (url.searchParams.get("text_color") !== null) {
-                text_color = '#' +  url.searchParams.get("text_color");
+                text_color = '#' + url.searchParams.get("text_color");
             }
 
             let default_color = null;
             if (url.searchParams.get("default_color") !== null) {
-                default_color = '#' +  url.searchParams.get("default_color");
+                default_color = '#' + url.searchParams.get("default_color");
+            } else {
+                default_color = '#ffe0f0';
             }
 
             return {
                 'background_color': background_color,
                 'text_color': text_color,
                 'default_color': default_color,
+                'pastel': is_true(url.searchParams.get("pastel")),
+                'highlights': is_true(url.searchParams.get("highlights"), true),
+                'badges': is_true(url.searchParams.get("badges"), true),
                 'ws_uri': ws_uri
             }
         }
@@ -198,58 +225,112 @@
             }
         }
 
-        function add_message(author, author_color, message, pronoun = "", emotes = []) {
-            let text_color = 'black';
-
-            console.log(['CONFIG IN ADD_MESSAGE', config]);
-            if (config['background_color'] !== null) {
-                author_color = config['background_color'];
-            }
-
-            if (!author_color) {
-                if (config['default_color'] !== null) {
-                    author_color = config['default_color'];
-                } else {
-                    author_color = '#ffe0f0';
-                }
-            } else {
-                let color = author_color.replace('#', '');
-                let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
-                let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
-                let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
-
-                let brightness = Math.round(((parseInt(color_r) * 299) +
-                    (parseInt(color_g) * 587) +
-                    (parseInt(color_b) * 114)) / 1000);
-
-                if (brightness < 125) {
-                    text_color = 'white';
-                }
-
-            }
-
+        function get_text_color(color) {
+            // TODO pastel mode for text color
             if (config['text_color'] !== null) {
-                text_color = config['text_color'];
+                return config['text_color'];
             }
 
-            let div_message = document.createElement('div');
-            div_message.classList.add('chat-message');
-            div_message.style['border-color'] = author_color;
+            color = color.replace('#', '');
+            let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
+            let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
+            let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
 
-            let el_user = document.createElement('span');
-            el_user.classList.add('msg-user');
-            el_user.style['background'] = author_color;
-            el_user.style['color'] = text_color;
+            let brightness = Math.round(((parseInt(color_r) * 299) +
+                (parseInt(color_g) * 587) +
+                (parseInt(color_b) * 114)) / 1000);
 
-            let el_pronoun = document.createElement('span');
-            el_pronoun.classList.add('msg-pronoun');
+            if (brightness < 125) {
+                return 'white';
+            } else {
+                return 'black';
+            }
+        }
 
-            let el_message = document.createElement('span')
-            el_message.classList.add('msg-text');
+        function get_background_color(color) {
+            // TODO pastel mode for background color
+            if (config['background_color'] !== null) {
+                return config['background_color'];
+            }
 
-            el_user.innerText = author;
+            if (!color) {
+                return config['default_color'];
+            } else {
+                return color;
+            }
+        }
 
+        function createElement(tag, attributes, text) {
+            let element = document.createElement(tag);
+
+            if (attributes !== undefined) {
+                for (let key in attributes) {
+                    element.setAttribute(key, attributes[key]);
+                }
+            }
+
+            if (text !== undefined) {
+                element.innerText = text;
+            }
+
+            return element;
+        }
+
+        function add_message(author, author_color, message, pronoun = "", emotes = [], role = 0, subscriber = false,
+            highlight = false) {
+            // TODO handle cheermotes
+
+            // TODO ask streamer.bot for staff/admin/verified flags
+            // TODO Add subscriber badges
+            let badges = [];
+            if (config['badges'] === true) {
+                if (role === 4) {
+                    // Broadcaster
+                    badges.push(chat_badges['broadcaster']);
+                } else if (role === 3) {
+                    // Moderator
+                    badges.push(chat_badges['moderator']);
+                } else if (role === 2) {
+                    // VIP
+                    badges.push(chat_badges['vip']);
+                }
+            }
+
+            // XSS protection, needed to inject emotes
             message = htmlentities(message);
+
+            if (pronoun !== false) {
+                pronoun = `(${pronoun})`;
+            }
+
+            // Get colors based on settings / user data
+            let background_color = get_background_color(author_color);
+            let text_color = get_text_color(background_color);
+
+            let message_style = '';
+            if (highlight === true && config['highlights'] === true) {
+                message_style = `background-color: ${background_color}; color: ${text_color};`;
+            }
+
+            let el_badges = createElement('span', {'class': 'msg-badges'});
+            let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
+            let el_message = createElement('span', {'class': 'msg-text'});
+            
+            let div_message = createElement('div', {
+                'class': 'chat-message',
+                'style': `border-color: ${background_color}; ${message_style}`
+            });
+
+            let el_user = createElement('span', {
+                'class': 'msg-user',
+                'style': `color: ${text_color}; background-color: ${background_color}`
+            }, author);
+
+            for (let badge of badges) {
+                let el_badge = document.createElement('img');
+                el_badge.src = badge;
+                el_badges.appendChild(el_badge);
+            }
 
             for (const emote in emotes) {
                 let el_emote = document.createElement('img');
@@ -260,11 +341,12 @@
 
             el_message.innerHTML = message;
 
-            if (pronoun !== false) {
-                el_pronoun.innerText = `(${pronoun})`;
-            }
+            // Adds badges and pronouns to the user line
+            el_user.appendChild(el_badges);
+            el_user.appendChild(el_pronoun);
 
-            div_message.appendChild(el_user).appendChild(el_pronoun);
+            // Adds the user line and message to the message div
+            div_message.appendChild(el_user);
             div_message.appendChild(el_message);
 
             document.getElementById('chat').appendChild(div_message);
@@ -272,7 +354,6 @@
             const element = document.getElementById('chat');
             element.scrollTop = element.scrollHeight;
         }
-        console.log(['Pronouns', pronouns]);
 
         function connectws() {
             socket = new WebSocket(config['ws_uri']);
@@ -290,7 +371,7 @@
                     await fetch_pronoun(m.username);
                     pronoun = get_pronoun(m.username);
 
-                    add_message(m.displayName, m.color, m.message, pronoun, m.emotes);
+                    add_message(m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.subscriber, m.isHighlighted);
                 } else {
                     console.log(['Event not implemented', event]);
                 }

@@ -34,6 +34,17 @@ Set to a 6-character hex colour this will overwrite all username colours.
 
 This sets the default background/bubble colour for users who don't have a colour set.
 
+### badges
+
+`default: true`
+
+Set to false disables broadcaster/VIP/moderator badges
+
+### highlights
+
+`default: true`
+
+Set to false this disables a visual difference for highlighted messages.
 ## I've read this README but I still have questions/problems, where can I get help?
 
 If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).
