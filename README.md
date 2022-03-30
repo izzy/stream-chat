@@ -1,5 +1,6 @@
 # twitch-chat
-Twitch Chat Overlay for OBS based on StreamerBot's websocket, using pronouns from https://pronouns.alejo.io/
+
+Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
 ## Config
 
@@ -32,3 +33,7 @@ Set to a 6-character hex colour this will overwrite all username colours.
 ### default_color
 
 This sets the default background/bubble colour for users who don't have a colour set.
+
+## I've read this README but I still have questions/problems, where can I get help?
+
+If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).
