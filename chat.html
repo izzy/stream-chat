@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;800&display=swap" rel="stylesheet">
 
     <style>
-        body,
         html,
         #chat {
             background: transparent;
@@ -16,6 +15,15 @@
             height: 100%;
             width: 100%;
             font-family: 'Open Sans', sans-serif;
+            font-size: large;
+        }
+        body {
+            background: #000000;
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            color: white;
         }
 
         @keyframes append-animate {
@@ -37,16 +45,17 @@
         }
 
         .msg-badges {
-            padding: 0rem 0.3rem;
+            padding: 0rem 0.1rem;
             vertical-align: middle;
         }
 
         .msg-text>img, .msg-badges>img {
-            width: 1rem;
+            height: 1.5rem;
+            vertical-align: middle;
         }
     </style>
 
-    <style type="text" id="enable-bubbles">
+    <!-- <style type="text" id="enable-bubbles">
         #chat {
             display: flex;
             flex-direction: column;
@@ -77,7 +86,7 @@
             right: 1em;
             position: absolute;
         }
-    </style>
+    </style> -->
 
     <style id="enable-horizontal" type="text">
         #chat {
@@ -89,16 +98,25 @@
         }
 
         .chat-message {
-            margin-left: 1rem;
+            margin-left: 0.5rem;
             float: left;
         }
 
-        .msg-user, .msg-text {
-            padding: 0.4rem;
+        .msg-user {
+            padding-left: 0rem;
+            padding-right: 0.2rem;
+        }
+        .msg-text {
+            padding-left: 0rem;
+            padding-right: 0.4rem;
+        }
+        .msg-pronoun {
+            font-size: .5rem;
+            padding-right: .1rem;
         }
     </style>
 
-    <style id="horizontal-bubbles" type="text">
+    <!-- <style id="horizontal-bubbles" type="text">
         .msg-pronoun {
             position: inherit;
         }
@@ -106,7 +124,7 @@
         .msg-user {
             text-align: right;
         }
-    </style>
+    </style> -->
 </head>
 
 <body>
@@ -221,7 +239,7 @@
             if (user in pronouns_users && pronouns_users[user] !== undefined) {
                 return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
             } else {
-                return false;
+                return "*";
             }
         }
 
@@ -304,8 +322,11 @@
             }
 
             // Get colors based on settings / user data
-            let background_color = get_background_color(author_color);
-            let text_color = get_text_color(background_color);
+            //let background_color = get_background_color(author_color); //dit muss transparent!
+            // let text_color = get_text_color(background_color); // dit muss author_color
+            let background_color = "transparent";
+            let text_color = author_color;
+            
 
             let message_style = '';
             if (highlight === true && config['highlights'] === true) {
@@ -315,6 +336,7 @@
             let el_badges = createElement('span', {'class': 'msg-badges'});
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
             let el_message = createElement('span', {'class': 'msg-text'});
+            let el_colon = createElement('span', {'class': 'msg-text'}, ":");
             
             let div_message = createElement('div', {
                 'class': 'chat-message',
@@ -344,6 +366,7 @@
             // Adds badges and pronouns to the user line
             el_user.appendChild(el_badges);
             el_user.appendChild(el_pronoun);
+            el_user.appendChild(el_colon);
 
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
