@@ -10,19 +10,32 @@ Supported settings are as follows. To use them just add them as URL parameters, 
 file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 ```
 
+Example 1: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false`   
+No badges, no pronouns, vertical chat
+
+Example 2: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false&direction=horizontal`  
+No badges, pronouns, horizontal chat
+
+Example 3: `file:///C:/path/to/twitch-chat/chat.html`  
+full default, badges, pronouns, vertical chat
+
 ### direction
 
 Set to "horizontal" this will scroll the text from right to left instead of bottom to top.
 
-### bubbles (set to "true" to enable)
+### pronouns 
 
-Displays bubbles instead of the standard chat log display
+`default: true`
+
+set to `false` to disable
+
 
 ### ws_uri
 
 `default: ws://localhost:8080/)`
 
 The Streamer Bot WebSocket Address to use.
+
 ### background_color
 
 Set to a 6-character hex colour this will overwrite all user bubble colours.
@@ -30,6 +43,7 @@ Set to a 6-character hex colour this will overwrite all user bubble colours.
 ### text_color
 
 Set to a 6-character hex colour this will overwrite all username colours.
+
 ### default_color
 
 This sets the default background/bubble colour for users who don't have a colour set.
