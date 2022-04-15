@@ -13,8 +13,8 @@ file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 Example 1: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false`   
 No badges, no pronouns, vertical chat
 
-Example 2: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false&direction=horizontal`  
-No badges, pronouns, horizontal chat
+Example 2: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false&direction=horizontal&fade=12`  
+No badges, pronouns, horizontal chat, fade message after 12s
 
 Example 3: `file:///C:/path/to/twitch-chat/chat.html`  
 full default, badges, pronouns, vertical chat
@@ -23,12 +23,18 @@ full default, badges, pronouns, vertical chat
 
 Set to "horizontal" this will scroll the text from right to left instead of bottom to top.
 
+### fade 
+
+`default: null`
+
+set to `number` to enable. fades messages in horizontal scroll text after `number` seconds.  
+only works in horizontal chat!
+
 ### pronouns 
 
 `default: true`
 
 set to `false` to disable
-
 
 ### ws_uri
 

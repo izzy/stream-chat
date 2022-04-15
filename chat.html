@@ -69,23 +69,6 @@
         }
     </style>
 
-    <style id="fadeinout" type="text">
-        .chat-message {
-            transition: max-height 0.3s ease-out;
-            animation: chat 1s ease 12s 1 normal forwards;
-            margin-left: 0.5rem;
-            float: left;
-        }
-    </style>
-
-    <style id="fadein" type="text">
-        .chat-message {
-             animation: append-animate .3s linear;
-             transition: max-height 0.3s ease-out;
-             margin-left: 0.5rem;
-        }
-    </style>
-
     <style id="enable-horizontal" type="text">
         #chat {
             display: flex;
@@ -147,19 +130,14 @@
 
             let direction = url.searchParams.get("direction");
             let enable_pronouns = url.searchParams.get("pronouns");
-            let fade = url.searchParams.get("fade");
+            let fadeseconds = url.searchParams.get("fade");
+            if (isNaN(fadeseconds)) {
+                fadeseconds = null;
+            }
 
             if (direction === 'horizontal') {
                 console.log('Set text to horizontal scroll direction');
                 document.getElementById('enable-horizontal').removeAttribute('type');
-            }
-
-            if (is_true(fade) && direction === 'horizontal') {
-                console.log('Set text to fade in and out');
-                document.getElementById('fadeinout').removeAttribute('type');
-            } else {
-                console.log('Set text to fade in');
-                document.getElementById('fadein').removeAttribute('type');
             }
 
             let background_color = null;
@@ -188,6 +166,8 @@
                 'badges': is_true(url.searchParams.get("badges"), true),
                 'ws_uri': ws_uri,
                 'enable_pronouns': is_true(url.searchParams.get("pronouns"), true),
+                'fade': fadeseconds,
+                'direction': direction,
             }
         }
 
@@ -351,7 +331,12 @@
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
             div_message.appendChild(el_message);
-
+            if (config['fade'] !== null && config['direction'] === 'horizontal') {
+                fSeconds = config['fade'];
+                let prevStyle = div_message.getAttribute("style");
+                let fadeStyle = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fSeconds + "s 1 normal forwards; margin-left: 0.5rem; float: left;";
+                div_message.setAttribute("style", prevStyle + fadeStyle);
+            }
             document.getElementById('chat').appendChild(div_message);
 
             const element = document.getElementById('chat');
