@@ -165,6 +165,7 @@
 
             let bubbles = url.searchParams.get("bubbles");
             let direction = url.searchParams.get("direction");
+            let enable_pronouns = url.searchParams.get("pronouns");
 
             if (is_true(bubbles)) {
                 console.log('Enabled bubble display');
@@ -204,7 +205,8 @@
                 'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
-                'ws_uri': ws_uri
+                'ws_uri': ws_uri,
+                'enable_pronouns': is_true(url.searchParams.get("pronouns"), true),
             }
         }
 
@@ -365,7 +367,9 @@
 
             // Adds badges and pronouns to the user line
             el_user.appendChild(el_badges);
-            el_user.appendChild(el_pronoun);
+            if (config["enable_pronouns"] !== false) {
+                el_user.appendChild(el_pronoun);
+            }
             el_user.appendChild(el_colon);
 
             // Adds the user line and message to the message div
