@@ -129,11 +129,16 @@
             }
 
             let direction = url.searchParams.get("direction");
+            let cmdprefix = url.searchParams.get("cmdprefix");
             let enable_pronouns = url.searchParams.get("pronouns");
             let fadeseconds = url.searchParams.get("fade");
             if (isNaN(fadeseconds)) {
                 fadeseconds = null;
             }
+            // put botnames to array
+            let bots = url.searchParams.get("bots").split(',');
+            bots = bots.map(bot => bot.toLowerCase());
+
 
             if (direction === 'horizontal') {
                 console.log('Set text to horizontal scroll direction');
@@ -168,6 +173,8 @@
                 'enable_pronouns': is_true(url.searchParams.get("pronouns"), true),
                 'fade': fadeseconds,
                 'direction': direction,
+                'bots': bots,
+                'cmdprefix': cmdprefix,
             }
         }
 
@@ -259,6 +266,17 @@
 
         function add_message(author, author_color, message, pronoun = "", emotes = [], role = 0, subscriber = false,
             highlight = false) {
+
+            // return if botmessage
+            let authorLower = author.toLowerCase();
+            if (config['bots'].includes(authorLower)) {
+                return 
+            }
+            // return if command
+            if (message.startsWith(config['cmdprefix'])) {
+                return 
+            }
+
             // TODO handle cheermotes
 
             // TODO ask streamer.bot for staff/admin/verified flags

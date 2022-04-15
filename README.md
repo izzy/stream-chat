@@ -7,7 +7,7 @@ Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s web
 Supported settings are as follows. To use them just add them as URL parameters, e.g.
 
 ```
-file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
+file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000
 ```
 
 Example 1: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:18080/&badges=false&pronouns=false`   
@@ -30,15 +30,27 @@ Set to "horizontal" this will scroll the text from right to left instead of bott
 set to `number` to enable. fades messages in horizontal scroll text after `number` seconds.  
 only works in horizontal chat!
 
+### bots
+
+`default: none`
+
+Set botnames that will be excluded in display as commaseparated url parameter, e.g. `&bots=botname1,Streamelements` (not case sensitive)
+
+### cmdprefix
+
+`default: none`
+
+Set a prefix for commands so messages will be excluded in display, e.g. `&cmdprefix=!`. Every message with that prefix will be excluded from display.
+
 ### pronouns 
 
 `default: true`
 
-set to `false` to disable
+Set to `false` to disable
 
 ### ws_uri
 
-`default: ws://localhost:8080/)`
+`default: ws://localhost:8080/`
 
 The Streamer Bot WebSocket Address to use.
 
