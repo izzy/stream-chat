@@ -25,7 +25,6 @@
             width: 100%;
             color: white;
         }
-
         @keyframes append-animate {
             from {
                 height: 0;
@@ -37,14 +36,19 @@
                 opacity: 1;
             }
         }
-
+        @keyframes chat {
+            0% {
+                opacity: 1;
+            }
+ 
+            100% {
+                opacity: 0;
+            }
+        }
         .chat-message {
-            animation: append-animate .3s linear;
-            transition: max-height 0.3s ease-out;
             height: auto;
             padding: 0rem 0.2rem;
         }
-
         .msg-badges {
             padding: 0rem 0.2rem;
             vertical-align: middle;
@@ -62,7 +66,23 @@
         }
         .msg-pronoun {
             font-size: .5rem;
-            padding-right: .1rem;
+        }
+    </style>
+
+    <style id="fadeinout" type="text">
+        .chat-message {
+            transition: max-height 0.3s ease-out;
+            animation: chat 1s ease 12s 1 normal forwards;
+            margin-left: 0.5rem;
+            float: left;
+        }
+    </style>
+
+    <style id="fadein" type="text">
+        .chat-message {
+             animation: append-animate .3s linear;
+             transition: max-height 0.3s ease-out;
+             margin-left: 0.5rem;
         }
     </style>
 
@@ -74,14 +94,9 @@
             white-space: nowrap;
             overflow: hidden;
         }
-
         .chat-message {
-            animation: append-animate .3s linear;
-            transition: max-height 0.3s ease-out;
-            margin-left: 0.5rem;
             float: left;
         }
-
         .msg-user {
             padding-left: 0rem;
             padding-right: 0.2rem;
@@ -89,10 +104,6 @@
         .msg-text {
             padding-left: 0rem;
             padding-right: 0.2rem;
-        }
-        .msg-pronoun {
-            font-size: .5rem;
-            padding-right: .1rem;
         }
     </style>
 
@@ -136,10 +147,19 @@
 
             let direction = url.searchParams.get("direction");
             let enable_pronouns = url.searchParams.get("pronouns");
+            let fade = url.searchParams.get("fade");
 
             if (direction === 'horizontal') {
                 console.log('Set text to horizontal scroll direction');
                 document.getElementById('enable-horizontal').removeAttribute('type');
+            }
+
+            if (is_true(fade) && direction === 'horizontal') {
+                console.log('Set text to fade in and out');
+                document.getElementById('fadeinout').removeAttribute('type');
+            } else {
+                console.log('Set text to fade in');
+                document.getElementById('fadein').removeAttribute('type');
             }
 
             let background_color = null;
@@ -284,9 +304,6 @@
                 pronoun = `(${pronoun})`;
             }
 
-            // Get colors based on settings / user data
-            //let background_color = get_background_color(author_color); //dit muss transparent!
-            // let text_color = get_text_color(background_color); // dit muss author_color
             let background_color = "transparent";
             let text_color = author_color;
             
@@ -299,7 +316,6 @@
             let el_badges = createElement('span', {'class': 'msg-badges'});
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
             let el_message = createElement('span', {'class': 'msg-text'});
-            let el_colon = createElement('span', {'class': 'msg-text'}, ":");
             
             let div_message = createElement('div', {
                 'class': 'chat-message',
@@ -324,14 +340,13 @@
                 message = message.replace(emotes[emote].name, el_emote.outerHTML);
             }
 
-            el_message.innerHTML = message;
+            el_message.innerHTML = ": " + message;
 
             // Adds badges and pronouns to the user line
             el_user.appendChild(el_badges);
             if (config["enable_pronouns"] !== false) {
                 el_user.appendChild(el_pronoun);
             }
-            el_user.appendChild(el_colon);
 
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
