@@ -136,9 +136,11 @@
                 fadeseconds = null;
             }
             // put botnames to array
-            let bots = url.searchParams.get("bots").split(',');
-            bots = bots.map(bot => bot.toLowerCase());
-
+            let bots = "";
+            if (url.searchParams.get("bots")) {
+                bots = url.searchParams.get("bots").split(',');
+                bots = bots.map(bot => bot.toLowerCase());
+            }
 
             if (direction === 'horizontal') {
                 console.log('Set text to horizontal scroll direction');
