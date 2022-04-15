@@ -42,51 +42,29 @@
             animation: append-animate .3s linear;
             transition: max-height 0.3s ease-out;
             height: auto;
+            padding: 0rem 0.2rem;
         }
 
         .msg-badges {
-            padding: 0rem 0.1rem;
+            padding: 0rem 0.2rem;
             vertical-align: middle;
         }
-
-        .msg-text>img, .msg-badges>img {
-            height: 1.5rem;
+        .msg-text {
+            padding-left: 0.2rem;
+        }
+        .msg-text>img {
+            height: 1.3rem;
             vertical-align: middle;
+        }
+        .msg-badges>img {
+            height: 1rem;
+            vertical-align: middle;
+        }
+        .msg-pronoun {
+            font-size: .5rem;
+            padding-right: .1rem;
         }
     </style>
-
-    <!-- <style type="text" id="enable-bubbles">
-        #chat {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
-
-        .chat-message {
-            margin: 0 5px 5px 5px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 2px solid #ffe0f0;
-            border-radius: 6px;
-            color: white;
-        }
-
-        .msg-text,
-        .msg-user {
-            padding: 0.4rem;
-            display: block;
-        }
-
-        .msg-user {
-            background: #ffe0f0;
-            font-weight: bold;
-            color: black;
-        }
-
-        .msg-pronoun {
-            right: 1em;
-            position: absolute;
-        }
-    </style> -->
 
     <style id="enable-horizontal" type="text">
         #chat {
@@ -98,6 +76,8 @@
         }
 
         .chat-message {
+            animation: append-animate .3s linear;
+            transition: max-height 0.3s ease-out;
             margin-left: 0.5rem;
             float: left;
         }
@@ -108,7 +88,7 @@
         }
         .msg-text {
             padding-left: 0rem;
-            padding-right: 0.4rem;
+            padding-right: 0.2rem;
         }
         .msg-pronoun {
             font-size: .5rem;
@@ -116,15 +96,6 @@
         }
     </style>
 
-    <!-- <style id="horizontal-bubbles" type="text">
-        .msg-pronoun {
-            position: inherit;
-        }
-
-        .msg-user {
-            text-align: right;
-        }
-    </style> -->
 </head>
 
 <body>
@@ -163,22 +134,12 @@
                 return String(v).toLowerCase() === 'true' || String(v) === '1';
             }
 
-            let bubbles = url.searchParams.get("bubbles");
             let direction = url.searchParams.get("direction");
             let enable_pronouns = url.searchParams.get("pronouns");
-
-            if (is_true(bubbles)) {
-                console.log('Enabled bubble display');
-                document.getElementById('enable-bubbles').removeAttribute('type');
-            }
 
             if (direction === 'horizontal') {
                 console.log('Set text to horizontal scroll direction');
                 document.getElementById('enable-horizontal').removeAttribute('type');
-            }
-
-            if (is_true(bubbles) && direction === 'horizontal') {
-                document.getElementById('horizontal-bubbles').removeAttribute('type');
             }
 
             let background_color = null;
