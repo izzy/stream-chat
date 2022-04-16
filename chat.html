@@ -14,7 +14,6 @@
             margin: 0;
             height: 100%;
             width: 100%;
-            /* font-family: 'Roboto Mono', monospace; */
             overflow: hidden;
         }
         body {
@@ -78,14 +77,12 @@
             flex-direction: row;
             justify-content: flex-end;
             white-space: nowrap;
-            overflow: hidden;
         }
         .chat-message {
             float: left;
         }
         .msg-user {
             padding-left: 0rem;
-            padding-right: 0.2rem;
         }
         .msg-text {
             padding-left: 0rem;
@@ -130,23 +127,28 @@
                 return String(v).toLowerCase() === 'true' || String(v) === '1';
             }
 
-            let direction = url.searchParams.get("direction");
             let cmdprefix = url.searchParams.get("cmdprefix");
-
+            let enable_pronouns = url.searchParams.get("pronouns");
+            
+            // set chat direction and enable css
+            let direction = url.searchParams.get("direction");
+            if (direction === 'horizontal') {
+                console.log('Set text to horizontal scroll direction');
+                document.getElementById('enable-horizontal').removeAttribute('type');
+            }
+            // set font family
             let fontfamily = url.searchParams.get("fontfamily");
             if (!fontfamily) {
                 fontfamily = 'sans-serif';
             }
             document.getElementById("chat").style.fontFamily = fontfamily;
-
+            // set font size
             let fontsize = url.searchParams.get("fontsize");
             if (!fontsize) {
                 fontsize = 'large';
             }
-            // inject css font-size
             document.getElementById("chat").style.fontSize = fontsize;
 
-            let enable_pronouns = url.searchParams.get("pronouns");
             // get fade duration and set it to null if not a number
             let fadeseconds = url.searchParams.get("fade");
             if (isNaN(fadeseconds)) {
@@ -159,33 +161,15 @@
                 bots = bots.map(bot => bot.toLowerCase());
             }
 
-            if (direction === 'horizontal') {
-                console.log('Set text to horizontal scroll direction');
-                document.getElementById('enable-horizontal').removeAttribute('type');
-            }
-
-            let background_color = null;
-            if (url.searchParams.get("background_color") !== null) {
-                background_color = '#' + url.searchParams.get("background_color");
-            }
-
-            let text_color = null;
-            if (url.searchParams.get("text_color") !== null) {
-                text_color = '#' + url.searchParams.get("text_color");
-            }
-
-            let default_color = null;
-            if (url.searchParams.get("default_color") !== null) {
-                default_color = '#' + url.searchParams.get("default_color");
+            let background = null;
+            if (url.searchParams.get("background") !== null) {
+                background = '#' + url.searchParams.get("background");
             } else {
-                default_color = '#ffe0f0';
+                background = 'transparent';
             }
+            document.getElementById("chat").style.background = background;
 
             return {
-                'background_color': background_color,
-                'text_color': text_color,
-                'default_color': default_color,
-                'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
                 'ws_uri': ws_uri,
@@ -234,41 +218,6 @@
             }
         }
 
-        function get_text_color(color) {
-            // TODO pastel mode for text color
-            if (config['text_color'] !== null) {
-                return config['text_color'];
-            }
-
-            color = color.replace('#', '');
-            let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
-            let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
-            let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
-
-            let brightness = Math.round(((parseInt(color_r) * 299) +
-                (parseInt(color_g) * 587) +
-                (parseInt(color_b) * 114)) / 1000);
-
-            if (brightness < 125) {
-                return 'white';
-            } else {
-                return 'black';
-            }
-        }
-
-        function get_background_color(color) {
-            // TODO pastel mode for background color
-            if (config['background_color'] !== null) {
-                return config['background_color'];
-            }
-
-            if (!color) {
-                return config['default_color'];
-            } else {
-                return color;
-            }
-        }
-
         function createElement(tag, attributes, text) {
             let element = document.createElement(tag);
 
@@ -299,7 +248,6 @@
             }
 
             // TODO handle cheermotes
-
             // TODO ask streamer.bot for staff/admin/verified flags
             // TODO Add subscriber badges
             let badges = [];
@@ -328,22 +276,27 @@
             
 
             let message_style = '';
-            if (highlight === true && config['highlights'] === true) {
-                message_style = `background-color: ${background_color}; color: ${text_color};`;
-            }
-            var date = new Date();
-            let el_timestamp = createElement('span', {'class': 'msg-timestamp'}, date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
+            // if (highlight === true && config['highlights'] === true) {
+            //     message_style = `background-color: ${background_color}; color: ${text_color};`;
+            // }
 
             let el_badges = createElement('span', {'class': 'msg-badges'});
+            for (let badge of badges) {
+                let el_badge = document.createElement('img');
+                el_badge.src = badge;
+                el_badges.appendChild(el_badge);
+            }
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
             let el_message = createElement('span', {'class': 'msg-text'});
             
             let div_message = createElement('div', {
                 'class': 'chat-message',
-                'style': `border-color: ${background_color}; ${message_style}`
+                // 'style': `border-color: ${background_color}; ${message_style}`
             });
 
             // add timestamp
+            var date = new Date();
+            let el_timestamp = createElement('span', {'class': 'msg-timestamp'}, date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
             if (config['timestamp'] && config['direction'] !== 'horizontal') {
                 div_message.appendChild(el_timestamp);
             }
@@ -352,12 +305,6 @@
                 'class': 'msg-user',
                 'style': `color: ${text_color}; background-color: ${background_color}`
             }, author);
-
-            for (let badge of badges) {
-                let el_badge = document.createElement('img');
-                el_badge.src = badge;
-                el_badges.appendChild(el_badge);
-            }
 
             for (const emote in emotes) {
                 let el_emote = document.createElement('img');
@@ -369,7 +316,9 @@
             el_message.innerHTML = ": " + message;
 
             // Adds badges and pronouns to the user line
-            el_user.appendChild(el_badges);
+            if (config["badges"] !== false) {
+                el_user.appendChild(el_badges);
+            }
             if (config["enable_pronouns"] !== false) {
                 el_user.appendChild(el_pronoun);
             }
