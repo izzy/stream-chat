@@ -14,8 +14,7 @@
             margin: 0;
             height: 100%;
             width: 100%;
-            font-family: 'Open Sans', sans-serif;
-            font-size: large;
+            /* font-family: 'Roboto Mono', monospace; */
             overflow: hidden;
         }
         body {
@@ -52,24 +51,27 @@
         }
         .msg-badges {
             padding: 0rem 0.2rem;
-            vertical-align: middle;
         }
         .msg-text {
             padding-left: 0.2rem;
         }
         .msg-text>img {
-            height: 1.3rem;
+            height: 1.3em;
             vertical-align: middle;
         }
         .msg-badges>img {
-            height: 1rem;
+            height: 1em;
             vertical-align: middle;
         }
         .msg-pronoun {
-            font-size: .5rem;
+            font-size: .5em;
+        }
+        .msg-timestamp {
+            padding: 0rem 0.2em;
+            font-size: 0.8em;
         }
     </style>
-
+    
     <style id="enable-horizontal" type="text">
         #chat {
             display: flex;
@@ -125,18 +127,32 @@
                 if (v === undefined || v === null) {
                     return d;
                 }
-
                 return String(v).toLowerCase() === 'true' || String(v) === '1';
             }
 
             let direction = url.searchParams.get("direction");
             let cmdprefix = url.searchParams.get("cmdprefix");
+
+            let fontfamily = url.searchParams.get("fontfamily");
+            if (!fontfamily) {
+                fontfamily = 'sans-serif';
+            }
+            document.getElementById("chat").style.fontFamily = fontfamily;
+
+            let fontsize = url.searchParams.get("fontsize");
+            if (!fontsize) {
+                fontsize = 'large';
+            }
+            // inject css font-size
+            document.getElementById("chat").style.fontSize = fontsize;
+
             let enable_pronouns = url.searchParams.get("pronouns");
+            // get fade duration and set it to null if not a number
             let fadeseconds = url.searchParams.get("fade");
             if (isNaN(fadeseconds)) {
                 fadeseconds = null;
             }
-            // put botnames to array
+            // put botnames to array if parameter is set
             let bots = "";
             if (url.searchParams.get("bots")) {
                 bots = url.searchParams.get("bots").split(',');
@@ -178,6 +194,8 @@
                 'direction': direction,
                 'bots': bots,
                 'cmdprefix': cmdprefix,
+                'fontsize': fontsize,
+                'timestamp': is_true(url.searchParams.get("timestamp"), false),
             }
         }
 
@@ -313,6 +331,9 @@
             if (highlight === true && config['highlights'] === true) {
                 message_style = `background-color: ${background_color}; color: ${text_color};`;
             }
+            var date = new Date();
+            //console.log(date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
+            let el_timestamp = createElement('span', {'class': 'msg-timestamp'}, date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
 
             let el_badges = createElement('span', {'class': 'msg-badges'});
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
@@ -322,6 +343,11 @@
                 'class': 'chat-message',
                 'style': `border-color: ${background_color}; ${message_style}`
             });
+
+            // add timestamp
+            if (config['timestamp'] && config['direction'] !== 'horizontal') {
+                div_message.appendChild(el_timestamp);
+            }
 
             let el_user = createElement('span', {
                 'class': 'msg-user',

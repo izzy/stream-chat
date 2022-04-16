@@ -2,6 +2,8 @@
 
 Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
+Disclaimer: This is a fork. Credits to the idea and initial version go to [izzy](https://github.com/izzy/).
+
 ## Config
 
 Supported settings are as follows. To use them just add them as URL parameters, e.g.
@@ -19,34 +21,19 @@ No badges, pronouns, horizontal chat, fade message after 12s
 Example 3: `file:///C:/path/to/twitch-chat/chat.html`  
 full default, badges, pronouns, vertical chat
 
-### direction
 
-Set to "horizontal" this will scroll the text from right to left instead of bottom to top.
+## options
 
-### fade 
-
-`default: null`
-
-set to `number` to enable. fades messages in horizontal scroll text after `number` seconds.  
-only works in horizontal chat!
-
-### bots
-
-`default: none`
-
-Set botnames that will be excluded in display as commaseparated url parameter, e.g. `&bots=botname1,Streamelements` (not case sensitive)
-
-### cmdprefix
-
-`default: none`
-
-Set a prefix for commands so messages will be excluded in display, e.g. `&cmdprefix=!`. Every message with that prefix will be excluded from display.
-
-### pronouns 
-
-`default: true`
-
-Set to `false` to disable
+| option        | default       | valid options | description |example|
+|-------------- |-----------    |------------|------------|------------|
+| direction     | none          | `horizontal` |vertical or horizontal chat layout|`&direction=horizontal`|
+| fade       | none      | `int`       | fade messages in horiz. chat after `int` seconds|`&fade=12`|
+|bots|none|string|bot names in comma separated list to be excluded from chat display|`&bot=name1`|
+|cmdprefix|none|`string`|prefix for commands to exclude from chat display|`&cmdprefix=!`|
+|pronouns|`true`|`true`/`false`|display pronouns|`&pronouns=false`|
+|fontsize|`large`|any css font declaration|set font size in display|`&fontsize=xx-large`|
+|timestamp|`false`|`true`/`false`|enable timestamps in vert. chat box|`&timestamp=true`|
+|fontfamily|`sans-serif`|`monospace`/`sans-serif`/`serif`|set font family for chat|`&fontfamily=monospace`|
 
 ### ws_uri
 
