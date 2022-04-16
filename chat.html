@@ -332,7 +332,6 @@
                 message_style = `background-color: ${background_color}; color: ${text_color};`;
             }
             var date = new Date();
-            //console.log(date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
             let el_timestamp = createElement('span', {'class': 'msg-timestamp'}, date.toLocaleTimeString('de-DE',{ hour: '2-digit', minute: '2-digit' }));
 
             let el_badges = createElement('span', {'class': 'msg-badges'});
