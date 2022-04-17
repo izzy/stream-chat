@@ -210,6 +210,26 @@
                 default_color = '#ffe0f0';
             }
 
+            if (url.searchParams.get("background") !== null) {
+                document.body.style.background = '#' + url.searchParams.get("background");
+            }
+
+            if (url.searchParams.get("emote_size") !== null) {
+                emote_size = url.searchParams.get("emote_size") + 'rem';
+            } else {
+                emote_size = '1.4rem';
+            }
+
+            let cmdprefix = null;
+            if (url.searchParams.get("cmdprefix") !== null) {
+                cmdprefix = url.searchParams.get("cmdprefix");
+            }
+
+            let bot_list = [];
+            if (url.searchParams.get("bots") !== null) {
+                bot_list = url.searchParams.get("bots").toLowerCase().split(',');
+            }
+
             // TODO: Implement different timestamp formats
             let timestamp = false;
             let timestamp_locale = 'en-US';
@@ -222,7 +242,7 @@
             if (url.searchParams.get("timestamp-locale") !== null) {
                 timestamp_locale = url.searchParams.get("timestamp-locale");
             }
-
+            
             return {
                 'background_color': background_color,
                 'text_color': text_color,
@@ -230,9 +250,14 @@
                 'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
+                'emote_size': emote_size,
+                'pronouns': is_true(url.searchParams.get("pronouns"), true),
                 'timestamp': is_true(url.searchParams.get("timestamp"), false),
                 'timestamp-locale': timestamp_locale,
                 'timestamp-options': timestamp_options,
+                'cmdprefix': cmdprefix,
+                'bot_list': bot_list,
+                'fade_duration': url.searchParams.get("fade_duration") || false,
                 'ws_uri': ws_uri
             }
         }
@@ -265,7 +290,7 @@
         }
 
         function get_pronoun(user) {
-            if (user in pronouns_users && pronouns_users[user] !== undefined) {
+            if (config['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
                 return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
             } else {
                 return false;
@@ -307,7 +332,7 @@
             }
         }
 
-        function createElement(tag, attributes, text) {
+        function createElement(tag, attributes, text = false) {
             let element = document.createElement(tag);
 
             if (attributes !== undefined) {
@@ -316,7 +341,7 @@
                 }
             }
 
-            if (text !== undefined) {
+            if (text !== undefined && text !== false) {
                 element.innerText = text;
             }
 
@@ -368,6 +393,13 @@
                 'style': `border-color: ${background_color}; ${message_style}`
             });
 
+            if (config['fade_duration'] !== null) {
+                fade_duration = config['fade_duration'];
+                let tmp_style = div_message.getAttribute("style");
+                let fade_style = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fade_duration + "s 1 normal forwards; margin-left: 0.5rem; float: left;";
+                div_message.setAttribute("style", tmp_style + fade_style);
+            }
+
             let el_user = createElement('span', {
                 'class': 'msg-user',
                 'style': `color: ${text_color}; background-color: ${background_color}`
@@ -382,6 +414,9 @@
             for (const emote in emotes) {
                 let el_emote = document.createElement('img');
                 el_emote.src = emotes[emote].imageUrl;
+                if (int(config['emote_size']) > 0) {
+                    el_emote.style = `height: ${config['emote_size']}rem;`;
+                }
 
                 message = message.replace(emotes[emote].name, el_emote.outerHTML);
             }
@@ -415,6 +450,37 @@
             element.scrollTop = element.scrollHeight;
         }
 
+        function skip_message(message, user) {
+            if ((config['cmdprefix'] !== false && message.startsWith(config['cmdprefix'])) ||
+                (config['bot_list'].includes(user))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        function remove_old_messages() {
+            let chat = document.getElementById('chat');
+            let messages = chat.getElementsByClassName('chat-message');
+            let messages_to_remove = [];
+
+            for (let i = 0; i < messages.length; i++) {
+
+                // Remove messages that are outside the bounding box
+                if (messages[i].getBoundingClientRect().top < 0) {
+                    messages_to_remove.push(messages[i]);
+                }
+                // Remove messages that are older than the max age (fade_duration)
+                else if (int(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity === "0") {
+                    messages_to_remove.push(messages[i]);
+                }
+            }
+
+            for (let message of messages_to_remove) {
+                chat.removeChild(message);
+            }
+        }
+
         function connectws() {
             socket = new WebSocket(config['ws_uri']);
 
@@ -428,10 +494,16 @@
                 } else if (wsdata.event.source === 'Twitch' && wsdata.event.type === 'ChatMessage') {
                     let m = wsdata.data.message;
 
+                    if (skip_message(m.message, m.username)) {
+                        return;
+                    }
+
                     await fetch_pronoun(m.username);
                     pronoun = get_pronoun(m.username);
 
                     add_message(m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.subscriber, m.isHighlighted);
+
+                    remove_old_messages();
                 } else {
                     console.log(['Event not implemented', event]);
                 }
