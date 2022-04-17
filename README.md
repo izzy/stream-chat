@@ -41,3 +41,7 @@ file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 ## I've read this README but I still have questions/problems, where can I get help?
 
 If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).
+
+## Contributors / Thanks
+
+Thanks to @andi242 for his fork on https://github.com/andi242/twitch-chat
