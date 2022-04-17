@@ -30,6 +30,16 @@
             }
         }
 
+        @keyframes chat {
+            0% {
+                opacity: 1;
+            }
+ 
+            100% {
+                opacity: 0;
+            }
+        }
+
         .chat-message {
             animation: append-animate .3s linear;
             transition: max-height 0.3s ease-out;
@@ -41,8 +51,18 @@
             vertical-align: middle;
         }
 
-        .msg-text>img, .msg-badges>img {
+        .msg-badges>img {
             width: 1rem;
+        }
+
+        .msg-text>img {
+            vertical-align: middle;
+            width: 1.4rem;
+        }
+
+        .msg-timestamp {
+            padding: 0rem 0.2em;
+            font-size: 0.8em;
         }
     </style>
 
@@ -76,6 +96,17 @@
         .msg-pronoun {
             right: 1em;
             position: absolute;
+        }
+
+        .msg-timestamp {
+            border: 1px solid transparent;
+            border-radius: 1rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            margin-right: 0.25rem;
+            vertical-align: middle;
+            padding: 0.1rem 0.3rem;
+            color: white;
+            font-size: .6rem;
         }
     </style>
 
@@ -179,6 +210,19 @@
                 default_color = '#ffe0f0';
             }
 
+            // TODO: Implement different timestamp formats
+            let timestamp = false;
+            let timestamp_locale = 'en-US';
+            let timestamp_options = { hour: '2-digit', minute: '2-digit' };
+            
+            if (url.searchParams.get("timestamp") !== null ) {
+                timestamp = is_true(url.searchParams.get("timestamp"));
+            }
+
+            if (url.searchParams.get("timestamp-locale") !== null) {
+                timestamp_locale = url.searchParams.get("timestamp-locale");
+            }
+
             return {
                 'background_color': background_color,
                 'text_color': text_color,
@@ -186,6 +230,9 @@
                 'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
+                'timestamp': is_true(url.searchParams.get("timestamp"), false),
+                'timestamp-locale': timestamp_locale,
+                'timestamp-options': timestamp_options,
                 'ws_uri': ws_uri
             }
         }
@@ -340,6 +387,19 @@
             }
 
             el_message.innerHTML = message;
+
+             // add timestamp
+             if (config['timestamp'] === true) {
+                var date = new Date();
+                let el_timestamp = createElement(
+                    'span', {'class': 'msg-timestamp'}, date.toLocaleTimeString(config['timestamp-locale'], config['timestamp-options'])
+                );
+                if (config['bubbles'] === false) {
+                    div_message.appendChild(el_timestamp);
+                } else {
+                    el_user.prepend(el_timestamp);
+                }
+            }
 
             // Adds badges and pronouns to the user line
             el_user.appendChild(el_badges);
