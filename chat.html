@@ -258,6 +258,7 @@
                 'cmdprefix': cmdprefix,
                 'bot_list': bot_list,
                 'fade_duration': url.searchParams.get("fade_duration") || false,
+                'debug':is_true(url.searchParams.get("debug")) ,
                 'ws_uri': ws_uri
             }
         }
@@ -529,7 +530,192 @@
             };
         }
 
-        connectws();
+        
+function getRnd(max, min = 0) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+if (config["debug"] === true) {
+    const messages = [
+        "Are you a robot?",
+        "How are you?",
+        "Happy birthday!",
+    ];
+
+    const emotes = [
+        {
+            id: "555555597",
+            type: "Twitch",
+            name: ";p",
+            startIndex: 3,
+            endIndex: 4,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555597/default/dark/2.0",
+        },
+        {
+            id: "555555593",
+            type: "Twitch",
+            name: ":p",
+            startIndex: 6,
+            endIndex: 7,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555593/default/dark/2.0",
+        },
+        {
+            id: "555555562",
+            type: "Twitch",
+            name: ">(",
+            startIndex: 12,
+            endIndex: 13,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555562/default/dark/2.0",
+        },
+        {
+            id: "555555563",
+            type: "Twitch",
+            name: ":|",
+            startIndex: 15,
+            endIndex: 16,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555563/default/dark/2.0",
+        },
+        {
+            id: "6",
+            type: "Twitch",
+            name: "O_o",
+            startIndex: 18,
+            endIndex: 20,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/6/default/dark/2.0",
+        },
+        {
+            id: "555555557",
+            type: "Twitch",
+            name: ":-)",
+            startIndex: 33,
+            endIndex: 35,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555557/default/dark/2.0",
+        },
+        {
+            id: "555555599",
+            type: "Twitch",
+            name: "R)",
+            startIndex: 0,
+            endIndex: 1,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555599/default/dark/2.0",
+        },
+        {
+            id: "555555589",
+            type: "Twitch",
+            name: ";)",
+            startIndex: 9,
+            endIndex: 10,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555589/default/dark/2.0",
+        },
+        {
+            id: "555555578",
+            type: "Twitch",
+            name: "B-)",
+            startIndex: 22,
+            endIndex: 24,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555578/default/dark/2.0",
+        },
+        {
+            id: "555555580",
+            type: "Twitch",
+            name: ":O",
+            startIndex: 26,
+            endIndex: 27,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555580/default/dark/2.0",
+        },
+        {
+            id: "555555559",
+            type: "Twitch",
+            name: ":-(",
+            startIndex: 29,
+            endIndex: 31,
+            imageUrl:
+                "https://static-cdn.jtvnw.net/emoticons/v2/555555559/default/dark/2.0",
+        },
+    ];
+
+    const names = [
+        "Taylor Garcia",
+        "Ellen Schwartz",
+        "Rebecca Mcintosh",
+        "Journey Robles",
+        "Rhett Acosta",
+        "Logan Burnett",
+        "Rigoberto Robertson",
+        "Keshawn Miles",
+        "Cyrus Ball",
+        "Janet Braun",
+        "Hadassah Bennett",
+        "Joanna Cole",
+    ];
+
+    const colors = [
+        "#B0BF1A",
+        "#0048BA",
+        "#7CB9E8",
+        "#C0E8D5",
+        "#B284BE",
+        "#72A0C1",
+        "#DB2D43",
+        "#EDEAE0",
+        "#C46210",
+        "#F0F8FF",
+        "#EFDECD",
+        "#9F2B68",
+        "#E52B50",
+        "#AB274F",
+        "#F19CBB",
+        "#3B7A57",
+        "#D3212D",
+        null,
+    ];
+
+    setInterval(() => {
+        let pronoun = { display: "She/They" };
+        if (pronouns) {
+            const rnd = getRnd(pronouns.length - 1);
+            pronoun = pronouns[rnd];
+        }
+        let messagesEmote;
+        const message = (() => {
+
+
+            let message = messages[getRnd(messages.length - 1)];
+            if (!!getRnd(1)) {
+                messagesEmote = Array(getRnd(10)).fill(undefined).map(() => {
+                    return emotes[getRnd(emotes.length - 1)];
+                });
+                messagesEmote.forEach(({ name }) => {
+                    message = `${message} ${name}`;
+                });
+            }
+            return message;
+        })();
+
+        add_message(
+            names[getRnd(names.length - 1)],
+            colors[getRnd(colors.length - 1)],
+            message,
+            pronoun.display,
+            messagesEmote,
+            getRnd(4, 0),
+            !!getRnd(1),
+            !!getRnd(1)
+        );
+    }, 2000);
+} else {
+    connectws();
+}
     </script>
 </body>
 
