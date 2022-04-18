@@ -178,7 +178,11 @@
             }
 
             let bubbles = url.searchParams.get("bubbles");
-            let direction = url.searchParams.get("direction");
+            
+            direction = 'vertical';
+            if (url.searchParams.get("direction") !== null) {
+                direction = url.searchParams.get("direction").toLowerCase() === 'horizontal' ? 'horizontal' : 'vertical';
+            }
 
             if (is_true(bubbles)) {
                 console.log('Enabled bubble display');
@@ -258,6 +262,7 @@
             }
             
             return {
+                'direction': direction,
                 'background_color': background_color,
                 'text_color': text_color,
                 'default_color': default_color,
@@ -481,7 +486,11 @@
             for (let i = 0; i < messages.length; i++) {
 
                 // Remove messages that are outside the bounding box
-                if (messages[i].getBoundingClientRect().top < 0) {
+                // bottom when vertical scrolling is enabled,
+                // right when horizontal scrolling is enabled
+                if ((config['direction'] === 'vertical' && messages[i].getBoundingClientRect().bottom < 0) ||
+                    (config['direction'] === 'horizontal' && messages[i].getBoundingClientRect().right < 0)
+                ) {
                     messages_to_remove.push(messages[i]);
                 }
                 // Remove messages that are older than the max age (fade_duration)
