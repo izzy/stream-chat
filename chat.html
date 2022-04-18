@@ -1,536 +1,667 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;800&display=swap" rel="stylesheet">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;800&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
-        body,
-        html,
-        #chat {
-            background: transparent;
-            padding: 0;
-            margin: 0;
-            height: 100%;
-            width: 100%;
-            font-family: 'Open Sans', sans-serif;
+      body,
+      html,
+      #chat {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        font-family: "Open Sans", sans-serif;
+      }
+
+      @keyframes append-animate {
+        from {
+          height: 0;
+          opacity: 0;
         }
 
-        @keyframes append-animate {
-            from {
-                height: 0;
-                opacity: 0;
-            }
+        to {
+          height: auto;
+          opacity: 1;
+        }
+      }
 
-            to {
-                height: auto;
-                opacity: 1;
-            }
+      @keyframes chat {
+        0% {
+          opacity: 1;
         }
 
-        @keyframes chat {
-            0% {
-                opacity: 1;
-            }
- 
-            100% {
-                opacity: 0;
-            }
+        100% {
+          opacity: 0;
         }
+      }
 
-        .chat-message {
-            animation: append-animate .3s linear;
-            transition: max-height 0.3s ease-out;
-            height: auto;
-        }
+      .chat-message {
+        animation: append-animate 0.3s linear;
+        transition: max-height 0.3s ease-out;
+        height: auto;
+      }
 
-        .msg-badges {
-            padding: 0rem 0.3rem;
-            vertical-align: middle;
-        }
+      .msg-badges {
+        padding: 0rem 0.3rem;
+        vertical-align: middle;
+      }
 
-        .msg-badges>img {
-            width: 1rem;
-        }
+      .msg-badges > img {
+        width: 1rem;
+      }
 
-        .msg-text>img {
-            vertical-align: middle;
-            width: 1.4rem;
-        }
+      .msg-text > img {
+        vertical-align: middle;
+        width: 1.4rem;
+      }
 
-        .msg-timestamp {
-            padding: 0rem 0.2em;
-            font-size: 0.8em;
-        }
+      .msg-timestamp {
+        padding: 0rem 0.2em;
+        font-size: 0.8em;
+      }
     </style>
 
     <style type="text" id="enable-bubbles">
-        #chat {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-        }
+      #chat {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
 
-        .chat-message {
-            margin: 0 5px 5px 5px;
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 2px solid #ffe0f0;
-            border-radius: 6px;
-            color: white;
-        }
+      .chat-message {
+        margin: 0 5px 5px 5px;
+        background-color: rgba(0, 0, 0, 0.6);
+        border: 2px solid #ffe0f0;
+        border-radius: 6px;
+        color: white;
+      }
 
-        .msg-text,
-        .msg-user {
-            padding: 0.4rem;
-            display: block;
-        }
+      .msg-text,
+      .msg-user {
+        padding: 0.4rem;
+        display: block;
+      }
 
-        .msg-user {
-            background: #ffe0f0;
-            font-weight: bold;
-            color: black;
-        }
+      .msg-user {
+        background: #ffe0f0;
+        font-weight: bold;
+        color: black;
+      }
 
-        .msg-pronoun {
-            right: 1em;
-            position: absolute;
-        }
+      .msg-pronoun {
+        right: 1em;
+        position: absolute;
+      }
 
-        .msg-timestamp {
-            border: 1px solid transparent;
-            border-radius: 1rem;
-            background-color: rgba(0, 0, 0, 0.6);
-            margin-right: 0.25rem;
-            vertical-align: middle;
-            padding: 0.1rem 0.3rem;
-            color: white;
-            font-size: .6rem;
-        }
+      .msg-timestamp {
+        border: 1px solid transparent;
+        border-radius: 1rem;
+        background-color: rgba(0, 0, 0, 0.6);
+        margin-right: 0.25rem;
+        vertical-align: middle;
+        padding: 0.1rem 0.3rem;
+        color: white;
+        font-size: 0.6rem;
+      }
     </style>
 
     <style id="enable-horizontal" type="text">
-        #chat {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-end;
-            white-space: nowrap;
-            overflow: hidden;
-        }
+      #chat {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        white-space: nowrap;
+        overflow: hidden;
+      }
 
-        .chat-message {
-            margin-left: 1rem;
-            float: left;
-        }
+      .chat-message {
+        margin-left: 1rem;
+        float: left;
+      }
 
-        .msg-user, .msg-text {
-            padding: 0.4rem;
-        }
+      .msg-user,
+      .msg-text {
+        padding: 0.4rem;
+      }
     </style>
 
     <style id="horizontal-bubbles" type="text">
-        .msg-pronoun {
-            position: inherit;
-        }
+      .msg-pronoun {
+        position: inherit;
+      }
 
-        .msg-user {
-            text-align: right;
-        }
+      .msg-user {
+        text-align: right;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="chat"></div>
 
     <script>
-        const chat_badges = {
-            'staff': 'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/1',
-            'admin': 'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/1',
-            'broadcaster': 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1',
-            'moderator': 'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1',
-            'verified': 'https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3',
-            'vip': 'https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3'
+      const chat_badges = {
+        staff:
+          "https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/1",
+        admin:
+          "https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/1",
+        broadcaster:
+          "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1",
+        moderator:
+          "https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1",
+        verified:
+          "https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3",
+        vip: "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3",
+      };
+
+      function htmlentities(str) {
+        return str.replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
+          return "&#" + i.charCodeAt(0) + ";";
+        });
+      }
+
+      function parseURL() {
+        let url = new URL(document.URL);
+
+        if (url.searchParams.get("ws_uri") !== null) {
+          ws_uri = decodeURI(url.searchParams.get("ws_uri"));
+        } else {
+          ws_uri = "ws://localhost:8080/";
         }
 
-        function htmlentities(str) {
-            return str.replace(/[\u00A0-\u9999<>\&]/gim, (i) => {
-                return '&#' + i.charCodeAt(0) + ';';
-            });
+        let is_true = (v, d = false) => {
+          if (v === undefined || v === null) {
+            return d;
+          }
+
+          return String(v).toLowerCase() === "true" || String(v) === "1";
+        };
+
+        let bubbles = url.searchParams.get("bubbles");
+        let direction = url.searchParams.get("direction");
+
+        if (is_true(bubbles)) {
+          console.log("Enabled bubble display");
+          document.getElementById("enable-bubbles").removeAttribute("type");
         }
 
-        function parseURL() {
-            let url = new URL(document.URL);
-
-            if (url.searchParams.get("ws_uri") !== null) {
-                ws_uri = decodeURI(url.searchParams.get("ws_uri"));
-            } else {
-                ws_uri = 'ws://localhost:8080/';
-            }
-
-            let is_true = (v, d = false) => {
-                if (v === undefined || v === null) {
-                    return d;
-                }
-
-                return String(v).toLowerCase() === 'true' || String(v) === '1';
-            }
-
-            let bubbles = url.searchParams.get("bubbles");
-            let direction = url.searchParams.get("direction");
-
-            if (is_true(bubbles)) {
-                console.log('Enabled bubble display');
-                document.getElementById('enable-bubbles').removeAttribute('type');
-            }
-
-            if (direction === 'horizontal') {
-                console.log('Set text to horizontal scroll direction');
-                document.getElementById('enable-horizontal').removeAttribute('type');
-            }
-
-            if (is_true(bubbles) && direction === 'horizontal') {
-                document.getElementById('horizontal-bubbles').removeAttribute('type');
-            }
-
-            let background_color = null;
-            if (url.searchParams.get("background_color") !== null) {
-                background_color = '#' + url.searchParams.get("background_color");
-            }
-
-            let text_color = null;
-            if (url.searchParams.get("text_color") !== null) {
-                text_color = '#' + url.searchParams.get("text_color");
-            }
-
-            let default_color = null;
-            if (url.searchParams.get("default_color") !== null) {
-                default_color = '#' + url.searchParams.get("default_color");
-            } else {
-                default_color = '#ffe0f0';
-            }
-
-            if (url.searchParams.get("background") !== null) {
-                document.body.style.background = '#' + url.searchParams.get("background");
-            }
-
-            if (url.searchParams.get("emote_size") !== null) {
-                emote_size = url.searchParams.get("emote_size") + 'rem';
-            } else {
-                emote_size = '1.4rem';
-            }
-
-            let cmdprefix = null;
-            if (url.searchParams.get("cmdprefix") !== null) {
-                cmdprefix = url.searchParams.get("cmdprefix");
-            }
-
-            let bot_list = [];
-            if (url.searchParams.get("bots") !== null) {
-                bot_list = url.searchParams.get("bots").toLowerCase().split(',');
-            }
-
-            // TODO: Implement different timestamp formats
-            let timestamp = false;
-            let timestamp_locale = 'en-US';
-            let timestamp_options = { hour: '2-digit', minute: '2-digit' };
-            
-            if (url.searchParams.get("timestamp") !== null ) {
-                timestamp = is_true(url.searchParams.get("timestamp"));
-            }
-
-            if (url.searchParams.get("timestamp-locale") !== null) {
-                timestamp_locale = url.searchParams.get("timestamp-locale");
-            }
-            
-            return {
-                'background_color': background_color,
-                'text_color': text_color,
-                'default_color': default_color,
-                'pastel': is_true(url.searchParams.get("pastel")),
-                'highlights': is_true(url.searchParams.get("highlights"), true),
-                'badges': is_true(url.searchParams.get("badges"), true),
-                'emote_size': emote_size,
-                'pronouns': is_true(url.searchParams.get("pronouns"), true),
-                'timestamp': is_true(url.searchParams.get("timestamp"), false),
-                'timestamp-locale': timestamp_locale,
-                'timestamp-options': timestamp_options,
-                'cmdprefix': cmdprefix,
-                'bot_list': bot_list,
-                'fade_duration': url.searchParams.get("fade_duration") || false,
-                'ws_uri': ws_uri
-            }
+        if (direction === "horizontal") {
+          console.log("Set text to horizontal scroll direction");
+          document.getElementById("enable-horizontal").removeAttribute("type");
         }
 
-        const config = parseURL();
+        if (is_true(bubbles) && direction === "horizontal") {
+          document.getElementById("horizontal-bubbles").removeAttribute("type");
+        }
 
-        console.log(['Loaded config', config]);
+        let background_color = null;
+        if (url.searchParams.get("background_color") !== null) {
+          background_color = "#" + url.searchParams.get("background_color");
+        }
 
-        let socket, pronouns_users = {},
-            pronouns;
+        let text_color = null;
+        if (url.searchParams.get("text_color") !== null) {
+          text_color = "#" + url.searchParams.get("text_color");
+        }
 
-        // Fill the pronoun cache
-        fetch('https://pronouns.alejo.io/api/pronouns').then(response => response.json()).then(data => {
-            pronouns = data;
+        let default_color = null;
+        if (url.searchParams.get("default_color") !== null) {
+          default_color = "#" + url.searchParams.get("default_color");
+        } else {
+          default_color = "#ffe0f0";
+        }
+
+        if (url.searchParams.get("background") !== null) {
+          document.body.style.background =
+            "#" + url.searchParams.get("background");
+        }
+
+        if (url.searchParams.get("emote_size") !== null) {
+          emote_size = url.searchParams.get("emote_size") + "rem";
+        } else {
+          emote_size = "1.4rem";
+        }
+
+        let cmdprefix = null;
+        if (url.searchParams.get("cmdprefix") !== null) {
+          cmdprefix = url.searchParams.get("cmdprefix");
+        }
+
+        let bot_list = [];
+        if (url.searchParams.get("bots") !== null) {
+          bot_list = url.searchParams.get("bots").toLowerCase().split(",");
+        }
+
+        // TODO: Implement different timestamp formats
+        let timestamp = false;
+        let timestamp_locale = "en-US";
+        let timestamp_options = { hour: "2-digit", minute: "2-digit" };
+
+        if (url.searchParams.get("timestamp") !== null) {
+          timestamp = is_true(url.searchParams.get("timestamp"));
+        }
+
+        if (url.searchParams.get("timestamp-locale") !== null) {
+          timestamp_locale = url.searchParams.get("timestamp-locale");
+        }
+
+       
+
+        return {
+          background_color: background_color,
+          text_color: text_color,
+          default_color: default_color,
+          pastel: is_true(url.searchParams.get("pastel")),
+          highlights: is_true(url.searchParams.get("highlights"), true),
+          badges: is_true(url.searchParams.get("badges"), true),
+          emote_size: emote_size,
+          pronouns: is_true(url.searchParams.get("pronouns"), true),
+          timestamp: is_true(url.searchParams.get("timestamp"), false),
+          "timestamp-locale": timestamp_locale,
+          "timestamp-options": timestamp_options,
+          cmdprefix: cmdprefix,
+          bot_list: bot_list,
+          fade_duration: url.searchParams.get("fade_duration") || false,
+          ws_uri: ws_uri,
+          debug: is_true(url.searchParams.get("debug")) 
+        };
+      }
+
+      const config = parseURL();
+
+      console.log(["Loaded config", config]);
+
+      let socket,
+        pronouns_users = {},
+        pronouns;
+
+      // Fill the pronoun cache
+      fetch("https://pronouns.alejo.io/api/pronouns")
+        .then((response) => response.json())
+        .then((data) => {
+          pronouns = data;
         });
 
-        async function fetch_pronoun(user) {
-            if (user in pronouns_users) {
-                return pronouns_users[user];
-            } else {
-                return fetch(`https://pronouns.alejo.io/api/users/${user}`).then(response => response.json()).then(
-                    data => {
-                        pronouns_users[user] = data[0];
-                        return data;
-                    }).catch(() => {
-                    return '';
-                });
-            }
-
-        }
-
-        function get_pronoun(user) {
-            if (config['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
-                return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
-            } else {
-                return false;
-            }
-        }
-
-        function get_text_color(color) {
-            // TODO pastel mode for text color
-            if (config['text_color'] !== null) {
-                return config['text_color'];
-            }
-
-            color = color.replace('#', '');
-            let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
-            let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
-            let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
-
-            let brightness = Math.round(((parseInt(color_r) * 299) +
-                (parseInt(color_g) * 587) +
-                (parseInt(color_b) * 114)) / 1000);
-
-            if (brightness < 125) {
-                return 'white';
-            } else {
-                return 'black';
-            }
-        }
-
-        function get_background_color(color) {
-            // TODO pastel mode for background color
-            if (config['background_color'] !== null) {
-                return config['background_color'];
-            }
-
-            if (!color) {
-                return config['default_color'];
-            } else {
-                return color;
-            }
-        }
-
-        function createElement(tag, attributes, text = false) {
-            let element = document.createElement(tag);
-
-            if (attributes !== undefined) {
-                for (let key in attributes) {
-                    element.setAttribute(key, attributes[key]);
-                }
-            }
-
-            if (text !== undefined && text !== false) {
-                element.innerText = text;
-            }
-
-            return element;
-        }
-
-        function add_message(author, author_color, message, pronoun = false, emotes = [], role = 0, subscriber = false,
-            highlight = false) {
-            // TODO handle cheermotes
-
-            // TODO ask streamer.bot for staff/admin/verified flags
-            // TODO Add subscriber badges
-            let badges = [];
-            if (config['badges'] === true) {
-                if (role === 4) {
-                    // Broadcaster
-                    badges.push(chat_badges['broadcaster']);
-                } else if (role === 3) {
-                    // Moderator
-                    badges.push(chat_badges['moderator']);
-                } else if (role === 2) {
-                    // VIP
-                    badges.push(chat_badges['vip']);
-                }
-            }
-
-            // XSS protection, needed to inject emotes
-            message = htmlentities(message);
-
-            if (pronoun !== false) {
-                pronoun = `(${pronoun})`;
-            }
-
-            // Get colors based on settings / user data
-            let background_color = get_background_color(author_color);
-            let text_color = get_text_color(background_color);
-
-            let message_style = '';
-            if (highlight === true && config['highlights'] === true) {
-                message_style = `background-color: ${background_color}; color: ${text_color};`;
-            }
-
-            let el_badges = createElement('span', {'class': 'msg-badges'});
-            let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
-            let el_message = createElement('span', {'class': 'msg-text'});
-            
-            let div_message = createElement('div', {
-                'class': 'chat-message',
-                'style': `border-color: ${background_color}; ${message_style}`
+      async function fetch_pronoun(user) {
+        if (user in pronouns_users) {
+          return pronouns_users[user];
+        } else {
+          return fetch(`https://pronouns.alejo.io/api/users/${user}`)
+            .then((response) => response.json())
+            .then((data) => {
+              pronouns_users[user] = data[0];
+              return data;
+            })
+            .catch(() => {
+              return "";
             });
+        }
+      }
 
-            if (config['fade_duration'] !== null) {
-                fade_duration = config['fade_duration'];
-                let tmp_style = div_message.getAttribute("style");
-                let fade_style = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fade_duration + "s 1 normal forwards; margin-left: 0.5rem; float: left;";
-                div_message.setAttribute("style", tmp_style + fade_style);
-            }
+      function get_pronoun(user) {
+        if (
+          config["pronouns"] === true &&
+          user in pronouns_users &&
+          pronouns_users[user] !== undefined
+        ) {
+          return pronouns.filter(
+            (p) => p.name === pronouns_users[user]["pronoun_id"]
+          )[0].display;
+        } else {
+          return false;
+        }
+      }
 
-            let el_user = createElement('span', {
-                'class': 'msg-user',
-                'style': `color: ${text_color}; background-color: ${background_color}`
-            }, author);
-
-            for (let badge of badges) {
-                let el_badge = document.createElement('img');
-                el_badge.src = badge;
-                el_badges.appendChild(el_badge);
-            }
-
-            for (const emote in emotes) {
-                let el_emote = document.createElement('img');
-                el_emote.src = emotes[emote].imageUrl;
-                if (int(config['emote_size']) > 0) {
-                    el_emote.style = `height: ${config['emote_size']}rem;`;
-                }
-
-                message = message.replace(emotes[emote].name, el_emote.outerHTML);
-            }
-
-            el_message.innerHTML = message;
-
-             // add timestamp
-             if (config['timestamp'] === true) {
-                var date = new Date();
-                let el_timestamp = createElement(
-                    'span', {'class': 'msg-timestamp'}, date.toLocaleTimeString(config['timestamp-locale'], config['timestamp-options'])
-                );
-                if (config['bubbles'] === false) {
-                    div_message.appendChild(el_timestamp);
-                } else {
-                    el_user.prepend(el_timestamp);
-                }
-            }
-
-            // Adds badges and pronouns to the user line
-            el_user.appendChild(el_badges);
-            el_user.appendChild(el_pronoun);
-
-            // Adds the user line and message to the message div
-            div_message.appendChild(el_user);
-            div_message.appendChild(el_message);
-
-            document.getElementById('chat').appendChild(div_message);
-
-            const element = document.getElementById('chat');
-            element.scrollTop = element.scrollHeight;
+      function get_text_color(color) {
+        // TODO pastel mode for text color
+        if (config["text_color"] !== null) {
+          return config["text_color"];
         }
 
-        function skip_message(message, user) {
-            if ((config['cmdprefix'] !== false && message.startsWith(config['cmdprefix'])) ||
-                (config['bot_list'].includes(user))) {
-                return true;
-            } else {
-                return false;
-            }
+        color = color.replace("#", "");
+        let color_r = parseInt(color.charAt(0) + color.charAt(1), 16);
+        let color_g = parseInt(color.charAt(2) + color.charAt(3), 16);
+        let color_b = parseInt(color.charAt(4) + color.charAt(5), 16);
+
+        let brightness = Math.round(
+          (parseInt(color_r) * 299 +
+            parseInt(color_g) * 587 +
+            parseInt(color_b) * 114) /
+            1000
+        );
+
+        if (brightness < 125) {
+          return "white";
+        } else {
+          return "black";
+        }
+      }
+
+      function get_background_color(color) {
+        // TODO pastel mode for background color
+        if (config["background_color"] !== null) {
+          return config["background_color"];
         }
 
-        function remove_old_messages() {
-            let chat = document.getElementById('chat');
-            let messages = chat.getElementsByClassName('chat-message');
-            let messages_to_remove = [];
+        if (!color) {
+          return config["default_color"];
+        } else {
+          return color;
+        }
+      }
 
-            for (let i = 0; i < messages.length; i++) {
+      function createElement(tag, attributes, text = false) {
+        let element = document.createElement(tag);
 
-                // Remove messages that are outside the bounding box
-                if (messages[i].getBoundingClientRect().top < 0) {
-                    messages_to_remove.push(messages[i]);
-                }
-                // Remove messages that are older than the max age (fade_duration)
-                else if (int(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity === "0") {
-                    messages_to_remove.push(messages[i]);
-                }
-            }
-
-            for (let message of messages_to_remove) {
-                chat.removeChild(message);
-            }
+        if (attributes !== undefined) {
+          for (let key in attributes) {
+            element.setAttribute(key, attributes[key]);
+          }
         }
 
-        function connectws() {
-            socket = new WebSocket(config['ws_uri']);
-
-            socket.onmessage = async (event) => {
-                const wsdata = JSON.parse(event.data);
-
-                console.log(['Event', wsdata]);
-
-                if (wsdata.id === 'obs-chat') {
-                    console.log(`SUBSCRIBE: ${wsdata.status}`);
-                } else if (wsdata.event.source === 'Twitch' && wsdata.event.type === 'ChatMessage') {
-                    let m = wsdata.data.message;
-
-                    if (skip_message(m.message, m.username)) {
-                        return;
-                    }
-
-                    await fetch_pronoun(m.username);
-                    pronoun = get_pronoun(m.username);
-
-                    add_message(m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.subscriber, m.isHighlighted);
-
-                    remove_old_messages();
-                } else {
-                    console.log(['Event not implemented', event]);
-                }
-
-            };
-
-            socket.onopen = () => {
-                socket.send(JSON.stringify({
-                    "request": "Subscribe",
-                    "id": "obs-chat",
-                    "events": {
-                        "Twitch": [
-                            "ChatMessage"
-                        ]
-                    }
-                }));
-
-                console.log(`Connected to ${config['ws_uri']}`);
-            };
-
-            socket.onclose = function () {
-                setTimeout(connectws, 10000);
-            };
+        if (text !== undefined && text !== false) {
+          element.innerText = text;
         }
 
+        return element;
+      }
+
+      function add_message(
+        author,
+        author_color,
+        message,
+        pronoun = false,
+        emotes = [],
+        role = 0,
+        subscriber = false,
+        highlight = false
+      ) {
+        // TODO handle cheermotes
+
+        // TODO ask streamer.bot for staff/admin/verified flags
+        // TODO Add subscriber badges
+        let badges = [];
+        if (config["badges"] === true) {
+          if (role === 4) {
+            // Broadcaster
+            badges.push(chat_badges["broadcaster"]);
+          } else if (role === 3) {
+            // Moderator
+            badges.push(chat_badges["moderator"]);
+          } else if (role === 2) {
+            // VIP
+            badges.push(chat_badges["vip"]);
+          }
+        }
+
+        // XSS protection, needed to inject emotes
+        message = htmlentities(message);
+
+        if (pronoun !== false) {
+          pronoun = `(${pronoun})`;
+        }
+
+        // Get colors based on settings / user data
+        let background_color = get_background_color(author_color);
+        let text_color = get_text_color(background_color);
+
+        let message_style = "";
+        if (highlight === true && config["highlights"] === true) {
+          message_style = `background-color: ${background_color}; color: ${text_color};`;
+        }
+
+        let el_badges = createElement("span", { class: "msg-badges" });
+        let el_pronoun = createElement(
+          "span",
+          { class: "msg-pronoun" },
+          pronoun
+        );
+        let el_message = createElement("span", { class: "msg-text" });
+
+        let div_message = createElement("div", {
+          class: "chat-message",
+          style: `border-color: ${background_color}; ${message_style}`,
+        });
+
+        if (config["fade_duration"] !== null) {
+          fade_duration = config["fade_duration"];
+          let tmp_style = div_message.getAttribute("style");
+          let fade_style =
+            "transition: max-height 0.3s ease-out; animation: chat 1s ease " +
+            fade_duration +
+            "s 1 normal forwards; margin-left: 0.5rem; float: left;";
+          div_message.setAttribute("style", tmp_style + fade_style);
+        }
+
+        let el_user = createElement(
+          "span",
+          {
+            class: "msg-user",
+            style: `color: ${text_color}; background-color: ${background_color}`,
+          },
+          author
+        );
+
+        for (let badge of badges) {
+          let el_badge = document.createElement("img");
+          el_badge.src = badge;
+          el_badges.appendChild(el_badge);
+        }
+
+        for (const emote in emotes) {
+          let el_emote = document.createElement("img");
+          el_emote.src = emotes[emote].imageUrl;
+          if (int(config["emote_size"]) > 0) {
+            el_emote.style = `height: ${config["emote_size"]}rem;`;
+          }
+
+          message = message.replace(emotes[emote].name, el_emote.outerHTML);
+        }
+
+        el_message.innerHTML = message;
+
+        // add timestamp
+        if (config["timestamp"] === true) {
+          var date = new Date();
+          let el_timestamp = createElement(
+            "span",
+            { class: "msg-timestamp" },
+            date.toLocaleTimeString(
+              config["timestamp-locale"],
+              config["timestamp-options"]
+            )
+          );
+          if (config["bubbles"] === false) {
+            div_message.appendChild(el_timestamp);
+          } else {
+            el_user.prepend(el_timestamp);
+          }
+        }
+
+        // Adds badges and pronouns to the user line
+        el_user.appendChild(el_badges);
+        el_user.appendChild(el_pronoun);
+
+        // Adds the user line and message to the message div
+        div_message.appendChild(el_user);
+        div_message.appendChild(el_message);
+
+        document.getElementById("chat").appendChild(div_message);
+
+        const element = document.getElementById("chat");
+        element.scrollTop = element.scrollHeight;
+      }
+
+      function skip_message(message, user) {
+        if (
+          (config["cmdprefix"] !== false &&
+            message.startsWith(config["cmdprefix"])) ||
+          config["bot_list"].includes(user)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function remove_old_messages() {
+        let chat = document.getElementById("chat");
+        let messages = chat.getElementsByClassName("chat-message");
+        let messages_to_remove = [];
+
+        for (let i = 0; i < messages.length; i++) {
+          // Remove messages that are outside the bounding box
+          if (messages[i].getBoundingClientRect().top < 0) {
+            messages_to_remove.push(messages[i]);
+          }
+          // Remove messages that are older than the max age (fade_duration)
+          else if (
+            int(config["fade_duration"]) > 0 &&
+            window.getComputedStyle(messages[i]).opacity === "0"
+          ) {
+            messages_to_remove.push(messages[i]);
+          }
+        }
+
+        for (let message of messages_to_remove) {
+          chat.removeChild(message);
+        }
+      }
+
+      function connectws() {
+        socket = new WebSocket(config["ws_uri"]);
+
+        socket.onmessage = async (event) => {
+          const wsdata = JSON.parse(event.data);
+
+          console.log(["Event", wsdata]);
+
+          if (wsdata.id === "obs-chat") {
+            console.log(`SUBSCRIBE: ${wsdata.status}`);
+          } else if (
+            wsdata.event.source === "Twitch" &&
+            wsdata.event.type === "ChatMessage"
+          ) {
+            let m = wsdata.data.message;
+
+            if (skip_message(m.message, m.username)) {
+              return;
+            }
+
+            await fetch_pronoun(m.username);
+            pronoun = get_pronoun(m.username);
+
+            add_message(
+              m.displayName,
+              m.color,
+              m.message,
+              pronoun,
+              m.emotes,
+              m.role,
+              m.subscriber,
+              m.isHighlighted
+            );
+
+            remove_old_messages();
+          } else {
+            console.log(["Event not implemented", event]);
+          }
+        };
+
+        socket.onopen = () => {
+          socket.send(
+            JSON.stringify({
+              request: "Subscribe",
+              id: "obs-chat",
+              events: {
+                Twitch: ["ChatMessage"],
+              },
+            })
+          );
+
+          console.log(`Connected to ${config["ws_uri"]}`);
+        };
+
+        socket.onclose = function () {
+          setTimeout(connectws, 10000);
+        };
+      }
+
+      function getRnd(max, min = 0) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      }
+
+      if (config["debug"] === true) {
+        const messages = [
+          "Are you a robot?",
+          "How are you?",
+          "Happy birthday!",
+        ];
+
+        const names = [
+          "Taylor Garcia",
+          "Ellen Schwartz",
+          "Rebecca Mcintosh",
+          "Journey Robles",
+          "Rhett Acosta",
+          "Logan Burnett",
+          "Rigoberto Robertson",
+          "Keshawn Miles",
+          "Cyrus Ball",
+          "Janet Braun",
+          "Hadassah Bennett",
+          "Joanna Cole",
+        ];
+
+        const colors = [
+          "#B0BF1A",
+          "#0048BA",
+          "#7CB9E8",
+          "#C0E8D5",
+          "#B284BE",
+          "#72A0C1",
+          "#DB2D43",
+          "#EDEAE0",
+          "#C46210",
+          "#F0F8FF",
+          "#EFDECD",
+          "#9F2B68",
+          "#E52B50",
+          "#AB274F",
+          "#F19CBB",
+          "#3B7A57",
+          "#D3212D",
+          null,
+        ];
+
+        setInterval(() => {
+          let pronoun = { display: "She/They" };
+          if (pronouns) {
+            const rnd = getRnd(pronouns.length - 1);
+            pronoun = pronouns[rnd];
+          }
+
+          add_message(
+            names[getRnd(names.length - 1)],
+            colors[getRnd(colors.length - 1)],
+            messages[getRnd(messages.length - 1)],
+            pronoun.display,
+            !!getRnd(1),
+            getRnd(4, 0),
+            !!getRnd(1),
+            !!getRnd(1)
+          );
+        }, 2000);
+      } else {
         connectws();
+      }
     </script>
-</body>
-
+  </body>
 </html>

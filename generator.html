@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <title></title>
+</head>
+
+<body>
+  <section class="section">
+    <h1 >Twitch Chat Overlay URL generator</h1>
+    <a href="https://github.com/izzy/twitch-chat">https://github.com/izzy/twitch-chat</a>
+    <div class="columns is-multiline">
+      <div class="column is-full">
+        <div class="columns">
+          <span class="column is-10"> <input class="input" readonly id="url" style="width:100%"></input></span>
+          <span class="column is-2"> <button class="button" id="copy-button">Copy</button></span>
+        </div>
+      </div>
+
+
+      <div class="column">
+        <div class="columns">
+          <div class="column is-quarter">
+          <iframe src="./chat.html" height="100%"  id="preview"></iframe>
+        </div>
+ 
+        <div class="column is-threequarter">
+        <form id="generator" ></form>
+      </div>     
+    </div>
+  </div>
+  </section>
+  <script src="./generator.js"></script>
+</body>
+
+</html>
