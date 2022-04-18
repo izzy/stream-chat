@@ -2,40 +2,46 @@
 
 Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
-Disclaimer: This is a fork. Credits to the idea and initial version go to [izzy](https://github.com/izzy/).
-
 ## Config
 
 Supported settings are as follows. To use them just add them as URL parameters, e.g.
 
-Example 1: `file:///C:/path/to/twitch-chat/chat.html?ws_uri=ws://localhost:9090/&badges=false&pronouns=false`   
-custom SB uri, No badges, no pronouns, vertical chat
+```
+file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
+```
 
-Example 2: `file:///C:/path/to/twitch-chat/chat.html?badges=false&pronouns=false&direction=horizontal&fade=12`  
-No badges, pronouns, horizontal chat, fade message after 12s
+### Config options
 
-Example 3: `file:///C:/path/to/twitch-chat/chat.html`  
-full default, badges, pronouns, vertical chat
+| option           | default              | valid options | description                                                                                    | example                        |
+|------------------|----------------------|---------------|------------------------------------------------------------------------------------------------|--------------------------------|
+| ws_uri           | ws://localhost:8080/ |               | The Streamer.Bot's local websocket URL                                                         | ws_uri=ws://localhost:8080/    |
+| direction        |                      | horizontal    | Set to "horizontal" this will scroll the text from right to left instead of bottom to top      | direction=horizontal           |
+| bubbles          | false                | boolean       | Displays bubbles instead of the standard chat log display                                      | bubbles=true                   |
+| background       |                      | color         | Background of the whole chat page. Careful: By default this will be overridden by OBS          | background=000000              |
+| background_color |                      | color         | If set overrides all chat bubble colours                                                       | background_color=FF0000        |
+| text_color       |                      |               | If set overrides all user name colours                                                         | text_color=FF0000              |
+| default_color    |                      |               | This sets the default background/bubble colour for users who don't have a colour set           | default_color=FF0000           |
+| badges           | true                 | boolean       | If set to false this disable broadcaster/VIP/moderator badges                                  | badges=false                   |
+| highlights       | true                 | boolean       | If set to false this disables visual difference for highlighted messages                       | highlights=false               |
+| timestamp        | false                | boolean       | If set to true displays the time of the message                                                | timestamp=true                 |
+| timestamp_locale | en-US                | locale        | The regional setting to use for the message time                                               | timestamp_locale=de-DE         |
+| cmdprefix        |                      | string        | A prefix for bot commands. If this is set, chat messages starting with this won't be displayed | cmdprefix=!                    |
+| bots             |                      | string        | A comma-separated list of accounts whose messages will not be shown(case-insensitive)          | bots=streamelements,streamlabs |
+| fade_duration    |                      | number        | Time in seconds until messages are removed                                                     | fade_duration=60               |
 
-## options
+### Types
 
-| option        | default       | valid options | description |example|
-|-------------- |-----------    |------------|------------|------------|
-| `direction`     | none          | `horizontal` |vertical or horizontal chat layout|`&direction=horizontal`|
-| `fade`       | none      | `int`       | fade messages in horiz. chat after `int` seconds|`&fade=12`|
-|`bots`|none|`string`|bot names in comma separated list to be excluded from chat display|`&bot=name1`|
-|`cmdprefix`|none|`string`|prefix for commands to exclude from chat display|`&cmdprefix=!`|
-|`badges`|`true`|`true`/`false`|enable chat badges|`&badges=false`|
-|`pronouns`|`true`|`true`/`false`|display pronouns|`&pronouns=false`|
-|`fontsize`|`large`|any css font declaration|set font size in display|`&fontsize=xx-large`|
-|`timestamp`|`false`|`true`/`false`|enable timestamps in vert. chat box|`&timestamp=true`|
-|`fontfamily`|`sans-serif`|`monospace`/`sans-serif`/`serif`|set font family for chat|`&fontfamily=monospace`|
-|`background`|`transparent`|html color code without `#`|set chat background color|`&background=bebebe`|
-|`ws_uri`|`ws://localhost:8080/`|`ws://host:port/`|The Streamer Bot WebSocket Address to use.|`&ws_uri=ws://localhost:18080/`|
-||||||
+`color`: 6-digit HEX colour code without the '#'
+
+`boolean`: true or 1, false or 0
+
+`locale`: [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)(i.e. 'de-DE' or 'en-GB')
+
 
 ## I've read this README but I still have questions/problems, where can I get help?
 
-~~If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).~~
+If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).
 
-Please note that izzy might not be able to help with this fork.
+## Contributors / Thanks
+
+Thanks to @andi242 for his fork on https://github.com/andi242/twitch-chat
