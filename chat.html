@@ -15,7 +15,6 @@
             margin: 0;
             height: 100%;
             width: 100%;
-            font-family: 'Open Sans', sans-serif;
         }
 
         @keyframes append-animate {
@@ -229,6 +228,19 @@
             if (url.searchParams.get("bots") !== null) {
                 bot_list = url.searchParams.get("bots").toLowerCase().split(',');
             }
+            // set font family with default 'Open Sans'
+            let fontfamily = 'Open Sans';
+            if (url.searchParams.get("fontfamily") !== null) {
+                fontfamily = url.searchParams.get("fontfamily");
+            }
+            document.getElementById("chat").style.fontFamily = fontfamily;
+            
+            // set font size with default 'large'
+            let fontsize = 'large';
+            if (url.searchParams.get("fontsize") !== null) {
+                fontsize = url.searchParams.get("fontsize");
+            }
+            document.getElementById("chat").style.fontSize = fontsize;
 
             // TODO: Implement different timestamp formats
             let timestamp = false;
