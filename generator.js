@@ -10,7 +10,7 @@ const fontCheck = new Set([
 
 
 const fields = [
-   // { label: "Font", name: "font", type: "fontlist" },
+    // { label: "Font", name: "font", type: "fontlist" },
     { label: "Websocket URI", name: "ws_uri", type: "text", defaultValue: "ws://localhost:8080" },
     { label: "Direction", name: "direction", type: "text" },
     { label: "Bubbles", name: "bubbles", type: "checkbox" },
@@ -32,6 +32,7 @@ const baseUrl = window.location.href.replace("generator.html", "chat.html?");
 const copyButton = document.querySelector("#copy-button");
 const urlEl = document.querySelector("#url")
 const generatorEl = document.querySelector("#generator");
+const debugSwitch = document.querySelector("#debug");
 async function buildMarkup() {
 
 
@@ -64,7 +65,7 @@ async function buildMarkup() {
             }
             case "checkbox": {
                 var inputEl = document.createElement("label");
-                
+
                 inputEl.classList.add(type)
                 inputEl.innerText = "Enabled:"
                 const checkbox = document.createElement("input");
@@ -163,7 +164,11 @@ const generateURL = () => {
 }
 
 const setUrl = (url) => {
-    iframe.src = url + "&debug=true";
+    let iUrl = url;
+    if (debugSwitch.checked) {
+        iUrl = url + "&debug=true";
+    }
+    iframe.src = iUrl;
 
     urlEl.value = url;
 }
@@ -179,6 +184,6 @@ const copyToClipBoard = () => {
 
 copyButton.addEventListener("click", copyToClipBoard)
 generatorEl.addEventListener("change", generateURL)
-
+debugSwitch.addEventListener("change", generateURL)
 
 buildMarkup();
