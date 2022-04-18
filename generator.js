@@ -20,7 +20,7 @@ const fields = [
     { label: "Default Color", name: "background", type: "color", nullable: true },
     { label: "Badges", name: "badges", type: "checkbox" },
     { label: "Highlights", name: "highlights", type: "checkbox" },
-    { label: "Timestamp", name: "timestamp", type: "checkbox" , defaultValue: false },
+    { label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false },
     { label: "Timestamp locale", name: "timestamp_locale", type: "select", defaultValue: "en-US" },
     { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true },
     { label: "Bots", name: "bots", type: "text", nullable: true },
@@ -62,23 +62,29 @@ async function buildMarkup() {
 
 
             }
-           
+            case "checkbox": {
+                var inputEl = document.createElement("label");
+                
+                inputEl.classList.add(type)
+                inputEl.innerText = "Enabled:"
+                const checkbox = document.createElement("input");
+                inputEl.append(checkbox)
+                checkbox.value = name;
+                checkbox.type = type;
+                break;
+            }
+
             default: {
                 var inputEl = document.createElement("input", {
 
                 })
                 inputEl.name = name;
                 inputEl.type = type;
-                if (type === "text") {
-                    inputEl.classList.add("input")
-                }
-                if(type === "checkbox"){
-                    inputEl.value = name
-                } else {
-                    inputEl.value = defaultValue || "";
-                }
 
-                
+                inputEl.classList.add("input")
+                inputEl.value = defaultValue || "";
+
+
             }
         }
 
@@ -89,12 +95,16 @@ async function buildMarkup() {
         labelEl.classList.add("label")
         rowEl.append(labelEl, inputEl)
         if (nullable) {
+            const labelNullableRadio = document.createElement("label");
+            labelNullableRadio.classList.add(type)
+            labelNullableRadio.innerText = "Enabled: "
             const nullableRadio = document.createElement("input", {
 
             })
             nullableRadio.id = `${name}_nullable`
             nullableRadio.type = "checkbox"
-            rowEl.append(nullableRadio)
+            labelNullableRadio.append(nullableRadio)
+            rowEl.append(labelNullableRadio)
 
         }
         return rowEl;
@@ -128,7 +138,7 @@ const generateURL = () => {
     const searchParams = new URLSearchParams
     const formData = new FormData(document.querySelector("#generator"));
     for ([key, value] of formData.entries()) {
-        console.log(key,value)
+        console.log(key, value)
         if (value) {
             const isNullable = document.querySelector(`#${key}_nullable`)
             if (isNullable && !isNullable.checked) {
@@ -137,11 +147,13 @@ const generateURL = () => {
             if (value[0] === "#") {
                 value = value.slice(1)
             }
-            if(value === key){
+            if (value === key) {
                 searchParams.append(key, true)
+            } else {
+                searchParams.append(key, value)
             }
-            
-            searchParams.append(key, value)
+
+
         }
 
     }
