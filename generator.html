@@ -5,38 +5,101 @@
   <meta charset="utf-8" />
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <title></title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    section {
+      display: block;
+      margin-bottom: 2rem;
+    }
+
+    input {
+      margin: 0.5em;
+    }
+
+    input:not([type="color"]) {
+      padding: 0.5em;
+    }
+
+    #url {
+      width: 20rem;
+    }
+
+    #obs-url {
+      background: #256eff;
+      border-radius: 1rem;
+      padding: 2rem;
+      color: #fff;
+      text-decoration: none;
+      display: block;
+      width: 12rem;
+      text-align: center;
+    }
+
+    #chat-frame {
+      float: left;
+    }
+
+    #chat-frame>iframe {
+      border: 0;
+      height: 500px;
+    }
+
+    #config>form {
+      margin-left: 1rem;
+      float: left;
+
+    }
+
+    #config>form>span {
+      width: 100%;
+      display: block;
+      padding: 0.4rem 0rem;
+    }
+
+    #config>form>span>label:first-child {
+      width: 5rem;
+      display: inline-block;
+      width: 13rem;
+    }
+  </style>
 </head>
 
-<body><section  class="section">  <h1 class="title" >Twitch Chat Overlay URL generator</h1>
-  <h2 class="subtitle" >based on  <a href="https://github.com/izzy/twitch-chat" target="_blank" rel="noreferrer">https://github.com/izzy/twitch-chat</a>   </h2>  
-  <label class="checkbox">
-<input type="checkbox" value="debug" checked id="debug" />Use fake message</label> 
+<body>
+  <section id="header">
+    <h1 class="title">Twitch Chat Overlay URL generator</h1>
+    <h2 class="subtitle">based on <a href="https://github.com/izzy/twitch-chat" target="_blank"
+        rel="noreferrer">https://github.com/izzy/twitch-chat</a> </h2>
+  </section>
 
-</section>
-  <section class="section">
-  
-    <div class="columns is-multiline">
-      <div class="column is-full">
-        <div class="columns">
-          <span class="column is-10"> <input class="input" readonly id="url" style="width:100%"></input></span>
-          <span class="column is-2"><button class="button" id="copy-button">Copy</button></span>
-        </div>
+  <section id="url-">
+    <div>
+      <div>
+        <input class="input" type="text" readonly id="url" />
+        <button class="button" id="copy-button">Copy</button>
       </div>
 
-
-      <div class="column">
-        <div class="columns">
-          <div class="column is-one-quarter">
-          <iframe src="./chat.html" height="100%"  id="preview"></iframe>
-        </div>
- 
-        <div class="column is-three-quarters">
-        <form id="generator" class="columns is-multiline" ></form>
-      </div>     
+      <div>
+        <a id="obs-url">Drag me into OBS</a>
+        (this does not work when OBS is running with Administrator privileges)
+      </div>
     </div>
-  </div>
+
+    <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview mode</label></div>
+  </section>
+
+  <section>
+    <div id="config">
+      <div id="chat-frame">
+        <iframe src="./chat.html" height="100%" id="preview"></iframe>
+      </div>
+
+      <form id="generator"></form>
+    </div>
   </section>
   <script src="./generator.js"></script>
 </body>
