@@ -70,6 +70,7 @@ async function buildMarkup() {
                 const checkbox = document.createElement("input");
                 inputEl.append(checkbox)
                 checkbox.value = name;
+                checkbox.name = name;
                 checkbox.type = type;
                 break;
             }
