@@ -214,9 +214,9 @@
             }
 
             if (url.searchParams.get("emote_size") !== null) {
-                emote_size = url.searchParams.get("emote_size") + 'rem';
+                emote_size = url.searchParams.get("emote_size");
             } else {
-                emote_size = '1.4rem';
+                emote_size = '1.4';
             }
 
             let cmdprefix = null;
@@ -426,8 +426,8 @@
             for (const emote in emotes) {
                 let el_emote = document.createElement('img');
                 el_emote.src = emotes[emote].imageUrl;
-                if (int(config['emote_size']) > 0) {
-                    el_emote.style = `height: ${config['emote_size']}rem;`;
+                if (parseInt(config['emote_size']) > 0) {
+                    el_emote.style = `height: ${config['emote_size']}rem; width: auto;`;
                 }
 
                 message = message.replace(emotes[emote].name, el_emote.outerHTML);
@@ -483,7 +483,7 @@
                     messages_to_remove.push(messages[i]);
                 }
                 // Remove messages that are older than the max age (fade_duration)
-                else if (int(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity === "0") {
+                else if (parseInt(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity === "0") {
                     messages_to_remove.push(messages[i]);
                 }
             }
