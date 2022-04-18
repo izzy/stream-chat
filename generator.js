@@ -10,7 +10,7 @@ const fontCheck = new Set([
 
 
 const fields = [
-    { label: "Font", name: "font", type: "fontlist" },
+   // { label: "Font", name: "font", type: "fontlist" },
     { label: "Websocket URI", name: "ws_uri", type: "text", defaultValue: "ws://localhost:8080" },
     { label: "Direction", name: "direction", type: "text" },
     { label: "Bubbles", name: "bubbles", type: "checkbox" },
@@ -96,7 +96,7 @@ async function buildMarkup() {
         rowEl.append(labelEl, inputEl)
         if (nullable) {
             const labelNullableRadio = document.createElement("label");
-            labelNullableRadio.classList.add(type)
+            labelNullableRadio.classList.add("checkbox")
             labelNullableRadio.innerText = "Enabled: "
             const nullableRadio = document.createElement("input", {
 
