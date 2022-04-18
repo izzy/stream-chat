@@ -21,7 +21,7 @@ const fields = [
     { label: "Badges", name: "badges", type: "checkbox" },
     { label: "Highlights", name: "highlights", type: "checkbox" },
     { label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false },
-    { label: "Timestamp locale", name: "timestamp_locale", type: "select", defaultValue: "en-US" },
+    { label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US" },
     { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true },
     { label: "Bots", name: "bots", type: "text", nullable: true },
     { label: "Fade duration", name: "Fade_duration", type: "number", nullable: true }
@@ -43,7 +43,8 @@ async function buildMarkup() {
     const textElements = fields.map(({ label, name, type, defaultValue, nullable }) => {
         const rowEl = document.createElement("span");
         rowEl.classList.add("column")
-
+        rowEl.classList.add("is-one-quarter");
+        rowEl.style = "outline: 1px solid;  margin-top: 1px;margin-left: 1px;"
         switch (type) {
             case "fontlist": {
                 var inputEl = document.createElement("select")
@@ -81,9 +82,14 @@ async function buildMarkup() {
 
                 })
                 inputEl.name = name;
+                if(type !== "color"){
+                    inputEl.classList.add("input")
+                    
+                }
+               
                 inputEl.type = type;
 
-                inputEl.classList.add("input")
+                
                 inputEl.value = defaultValue || "";
 
 

@@ -9,11 +9,14 @@
   <title></title>
 </head>
 
-<body>
+<body><section  class="section">  <h1 class="title" >Twitch Chat Overlay URL generator</h1>
+  <h2 class="subtitle" > <a href="https://github.com/izzy/twitch-chat">https://github.com/izzy/twitch-chat</a>   </h2>  
+  <label class="checkbox">
+<input type="checkbox" value="debug" checked id="debug" />Use fake message</label> 
+
+</section>
   <section class="section">
-    <h1 >Twitch Chat Overlay URL generator</h1>
-    <a href="https://github.com/izzy/twitch-chat">https://github.com/izzy/twitch-chat</a>
-    <label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Debug</label> 
+  
     <div class="columns is-multiline">
       <div class="column is-full">
         <div class="columns">
@@ -25,12 +28,12 @@
 
       <div class="column">
         <div class="columns">
-          <div class="column is-quarter">
+          <div class="column is-one-quarter">
           <iframe src="./chat.html" height="100%"  id="preview"></iframe>
         </div>
  
-        <div class="column is-threequarter">
-        <form id="generator" ></form>
+        <div class="column is-three-quarters">
+        <form id="generator" class="columns is-multiline" ></form>
       </div>     
     </div>
   </div>
