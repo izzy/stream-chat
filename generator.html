@@ -66,6 +66,31 @@
       display: inline-block;
       width: 13rem;
     }
+
+    .help {
+      padding: 0.5rem;
+      background-color: #fbff00;
+      border-radius: 2rem;
+      box-shadow: 0px 0px 4px #300;
+      cursor: help;
+    }
+  
+    .help span {
+      display: none;
+    }
+
+    .help:hover span {
+      position: absolute;
+      display: block;
+      background: #333;
+      color: white;
+      padding: 1rem;
+      width: 33rem;
+      margin-left: 2rem;
+      margin-top: -8rem;
+      border-radius: 1rem;
+      box-shadow: 0px 0px 4px #700;
+    }
   </style>
 </head>
 
@@ -89,7 +114,8 @@
       </div>
     </div>
 
-    <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview mode</label></div>
+    <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview
+        mode</label></div>
   </section>
 
   <section>

@@ -10,25 +10,25 @@ const fontCheck = new Set([
 
 
 const fields = [
-    { label: "Websocket URI", name: "ws_uri", type: "text", defaultValue: "ws://localhost:8080" },
-    { label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox" },
-    { label: "Bubbles", name: "bubbles", type: "checkbox" },
-    { label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true },
-    { label: "Background Color", name: "background_color", type: "color", defaultValue: "#FFFFFF", nullable: true },
-    { label: "Text Color", name: "text_color", type: "color", nullable: true, },
-    { label: "Default Color", name: "background", type: "color", nullable: true },
-    { label: "Badges", name: "badges", type: "checkbox" },
-    { label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false },
-    { label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false },
-    { label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US" },
-    { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true },
-    { label: "Bots", name: "bots", type: "text", nullable: true },
-    { label: "Fade duration", name: "Fade_duration", type: "number", nullable: true },
-    { label: "Font Family", name: "fontfamily", type: "text", nullable: true },
-    { label: "Font size", name: "fontsize", type: "text", nullable: true },
-    { label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300" },
-    { label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500" },
-    { label: "OBS Layer name", name: "layer-name", type: "text", defaultValue: "Chat Overlay" },
+    { label: "Websocket URI", name: "ws_uri", type: "text", defaultValue: "ws://localhost:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
+    { label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox", help: "Set to 'horizontal' this will scroll the text from right to left instead of bottom to top" },
+    { label: "Bubbles", name: "bubbles", type: "checkbox", help: "Displays bubbles instead of the standard chat log" },
+    { label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
+    { label: "Background Color", name: "background_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
+    { label: "Text Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
+    { label: "Default Color", name: "background", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
+    { label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
+    { label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false, help: "If set to false this disables visual difference for highlighted messages" },
+    { label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
+    { label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
+    { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true, help: "A prefix for bot commands. If this is set, chat messages starting with this won't be displayed" },
+    { label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
+    { label: "Fade duration", name: "Fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
+    { label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
+    { label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value allowed (e.g. x-large, 2em, 22px)" },
+    { label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
+    { label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
+    { label: "OBS Layer name", name: "layer-name", type: "text", defaultValue: "Chat Overlay", help: "The OBS layer name. Can be changed in OBS later." },
 ]
 const iframe = document.querySelector("#preview");
 const chatFrame = document.querySelector("#chat-frame");
@@ -42,7 +42,7 @@ const debugSwitch = document.querySelector("#debug");
 
 async function buildMarkup() {
 
-    const textElements = fields.map(({ label, name, type, defaultValue, nullable }) => {
+    const textElements = fields.map(({ label, name, type, defaultValue, nullable, help }) => {
         const rowEl = document.createElement("span");
 
         switch (type) {
@@ -109,6 +109,17 @@ async function buildMarkup() {
             rowEl.append(labelNullableRadio)
 
         }
+
+        if (help) {
+            const helpEl = document.createElement("span");
+            const helpElInner = document.createElement("span");
+            helpEl.className = "help";
+            helpEl.innerText = "?";
+            helpElInner.innerText = help;
+            helpEl.append(helpElInner);
+            rowEl.append(helpEl);
+        }
+
         return rowEl;
     })
 
