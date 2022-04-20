@@ -184,8 +184,8 @@ const setUrl = (url) => {
         iUrl = url + "&debug=true";
     }
     iframe.src = iUrl;
-    obsLink.href = iUrl;
 
+    obsLink.href = url;
     urlEl.value = url;
 
     console.log(["new url: ", url]);
