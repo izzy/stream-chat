@@ -2,7 +2,23 @@
 
 Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
-## Config
+## Installation
+
+### Local
+
+To use the Chat overlay locally just download the newest release from the [releases page](https://github.com/izzy/twitch-chat/releases/) and unpack it somewhere OBS can reach it.
+
+After unpacking you can open `generator.html` in a browser to open the configurator.
+
+### Online
+
+While this is the easier method, using the online method comes with some drawbacks. First and foremost that Github has a soft limit on Bandwidth and Availability. There is no guarantee that this will always work.
+
+Also keep in mind that Github has their own [data collection policies](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#data-collection).
+
+To get started with using this method go to https://izzy.github.io/twitch-chat/generator.html 
+
+### Config
 
 Supported settings are as follows. To use them just add them as URL parameters, e.g.
 
@@ -10,7 +26,7 @@ Supported settings are as follows. To use them just add them as URL parameters, 
 file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 ```
 
-### Config options
+#### Config options
 
 | option             | default              | valid options | description                                                                                    | example                          |
 |--------------------|----------------------|---------------|------------------------------------------------------------------------------------------------|----------------------------------|
@@ -31,7 +47,7 @@ file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 | `fontfamily`       | Open Sans            | string        | set (any locally installed) font                                                               | `fontfamily=Calibri`             |
 | `fontsize`         | large                | number/string | CSS class font-size value allowed (e.g. x-large, 2em, 22px)                                    | `fontsize=22px`                  |
 
-### Types
+#### Types
 
 `color`: 6-digit HEX colour code without the '#'
 
@@ -40,10 +56,10 @@ file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
 `locale`: [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)(i.e. 'de-DE' or 'en-GB')
 
 
-## I've read this README but I still have questions/problems, where can I get help?
+### I've read this README but I still have questions/problems, where can I get help?
 
 If you have a Github account, opening an issue is the best way to give feedback. Otherwise you can join my [Discord](https://discord.gg/yRTM7H2tek) and ask you question in #development or send me a message on [Twitter](https://twitter.com/angry_izzy).
 
-## Contributors / Thanks
+### Contributors / Thanks
 
 Thanks to @andi242 for his fork on https://github.com/andi242/twitch-chat
