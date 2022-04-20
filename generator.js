@@ -23,7 +23,7 @@ const fields = [
     { label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
     { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true, help: "A prefix for bot commands. If this is set, chat messages starting with this won't be displayed" },
     { label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
-    { label: "Fade duration", name: "Fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
+    { label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
     { label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
     { label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value allowed (e.g. x-large, 2em, 22px)" },
     { label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
@@ -154,18 +154,11 @@ const generateURL = () => {
             }
 
             // Change the chat preview direction dynamically
-            if (key === "direction") {
-                searchParams.append(key, value === true ? "vertical" : "horizontal");
-
-                if (value === true) {
-                    iframe.style.width = "300px";
-                    iframe.style.height = "500px";
-                    chatFrame.style.float = "left";
-                } else {
-                    iframe.style.width = "100%";
-                    iframe.style.height = "6rem";
-                    chatFrame.style.float = "none";
-                }
+            if (key === "direction" && value === "direction") {
+                searchParams.append(key, "horizontal");
+                iframe.style.width = "100%";
+                iframe.style.height = "6rem";
+                chatFrame.style.float = "none";
             }
 
             // Colour values
@@ -183,7 +176,14 @@ const generateURL = () => {
 
     checkboxes.forEach((c) => {
         if (c.checked === false && c.name) {
-            searchParams.append(c.name, "false")
+            if (c.name === "direction") {
+                searchParams.append(c.name, "vertical");
+                iframe.style.width = "300px";
+                iframe.style.height = "500px";
+                chatFrame.style.float = "left";
+            } else {
+                searchParams.append(c.name, "false")
+            }
         }
     });
     setUrl(baseUrl + searchParams.toString())
