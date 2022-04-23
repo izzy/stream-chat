@@ -1,12 +1,12 @@
-# twitch-chat
+# stream-chat
 
-Twitch Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
+Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
 ## Installation
 
 ### Local
 
-To use the Chat overlay locally just download the newest release from the [releases page](https://github.com/izzy/twitch-chat/releases/) and unpack it somewhere OBS can reach it.
+To use the Chat overlay locally just download the newest release from the [releases page](https://github.com/izzy/stream-chat/releases/) and unpack it somewhere OBS can reach it.
 
 After unpacking you can open `generator.html` in a browser to open the configurator.
 
@@ -16,14 +16,14 @@ While this is the easier method, using the online method comes with some drawbac
 
 Also keep in mind that Github has their own [data collection policies](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#data-collection).
 
-To get started with using this method go to https://izzy.github.io/twitch-chat/generator.html 
+To get started with using this method go to https://izzy.github.io/stream-chat/generator.html 
 
 ### Config
 
 Supported settings are as follows. To use them just add them as URL parameters, e.g.
 
 ```
-file:///C:/path/to/twitch-chat/chat.html?default_color=FF0000&bubbles=true
+file:///C:/path/to/stream-chat/chat.html?default_color=FF0000&bubbles=true
 ```
 
 #### Config options
