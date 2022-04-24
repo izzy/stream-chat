@@ -37,6 +37,7 @@ const obsLink = document.querySelector("#obs-url");
 const baseUrl = window.location.href.replace("generator.html", "chat.html?");
 
 const copyButton = document.querySelector("#copy-button");
+const dragButton = document.querySelector("#obs-url");
 const urlEl = document.querySelector("#url")
 const generatorEl = document.querySelector("#generator");
 const debugSwitch = document.querySelector("#debug");
@@ -206,7 +207,11 @@ const setUrl = (url) => {
 const copyToClipBoard = () => {
     navigator.permissions.query({ name: "clipboard-write" }).then(result => {
         if (result.state == "granted" || result.state == "prompt") {
-            navigator.clipboard.writeText(urlEl.value)
+            navigator.clipboard.writeText(urlEl.value);
+            document.getElementById("copy-toast").style.opacity = 1;
+            setTimeout(() => {
+                document.getElementById("copy-toast").style.opacity = 0;
+            }, 3000);
         }
     });
 }
@@ -214,5 +219,6 @@ const copyToClipBoard = () => {
 copyButton.addEventListener("click", copyToClipBoard)
 generatorEl.addEventListener("change", generateURL)
 debugSwitch.addEventListener("change", generateURL)
+dragButton.addEventListener("click", (e) => {e.preventDefault();})
 
 buildMarkup();
