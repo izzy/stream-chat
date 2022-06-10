@@ -10,6 +10,13 @@
   <style>
     body {
       font-family: sans-serif;
+      background: #41145F;
+      color: #F0F0FF;
+      text-shadow: 0px 0px 3px #000;
+    }
+
+    a {
+      color: #00C8AF;
     }
 
     section {
@@ -18,35 +25,91 @@
     }
 
     input {
-      margin: 0.5em;
+      margin: 0.5rem;
     }
 
     input:not([type="color"]) {
-      padding: 0.5em;
+      padding: 1rem;
+      border: none;
+      background: #41145F;
+      color: #F0F0FF;
+      border-bottom: 2px solid;
+      transition: all 0.4s;
+    }
+
+    input:not([type="color"]):hover {
+      color: #FAB4FF;
+      border-image-source: linear-gradient(to right, #FA1ED2, #00C8AF);
+      border-bottom: 2px solid #00C8AF;
+      border-image-slice: 1;
+      transition: all 0.4s;
+    }
+
+    input:not([type="color"]):focus {
+      outline: none;
+      color: #BEFAE1;
+      border-image-source: linear-gradient(to right, #00C8AF, #FA1ED2);
+      border-bottom: 2px solid #00C8AF;
+      border-image-slice: 1;
+    }
+
+    input[type="checkbox"] {
+      accent-color: #FA1ED2;
+      height: 1.5rem;
+      width: 1.5rem;
+      vertical-align: middle;
     }
 
     #url {
       width: 20rem;
     }
 
-    #obs-url {
-      background: #256eff;
+    .button {
+      background: #1E69FF;
       border-radius: 1rem;
-      padding: 2rem;
+      padding: 1rem 1rem 1rem 0.7rem;
       color: #fff;
       text-decoration: none;
-      display: block;
+      display: inline-block;
       width: 12rem;
       text-align: center;
+      cursor: pointer;
+    }
+
+    .button:hover {
+      background: #0014A5;
+    }
+
+    .button:active {
+      background: #0014A5;
+      color: #00C8AF;
+    }
+
+    #copy-toast {
+      background: #BEFAE1;
+      position: absolute;
+      top: 2rem;
+      width: 15rem;
+      padding: 1rem;
+      left: 40%;
+      color: #41145F;
+      transition: opacity .4s ease-in-out;
+      opacity: 0;
     }
 
     #chat-frame {
       float: left;
     }
 
-    #chat-frame>iframe {
-      border: 0;
+    /* Chat preview iframe */
+    #preview {
       height: 500px;
+      border-width: 3px;
+      border-style: solid;
+      border-image-source: linear-gradient(to left, #BE0078, #FA1ED2);
+      border-image-slice: 1;
+      background: white;
+      padding: 1rem 1rem 1rem 0.5rem;
     }
 
     #config>form {
@@ -68,13 +131,11 @@
     }
 
     .help {
-      padding: 0.5rem;
-      background-color: #fbff00;
+      position: relative;padding: 0.5rem;
       border-radius: 2rem;
-      box-shadow: 0px 0px 4px #300;
       cursor: help;
     }
-  
+
     .help span {
       display: none;
     }
@@ -82,14 +143,20 @@
     .help:hover span {
       position: absolute;
       display: block;
-      background: #333;
+      background: #BE0078;
       color: white;
       padding: 1rem;
-      width: 33rem;
-      margin-left: 2rem;
-      margin-top: -8rem;
+      width: 15rem;
+      right: 2rem;
+      top: 1rem;
       border-radius: 1rem;
       box-shadow: 0px 0px 4px #700;
+      z-index: 1;
+      filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.25));
+    }
+
+    #drag-help {
+      margin-left: 18rem;
     }
   </style>
 </head>
@@ -105,28 +172,34 @@
     <div>
       <div>
         <input class="input" type="text" readonly id="url" />
-        <button class="button" id="copy-button">Copy</button>
+        <a id="copy-button" class="button">Copy</a>
+
+        <a id="obs-url" class="button">Drag me into OBS</a>
+        <span class="help">?<span id="drag-help">Drag and drop does not work when OBS is running with Administrator
+            privileges</span></span>
       </div>
 
       <div>
-        <a id="obs-url">Drag me into OBS</a>
-        (this does not work when OBS is running with Administrator privileges)
+
       </div>
     </div>
 
-    <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview
-        mode</label></div>
   </section>
 
   <section>
     <div id="config">
       <div id="chat-frame">
+        <h2>Preview:</h2>
+        <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview
+            mode</label></div>
         <iframe src="./chat.html" height="100%" id="preview"></iframe>
       </div>
 
       <form id="generator"></form>
     </div>
   </section>
+
+  <div id="copy-toast">Link copied to clipboard!</div>
   <script src="./generator.js"></script>
 </body>
 

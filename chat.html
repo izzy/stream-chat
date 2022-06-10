@@ -370,7 +370,7 @@
             return element;
         }
 
-        function add_message(author, author_color, message, pronoun = false, emotes = [], role = 0, subscriber = false,
+        function add_message(msg_id, user_id, author, author_color, message, pronoun = false, emotes = [], role = 0, subscriber = false,
             highlight = false) {
             // TODO handle cheermotes
 
@@ -411,6 +411,8 @@
             let el_message = createElement('span', {'class': 'msg-text'});
             
             let div_message = createElement('div', {
+                'id': msg_id,
+                'data-user-id': user_id,
                 'class': 'chat-message',
                 'style': `border-color: ${background_color}; ${message_style}`
             });
@@ -507,6 +509,42 @@
             }
         }
 
+        function remove_messages_by_user_id(user_id) {
+            console.log('Removing messages by user id: ' + user_id);
+
+            let chat = document.getElementById('chat');
+            let messages = chat.getElementsByClassName('chat-message');
+            let messages_to_remove = [];
+
+            for (let i = 0; i < messages.length; i++) {
+                if (parseInt(messages[i].dataset.userId) === user_id) {
+                    messages_to_remove.push(messages[i]);
+                }
+            }
+
+            for (let message of messages_to_remove) {
+                chat.removeChild(message);
+            }
+        }
+
+        function remove_messages_by_message_id(message_id) {
+            console.log('Removing messages by message id: ' + message_id);
+
+            let chat = document.getElementById('chat');
+            let messages = chat.getElementsByClassName('chat-message');
+            let messages_to_remove = [];
+
+            for (let i = 0; i < messages.length; i++) {
+                if (messages[i].id === message_id) {
+                    messages_to_remove.push(messages[i]);
+                }
+            }
+
+            for (let message of messages_to_remove) {
+                chat.removeChild(message);
+            }
+        }
+
         function connectws() {
             socket = new WebSocket(config['ws_uri']);
 
@@ -516,7 +554,7 @@
                 console.log(['Event', wsdata]);
 
                 if (wsdata.id === 'obs-chat') {
-                    console.log(`SUBSCRIBE: ${wsdata.status}`);
+                    console.log([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
                 } else if (wsdata.event.source === 'Twitch' && wsdata.event.type === 'ChatMessage') {
                     let m = wsdata.data.message;
 
@@ -527,9 +565,15 @@
                     await fetch_pronoun(m.username);
                     pronoun = get_pronoun(m.username);
 
-                    add_message(m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.subscriber, m.isHighlighted);
+                    add_message(m.msgId, m.userId, m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.subscriber, m.isHighlighted);
 
                     remove_old_messages();
+                } else if (wsdata.event.source === 'Twitch' && (wsdata.event.type === 'UserTimedOut' || wsdata.event.type === 'UserBanned')) {
+                    console.log(['User timed out or banned', wsdata]);
+                    remove_messages_by_user_id(wsdata.data.userId);
+                } else if (wsdata.event.source === 'Twitch' && (wsdata.event.type === 'ChatMessageDeleted')) {
+                    console.log(['Message deleted', wsdata]);
+                    remove_messages_by_message_id(wsdata.data.targetMessageId);
                 } else {
                     console.log(['Event not implemented', event]);
                 }
@@ -542,7 +586,10 @@
                     "id": "obs-chat",
                     "events": {
                         "Twitch": [
-                            "ChatMessage"
+                            "ChatMessage",
+                            "UserTimedOut",
+                            "UserBanned",
+                            "ChatMessageDeleted"
                         ]
                     }
                 }));
@@ -728,6 +775,8 @@ if (config["debug"] === true) {
         })();
 
         add_message(
+            String(Math.random()),
+            Math.floor(Math.random()*10000000),
             names[getRnd(names.length - 1)],
             colors[getRnd(colors.length - 1)],
             message,
