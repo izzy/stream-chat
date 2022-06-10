@@ -775,6 +775,8 @@ if (config["debug"] === true) {
         })();
 
         add_message(
+            String(Math.random()),
+            Math.floor(Math.random()*10000000),
             names[getRnd(names.length - 1)],
             colors[getRnd(colors.length - 1)],
             message,
