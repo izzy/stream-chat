@@ -210,6 +210,11 @@
                 text_color = '#' + url.searchParams.get("text_color");
             }
 
+            let message_color = null;
+            if(url.searchParams.get("msg_color") !== null) {
+                message_color = '#' + url.searchParams.get("msg_color");
+            }
+
             let default_color = null;
             if (url.searchParams.get("default_color") !== null) {
                 default_color = '#' + url.searchParams.get("default_color");
@@ -267,6 +272,7 @@
                 'direction': direction,
                 'background_color': background_color,
                 'text_color': text_color,
+                'msg_color': message_color,
                 'default_color': default_color,
                 'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
@@ -409,6 +415,11 @@
             let el_badges = createElement('span', {'class': 'msg-badges'});
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
             let el_message = createElement('span', {'class': 'msg-text'});
+
+            let message_color = config["msg_color"];
+            if(message_color) {
+                el_message.style.color = message_color;
+            }
             
             let div_message = createElement('div', {
                 'id': msg_id,

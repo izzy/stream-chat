@@ -36,6 +36,7 @@ file:///C:/path/to/stream-chat/chat.html?default_color=FF0000&bubbles=true
 | `background`       |                      | color         | Background of the whole chat page. Careful: By default this will be overridden by OBS          | `background=000000`              |
 | `background_color` |                      | color         | If set overrides all chat bubble colours                                                       | `background_color=FF0000`        |
 | `text_color`       |                      | color         | If set overrides all user name colours                                                         | `text_color=FF0000`              |
+| `msg_ color`       |                      | color         | If set overrides all message text colours                                                      | `msg_color=FF0000`               |
 | `default_color`    |                      | color         | This sets the default background/bubble colour for users who don't have a colour set           | `default_color=FF0000`           |
 | `badges`           | true                 | boolean       | If set to false this disable broadcaster/VIP/moderator badges                                  | `badges=false`                   |
 | `highlights`       | true                 | boolean       | If set to false this disables visual difference for highlighted messages                       | `highlights=false`               |
