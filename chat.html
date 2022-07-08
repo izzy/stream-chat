@@ -406,7 +406,6 @@
             // Get colors based on settings / user data
             let background_color = get_background_color(author_color);
             let text_color = get_text_color(background_color);
-            let message_color = config["msg_color"];
 
             let message_style = '';
             if (highlight === true && config['highlights'] === true) {
@@ -415,7 +414,12 @@
 
             let el_badges = createElement('span', {'class': 'msg-badges'});
             let el_pronoun = createElement('span', {'class': 'msg-pronoun' }, pronoun);
-            let el_message = createElement('span', {'class': 'msg-text', 'style': `color: ${message_color}`});
+            let el_message = createElement('span', {'class': 'msg-text'});
+
+            let message_color = config["msg_color"];
+            if(message_color) {
+                el_message.style.color = message_color;
+            }
             
             let div_message = createElement('div', {
                 'id': msg_id,
