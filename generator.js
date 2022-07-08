@@ -16,6 +16,7 @@ const fields = [
     { label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
     { label: "Background Color", name: "background_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
     { label: "Text Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
+    { label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
     { label: "Default Color", name: "background", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false, help: "If set to false this disables visual difference for highlighted messages" },
