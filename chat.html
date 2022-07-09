@@ -281,6 +281,7 @@
                 'pastel': is_true(url.searchParams.get("pastel")),
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
+                'badges_left': is_true(url.searchParams.get("badges_left"), false),
                 'emote_size': emote_size,
                 'pronouns': is_true(url.searchParams.get("pronouns"), true),
                 'timestamp': is_true(url.searchParams.get("timestamp"), false),
@@ -456,6 +457,13 @@
 
             el_message.innerHTML = message;
 
+            // Adds badges and pronouns to the user line
+            if (config['badges_left'] === false) {
+                el_user.appendChild(el_badges);
+            } else {
+                el_user.prepend(el_badges);
+            }
+
             // add timestamp
             if (config['timestamp'] === true) {
                 var date = new Date();
@@ -471,8 +479,6 @@
                 }
             }
 
-            // Adds badges and pronouns to the user line
-            el_user.appendChild(el_badges);
             el_user.appendChild(el_pronoun);
 
             // Adds the user line and message to the message div

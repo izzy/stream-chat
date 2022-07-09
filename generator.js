@@ -19,6 +19,7 @@ const fields = [
     { label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
     { label: "Default Color", name: "background", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
+    { label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
     { label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false, help: "If set to false this disables visual difference for highlighted messages" },
     { label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
     { label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
