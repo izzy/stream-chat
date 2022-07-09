@@ -577,7 +577,8 @@
                     await fetch_pronoun(m.username);
                     pronoun = get_pronoun(m.username);
 
-                    add_sb_twitch_message(m.msgId, m.userId, m.displayName, m.color, m.message, pronoun, m.emotes, m.role, m.badges, m.isHighlighted);
+                    add_sb_twitch_message(m.msgId, m.userId, m.displayName, m.color, m.message, pronoun, m
+                        .emotes, m.role, m.badges, m.isHighlighted);
 
                     remove_old_messages();
                 } else if (wsdata.event.source === 'Twitch' && (wsdata.event.type === 'UserTimedOut' || wsdata
@@ -627,6 +628,40 @@
                 "Happy birthday!",
             ];
 
+            const badges = [
+                [{
+                        "name": "vip",
+                        "version": "1",
+                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3"
+                    },
+                    {
+                        "name": "subscriber",
+                        "version": "0",
+                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
+                    }
+                ],
+                [{
+                    "name": "premium",
+                    "version": "1",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/bbbe0db0-a598-423e-86d0-f9fb98ca1933/3"
+                }],
+                [{
+                        "name": "broadcaster",
+                        "version": "1",
+                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3"
+                    },
+                    {
+                        "name": "subscriber",
+                        "version": "0",
+                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
+                    },
+                    {
+                        "name": "glhf-pledge",
+                        "version": "1",
+                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3"
+                    }
+                ]
+            ]
             const emotes = [{
                     id: "555555597",
                     type: "Twitch",
@@ -788,7 +823,7 @@
                     pronoun.display,
                     messagesEmote,
                     getRnd(4, 0),
-                    !!getRnd(1),
+                    badges[getRnd(badges.length - 1)],
                     !!getRnd(1)
                 );
             }, 2000);
