@@ -46,6 +46,7 @@ file:///C:/path/to/stream-chat/chat.html?default_color=FF0000&bubbles=true
 | `cmdprefix`        |                      | string        | A prefix for bot commands. If this is set, chat messages starting with this won't be displayed | `cmdprefix=!`                    |
 | `bots`             |                      | string        | A comma-separated list of accounts whose messages will not be shown(case-insensitive)          | `bots=streamelements,streamlabs` |
 | `fade_duration`    |                      | number        | Time in seconds until messages are removed                                                     | `fade_duration=60`               |
+| `max_messages`     |                      | number        | Maximum number of messages before old ones get deleted                                                     | `max_messages=10`               |
 | `fontfamily`       | Open Sans            | string        | set (any locally installed) font                                                               | `fontfamily=Calibri`             |
 | `fontsize`         | large                | number/string | CSS class font-size value (e.g. x-large, 2em, 22px)                                            | `fontsize=22px`                  |
 | `emote_size`       | 1.4rem               | number/string | CSS class size value (e.g. 2em, 22px)                                                          | `emote_size=22px`                |

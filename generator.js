@@ -26,6 +26,7 @@ const fields = [
     { label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true, help: "A prefix for bot commands. If this is set, chat messages starting with this won't be displayed" },
     { label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
     { label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
+    { label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
     { label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
     { label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value (e.g. x-large, 2em, 22px)" },
     { label: "Emote size", name: "emote_size", type: "text", nullable: true, help: "CSS class size value (e.g. 2em, 22px)" },

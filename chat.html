@@ -308,6 +308,7 @@
                 'cmdprefix': cmdprefix,
                 'bot_list': bot_list,
                 'fade_duration': url.searchParams.get("fade_duration") || false,
+                'max_messages': url.searchParams.get("max_messages") || false,
                 'debug': is_true(url.searchParams.get("debug")),
                 'ws_uri': ws_uri
             }
@@ -528,6 +529,16 @@
             let messages = chat.getElementsByClassName('chat-message');
             let messages_to_remove = [];
 
+            // Remove old messages when there are more than the max_messages setting
+            if (config['max_messages'] !== null) {
+                let max_messages = config['max_messages'];
+                if (messages.length > max_messages) {
+                    for (let i = 0; i < messages.length - max_messages; i++) {
+                        messages_to_remove.push(messages[i]);
+                    }
+                }
+            }
+
             for (let i = 0; i < messages.length; i++) {
 
                 // Remove messages that are outside the bounding box
@@ -538,6 +549,7 @@
                 ) {
                     messages_to_remove.push(messages[i]);
                 }
+
                 // Remove messages that are older than the max age (fade_duration)
                 else if (parseInt(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity ===
                     "0") {
@@ -855,6 +867,7 @@
                     badges[getRnd(badges.length - 1)],
                     !!getRnd(1)
                 );
+                remove_old_messages();
             }, 2000);
         } else {
             connectws();
