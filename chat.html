@@ -67,6 +67,15 @@
             padding: 0rem 0.2em;
             font-size: 0.8em;
         }
+
+        .msg-user {
+            font-weight: bold;
+            
+        }
+
+        .msg-user::after {
+            content: ": ";
+        }
     </style>
 
     <style type="text" id="enable-bubbles">
@@ -110,6 +119,14 @@
             padding: 0.1rem 0.3rem;
             color: white;
             font-size: .6rem;
+        }
+
+        .msg-user {
+            font-weight: normal;
+        }
+
+        .msg-user::after {
+            content: "";
         }
     </style>
 
@@ -179,7 +196,7 @@
                 return String(v).toLowerCase() === 'true' || String(v) === '1';
             }
 
-            let bubbles = url.searchParams.get("bubbles");
+            let bubbles = is_true(url.searchParams.get("bubbles"), false);
 
             direction = 'vertical';
             if (url.searchParams.get("direction") !== null) {
@@ -282,6 +299,7 @@
                 'highlights': is_true(url.searchParams.get("highlights"), true),
                 'badges': is_true(url.searchParams.get("badges"), true),
                 'badges_left': is_true(url.searchParams.get("badges_left"), false),
+                'bubbles': bubbles,
                 'emote_size': emote_size,
                 'pronouns': is_true(url.searchParams.get("pronouns"), true),
                 'timestamp': is_true(url.searchParams.get("timestamp"), false),
@@ -431,6 +449,11 @@
                 div_message.setAttribute("style", tmp_style + fade_style);
             }
 
+            // If we don't use bubbles, we don't use the user colour as background
+            if (config['bubbles'] === false) {
+                text_color = background_color;
+                background_color = "transparent";
+            }
             let el_user = createElement('span', {
                 'class': 'msg-user',
                 'style': `color: ${text_color}; background-color: ${background_color}`

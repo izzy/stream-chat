@@ -39,6 +39,7 @@ file:///C:/path/to/stream-chat/chat.html?default_color=FF0000&bubbles=true
 | `msg_color`        |                      | color         | If set overrides all message text colours                                                      | `msg_color=FF0000`               |
 | `default_color`    |                      | color         | This sets the default background/bubble colour for users who don't have a colour set           | `default_color=FF0000`           |
 | `badges`           | true                 | boolean       | If set to false this disable broadcaster/VIP/moderator badges                                  | `badges=false`                   |
+| `badges_left`      | false                | boolean       | Moves broadcaster/VIP/moderator badges to the left                                       | `badges_left=true`                   |
 | `highlights`       | true                 | boolean       | If set to false this disables visual difference for highlighted messages                       | `highlights=false`               |
 | `timestamp`        | false                | boolean       | If set to true displays the time of the message                                                | `timestamp=true`                 |
 | `timestamp_locale` | en-US                | locale        | The regional setting to use for the message time                                               | `timestamp_locale=de-DE`         |
