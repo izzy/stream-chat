@@ -1,6 +1,3 @@
-
-
-
 const fontCheck = new Set([
     // Windows 10
     'Arial', 'Arial Black', 'Bahnschrift', 'Calibri', 'Cambria', 'Cambria Math', 'Candara', 'Comic Sans MS', 'Consolas', 'Constantia', 'Corbel', 'Courier New', 'Ebrima', 'Franklin Gothic Medium', 'Gabriola', 'Gadugi', 'Georgia', 'HoloLens MDL2 Assets', 'Impact', 'Ink Free', 'Javanese Text', 'Leelawadee UI', 'Lucida Console', 'Lucida Sans Unicode', 'Malgun Gothic', 'Marlett', 'Microsoft Himalaya', 'Microsoft JhengHei', 'Microsoft New Tai Lue', 'Microsoft PhagsPa', 'Microsoft Sans Serif', 'Microsoft Tai Le', 'Microsoft YaHei', 'Microsoft Yi Baiti', 'MingLiU-ExtB', 'Mongolian Baiti', 'MS Gothic', 'MV Boli', 'Myanmar Text', 'Nirmala UI', 'Palatino Linotype', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Segoe UI', 'Segoe UI Historic', 'Segoe UI Emoji', 'Segoe UI Symbol', 'SimSun', 'Sitka', 'Sylfaen', 'Symbol', 'Tahoma', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Webdings', 'Wingdings', 'Yu Gothic',
@@ -225,3 +222,27 @@ debugSwitch.addEventListener("change", generateURL)
 dragButton.addEventListener("click", (e) => {e.preventDefault();})
 
 buildMarkup();
+
+// OBS will relentlessly ignore any options when dragging a local file:// URL
+// into it. To reduce issues with people getting confused over the settings 
+// not working we just disable the drag button and instead leave the user with
+// the copy button. 
+// It's not ideal but it's the best we can do.
+const isLocal = window.location.protocol === "file:";
+if (isLocal === true) {
+    document.getElementById("obs-url").style.display = "none";
+    document.getElementById("obs-url-help").style.display = "none";
+}
+
+const bubbles = document.querySelector("input[name=bubbles]");
+const background_color = document.querySelector("input[name=background_color]").parentNode;
+bubbles.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        background_color.style.display = "block";
+    } else {
+        background_color.style.display = "none";
+        document.getElementById("background_color_nullable").checked = false;
+    }
+});
+
+bubbles.dispatchEvent(new Event("change"));

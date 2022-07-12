@@ -95,6 +95,7 @@
       color: #41145F;
       transition: opacity .4s ease-in-out;
       opacity: 0;
+      text-shadow: none;
     }
 
     #chat-frame {
@@ -131,7 +132,8 @@
     }
 
     .help {
-      position: relative;padding: 0.5rem;
+      position: relative;
+      padding: 0.5rem;
       border-radius: 2rem;
       cursor: help;
     }
@@ -175,8 +177,7 @@
         <a id="copy-button" class="button">Copy</a>
 
         <a id="obs-url" class="button">Drag me into OBS</a>
-        <span class="help">?<span id="drag-help">Drag and drop does not work when OBS is running with Administrator
-            privileges</span></span>
+        <span id="obs-url-help" class="help">?<span id="drag-help">Drag and drop does not work when OBS is running with Administrator privileges</span></span>
       </div>
 
       <div>

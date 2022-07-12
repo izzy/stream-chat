@@ -73,7 +73,7 @@
 
         .msg-user {
             font-weight: bold;
-            
+
         }
 
         .msg-user::after {
@@ -328,6 +328,12 @@
             pronouns = data;
         });
 
+        /**
+         * Get the pronoun for a user and cache it for future use
+         *
+         * @param {string} user The user to get the pronoun for
+         * @returns {string} The pronoun for the user
+         */
         async function fetch_pronoun(user) {
             if (user in pronouns_users) {
                 return pronouns_users[user];
@@ -343,6 +349,14 @@
 
         }
 
+        /**
+         * Get the pronoun for a user.
+         * This is a wrapper for fetch_pronoun() that returns either the pronoun or false when pronouns are disabled,
+         * when pronouns for the user aren't set or the API is unavailable.
+         *
+         * @param {string} user The user to get the pronoun for
+         * @returns {string|bool} The pronoun for the user
+         */
         function get_pronoun(user) {
             if (config['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
                 return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
@@ -373,10 +387,16 @@
             }
         }
 
-        function get_background_color(color) {
+        /**
+         * Get the background color for a user.
+         * @param {string} color A six digit hex color code
+         * @param {string} override_source Config attribute to take for overrides
+         * @returns {string} The background color for the user
+         */
+        function get_user_color(color, override_source = "background_color") {
             // TODO pastel mode for background color
-            if (config['background_color'] !== null) {
-                return config['background_color'];
+            if (config[override_source] !== null) {
+                return config[override_source];
             }
 
             if (!color) {
@@ -414,7 +434,9 @@
             }
 
             // Get colors based on settings / user data
-            let background_color = get_background_color(author_color);
+            // I hate the names of these variables because they're used inconsistently,
+            // but I'm not sure what else to call them
+            let background_color = get_user_color(author_color);
             let text_color = get_text_color(background_color);
 
             let message_style = '';
@@ -454,7 +476,7 @@
 
             // If we don't use bubbles, we don't use the user colour as background
             if (config['bubbles'] === false) {
-                text_color = background_color;
+                text_color = get_user_color(author_color, "text_color");
                 background_color = "transparent";
             }
             let el_user = createElement('span', {
