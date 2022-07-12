@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,7 +46,10 @@
             animation: append-animate .3s linear;
             transition: max-height 0.3s ease-out;
             height: auto;
-            word-break: break-all;
+            word-break: normal;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            hyphenate-character: "»";
         }
 
         .msg-badges {
@@ -141,7 +144,6 @@
         .chat-message {
             margin-left: 1rem;
             float: left;
-            word-break: normal;
         }
 
         .msg-user, .msg-text {
