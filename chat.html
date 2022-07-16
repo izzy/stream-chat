@@ -636,6 +636,7 @@
          * @returns {boolean} True if the message should be skipped, false otherwise
          */
         function skip_message(message, user) {
+            console.log(['check skip', message, user]);
             if ((config['exclusion']['cmdprefix'] !== false && message.startsWith(config['exclusion']['cmdprefix'])) ||
                 (config['exclusion']['bots'].includes(user.toLowerCase()))) {
                 return true;
@@ -824,9 +825,9 @@
                             }
                         } else if (wsdata.event.source === 'YouTube') {
                             if (wsdata.event.type === 'Message') {
-                                let m = wsdata.data.message;
+                                let m = wsdata.data;
 
-                                if (skip_message(m.message, m.username)) {
+                                if (skip_message(m.message, m.user['name'])) {
                                     return;
                                 }
 
