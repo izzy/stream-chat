@@ -636,7 +636,6 @@
          * @returns {boolean} True if the message should be skipped, false otherwise
          */
         function skip_message(message, user) {
-            console.log(['check skip', message, user]);
             if ((config['exclusion']['cmdprefix'] !== false && message.startsWith(config['exclusion']['cmdprefix'])) ||
                 (config['exclusion']['bots'].includes(user.toLowerCase()))) {
                 return true;
