@@ -67,6 +67,10 @@
             width: 1.4rem;
         }
 
+        .msg-text>.announcement {
+            font-weight: bold;
+        }
+
         .msg-timestamp {
             padding: 0rem 0.2em;
             font-size: 0.8em;
@@ -132,6 +136,10 @@
         .msg-user::after {
             content: "";
         }
+
+        .msg-text>.announcement {
+            display: block;
+        }
     </style>
 
     <style id="enable-horizontal" type="text">
@@ -159,6 +167,10 @@
 
         .msg-user {
             text-align: right;
+        }
+
+        .msg-text>.announcement {
+            display: inline;
         }
     </style>
 </head>
@@ -325,6 +337,7 @@
                     'max_messages': searchParamOrDefault("max_messages", false),
                     'pronouns': searchParamIsTrue("pronouns", true),
                     'highlights': searchParamIsTrue("highlights", true),
+                    'announcements': searchParamIsTrue("announcements", false),
                     'badges': {
                         'enabled': searchParamIsTrue("badges", true),
                         'left': searchParamIsTrue("badges_left"),
@@ -454,7 +467,11 @@
                 return config['ui']['colors']['default'];
             } else {
                 color = color.replace('#', '');
-                return {r: color.slice(0, 2), g: color.slice(2, 4), b: color.slice(4, 6)};
+                return {
+                    r: color.slice(0, 2),
+                    g: color.slice(2, 4),
+                    b: color.slice(4, 6)
+                };
             }
         }
 
@@ -482,7 +499,8 @@
 
             let message_style = '';
             if (highlight === true && config['ui']['highlights'] === true) {
-                message_style = `background-color: ${get_color_hex(background_color)}; color: ${get_color_hex(text_color)};`;
+                message_style =
+                    `background-color: ${get_color_hex(background_color)}; color: ${get_color_hex(text_color)};`;
             }
 
             let div_message = createElement('div', {
@@ -562,9 +580,16 @@
 
         let StreamerBot = {
             'message': {
-                'twitch': (msg_id, user_id, author, author_color, message, pronoun = false, emotes = [], role = 0,
-                    badges = [], highlight = false) => {
+                'twitch': async (msg_id, user_id, author, author_color, message, emotes = [], role = 0,
+                    badges = [], highlight = false, announcement = false) => {
                     // TODO handle cheermotes
+
+                    if (skip_message(message, author)) {
+                        return;
+                    }
+
+                    await fetch_pronoun(author);
+                    pronoun = get_pronoun(author);
 
                     author = {
                         name: author,
@@ -590,6 +615,10 @@
                             url: badge["imageUrl"]
                         };
                     });
+
+                    if (announcement === true) {
+                        message = '<span class="announcement">📢 Announcement: </span>' + message;
+                    }
 
                     let color = get_color(author_color);
                     add_message(msg_id, message, author, color, 0, badges, highlight);
@@ -676,6 +705,7 @@
          * @returns {boolean} True if the message should be skipped, false otherwise
          */
         function skip_message(message, user) {
+            console.log([message, user]);
             if ((config['exclusion']['cmdprefix'] !== false && message.startsWith(config['exclusion']['cmdprefix'])) ||
                 (config['exclusion']['bots'].includes(user.toLowerCase()))) {
                 return true;
@@ -791,6 +821,8 @@
                     if (config['plugins']['streamerbot']['twitch'] === true) {
                         subscribeEvents['Twitch'] = [
                             "ChatMessage",
+                            "FirstWord",
+                            "Announcement",
                             "UserTimedOut",
                             "UserBanned",
                             "ChatMessageDeleted"
@@ -840,17 +872,38 @@
                             if (wsdata.event.type === 'ChatMessage') {
                                 let m = wsdata.data.message;
 
-                                if (skip_message(m.message, m.username)) {
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, m.color, m
+                                    .message, m.emotes, m.role, m.badges, m.isHighlighted, false);
+
+                            } else if (wsdata.event.type === 'Announcement') {
+                                if (config["ui"]["announcements"] === false) {
                                     return;
                                 }
 
-                                await fetch_pronoun(m.username);
-                                pronoun = get_pronoun(m.username);
+                                let m = wsdata.data;
 
-                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, m.color, m
-                                    .message, pronoun, m.emotes, m.role, m.badges, m.isHighlighted);
+                                let color = '';
+                                console.log(m.announcementColor.toLowerCase());
+                                switch (m.announcementColor.toLowerCase()) {
+                                    case 'blue':
+                                        color = '#0099ff';
+                                        break;
+                                    case 'green':
+                                        color = '#00ff00';
+                                        break;
+                                    case 'orange':
+                                        color = '#ff9900';
+                                        break;
+                                    case 'purple':
+                                        color = '#9900ff';
+                                        break;
+                                    default:
+                                        color = m.color;
+                                        break;
+                                }
 
-                                remove_old_messages();
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, color, m
+                                    .message, m.emotes, m.role, m.badges, true, true);
 
                             } else if (wsdata.event.type === 'UserTimedOut' || wsdata.event.type ===
                                 'UserBanned') {
@@ -872,9 +925,8 @@
 
                                 StreamerBot['message']['youtube'](m.eventId, m.user.id, m.user.name, m.message,
                                     m.user.isOwner, m.user.isModerator, m.user.isSponsor, m.user.isVerified);
-
-                                remove_old_messages();
                             } else if (wsdata.event.type === 'MessageDeleted') {
+                                // This doesn't seem to be implemented in Streamer.Bot
                                 console.log(['Message deleted', wsdata]);
                                 remove_messages_by_message_id(wsdata.data.eventId);
                             } else if (wsdata.event.type === 'UserBanned') {
@@ -883,6 +935,8 @@
                             } else {
                                 console.log(['YouTube Event not implemented', event]);
                             }
+
+                            remove_old_messages();
                         }
                     } else {
                         console.log(['Event source not implemented', event]);
@@ -1043,24 +1097,91 @@
                 "Joanna Cole",
             ];
 
-            const colors = [
-                {r:"B0",g:"BF",b:"1A"},
-                {r:"00",g:"48",b:"BA"},
-                {r:"7C",g:"B9",b:"E8"},
-                {r:"C0",g:"E8",b:"D5"},
-                {r:"B2",g:"84",b:"BE"},
-                {r:"72",g:"A0",b:"C1"},
-                {r:"DB",g:"2D",b:"43"},
-                {r:"ED",g:"EA",b:"E0"},
-                {r:"C4",g:"62",b:"10"},
-                {r:"F0",g:"F8",b:"FF"},
-                {r:"EF",g:"DE",b:"CD"},
-                {r:"9F",g:"2B",b:"68"},
-                {r:"E5",g:"2B",b:"50"},
-                {r:"AB",g:"27",b:"4F"},
-                {r:"F1",g:"9C",b:"BB"},
-                {r:"3B",g:"7A",b:"57"},
-                {r:"D3",g:"21",b:"2D"},
+            const colors = [{
+                    r: "B0",
+                    g: "BF",
+                    b: "1A"
+                },
+                {
+                    r: "00",
+                    g: "48",
+                    b: "BA"
+                },
+                {
+                    r: "7C",
+                    g: "B9",
+                    b: "E8"
+                },
+                {
+                    r: "C0",
+                    g: "E8",
+                    b: "D5"
+                },
+                {
+                    r: "B2",
+                    g: "84",
+                    b: "BE"
+                },
+                {
+                    r: "72",
+                    g: "A0",
+                    b: "C1"
+                },
+                {
+                    r: "DB",
+                    g: "2D",
+                    b: "43"
+                },
+                {
+                    r: "ED",
+                    g: "EA",
+                    b: "E0"
+                },
+                {
+                    r: "C4",
+                    g: "62",
+                    b: "10"
+                },
+                {
+                    r: "F0",
+                    g: "F8",
+                    b: "FF"
+                },
+                {
+                    r: "EF",
+                    g: "DE",
+                    b: "CD"
+                },
+                {
+                    r: "9F",
+                    g: "2B",
+                    b: "68"
+                },
+                {
+                    r: "E5",
+                    g: "2B",
+                    b: "50"
+                },
+                {
+                    r: "AB",
+                    g: "27",
+                    b: "4F"
+                },
+                {
+                    r: "F1",
+                    g: "9C",
+                    b: "BB"
+                },
+                {
+                    r: "3B",
+                    g: "7A",
+                    b: "57"
+                },
+                {
+                    r: "D3",
+                    g: "21",
+                    b: "2D"
+                },
                 null,
             ];
 
@@ -1105,7 +1226,8 @@
                         !!getRnd(1)
                     );
                 } else {
-                    StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() * 10000000), username, message, 0, false, false, false, false);
+                    StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
+                        10000000), username, message, 0, false, false, false, false);
                 }
 
                 remove_old_messages();
