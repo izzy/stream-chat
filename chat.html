@@ -53,8 +53,12 @@
         }
 
         .msg-badges {
-            padding: 0rem 0.3rem;
             vertical-align: middle;
+        }
+
+        .msg-user::after {
+            padding: 0rem 0.3rem;
+            content: ": ";
         }
 
         .msg-badges>img {
@@ -79,10 +83,6 @@
         .msg-user {
             font-weight: bold;
 
-        }
-
-        .msg-user::after {
-            content: ": ";
         }
     </style>
 
@@ -476,7 +476,11 @@
         }
 
         function get_color_hex(color) {
-            return `#${color.r}${color.g}${color.b}`;
+            if (color === 'transparent') {
+                return 'transparent';
+            } else {
+                return `#${color.r}${color.g}${color.b}`;
+            }
         }
 
         let add_message = (id, message, author, color, timestamp, badges = [], highlight = false) => {
@@ -610,11 +614,13 @@
                         message = message.replace(emotes[emote].name, el_emote.outerHTML);
                     }
 
-                    badges = badges.map(badge => {
-                        return {
-                            url: badge["imageUrl"]
-                        };
-                    });
+                    if (badges.length > 0) {
+                        badges = badges.map(badge => {
+                            return {
+                                url: badge["imageUrl"]
+                            };
+                        });
+                    }
 
                     if (announcement === true) {
                         message = '<span class="announcement">📢 Announcement: </span>' + message;
@@ -705,7 +711,6 @@
          * @returns {boolean} True if the message should be skipped, false otherwise
          */
         function skip_message(message, user) {
-            console.log([message, user]);
             if ((config['exclusion']['cmdprefix'] !== false && message.startsWith(config['exclusion']['cmdprefix'])) ||
                 (config['exclusion']['bots'].includes(user.toLowerCase()))) {
                 return true;
@@ -753,7 +758,7 @@
         }
 
         function remove_messages_by_user_id(user_id) {
-            console.log('Removing messages by user id: ' + user_id);
+            console.debug('Removing messages by user id: ' + user_id);
 
             let chat = document.getElementById('chat');
             let messages = chat.getElementsByClassName('chat-message');
@@ -791,7 +796,6 @@
         function initializeTheme() {
             // Set up the UI
             if (config['ui']['bubbles'] === true) {
-                console.log('Setting up bubbles');
                 document.getElementById('enable-bubbles').removeAttribute('type');
             }
 
@@ -846,7 +850,7 @@
                             "id": "obs-chat",
                             "events": subscribeEvents
                         };
-                        console.log(s);
+                        
                         socket.send(JSON.stringify(s));
                     } else {
                         console.log('Streamer.Bot does not have any events to subscribe to');
@@ -857,7 +861,7 @@
 
                 socket.onclose = function () {
                     console.warn('Disconnected from Streamer.Bot socket.');
-                    setTimeout(initialize, 10000);
+                    setTimeout(initializeConnections, 10000);
                 };
 
                 socket.onmessage = async (event) => {
@@ -1219,7 +1223,6 @@
                         username,
                         get_color_hex(colors[getRnd(colors.length - 1)]),
                         message,
-                        pronoun.display,
                         messagesEmote,
                         getRnd(4, 0),
                         badges[getRnd(badges.length - 1)],
