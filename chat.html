@@ -57,8 +57,11 @@
         }
 
         .msg-user::after {
-            padding: 0rem 0.3rem;
             content: ": ";
+        }
+
+        .msg-pronoun {
+            padding: 0rem 0.3rem;
         }
 
         .msg-badges>img {
@@ -359,7 +362,7 @@
 
         const config = parseURL();
 
-        console.log(['Loaded config', config]);
+        console.debug(['Loaded config', config]);
 
         let socket, pronouns_users = {},
             pronouns;
@@ -478,6 +481,8 @@
         function get_color_hex(color) {
             if (color === 'transparent') {
                 return 'transparent';
+            } else if (color === null || color === undefined) {
+                return get_color_hex(config['ui']['colors']['default']);
             } else {
                 return `#${color.r}${color.g}${color.b}`;
             }
@@ -534,7 +539,6 @@
             }, author.name);
 
             if (config['ui']['badges']['enabled'] === true && badges.length > 0) {
-                console.log(badges);
                 for (let badge of badges) {
                     let el_badge = createElement('img', {
                         'src': badge["url"],
@@ -585,15 +589,17 @@
         let StreamerBot = {
             'message': {
                 'twitch': async (msg_id, user_id, author, author_color, message, emotes = [], role = 0,
-                    badges = [], highlight = false, announcement = false) => {
+                    badges = [], highlight = false, announcement = false, pronoun = false) => {
                     // TODO handle cheermotes
 
                     if (skip_message(message, author)) {
                         return;
                     }
 
-                    await fetch_pronoun(author);
-                    pronoun = get_pronoun(author);
+                    if (pronoun === false) {
+                        await fetch_pronoun(author);
+                        pronoun = get_pronoun(author);
+                    }
 
                     author = {
                         name: author,
@@ -776,7 +782,7 @@
         }
 
         function remove_messages_by_message_id(message_id) {
-            console.log('Removing messages by message id: ' + message_id);
+            console.debug('Removing messages by message id: ' + message_id);
 
             let chat = document.getElementById('chat');
             let messages = chat.getElementsByClassName('chat-message');
@@ -815,7 +821,7 @@
         function initializeConnections() {
             // Streamer.Bot websocket connection
             if (config['plugins']['streamerbot']['enabled'] === true) {
-                console.log('Streamer.Bot is enabled');
+                console.debug('Streamer.Bot is enabled');
 
                 socket = new WebSocket(config['plugins']['streamerbot']['websocket']);
 
@@ -853,10 +859,10 @@
                         
                         socket.send(JSON.stringify(s));
                     } else {
-                        console.log('Streamer.Bot does not have any events to subscribe to');
+                        console.debug('Streamer.Bot does not have any events to subscribe to');
                     }
 
-                    console.log(['Connected to Streamer.Bot socket:', socket]);
+                    console.debug(['Connected to Streamer.Bot socket:', socket]);
                 };
 
                 socket.onclose = function () {
@@ -867,10 +873,10 @@
                 socket.onmessage = async (event) => {
                     const wsdata = JSON.parse(event.data);
 
-                    console.log(['Event', wsdata]);
+                    console.debug(['Event', wsdata]);
 
                     if (wsdata.id === 'obs-chat') {
-                        console.log([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
+                        console.debug([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
                     } else if (wsdata.event) {
                         if (wsdata.event.source === 'Twitch') {
                             if (wsdata.event.type === 'ChatMessage') {
@@ -887,7 +893,6 @@
                                 let m = wsdata.data;
 
                                 let color = '';
-                                console.log(m.announcementColor.toLowerCase());
                                 switch (m.announcementColor.toLowerCase()) {
                                     case 'blue':
                                         color = '#0099ff';
@@ -911,13 +916,13 @@
 
                             } else if (wsdata.event.type === 'UserTimedOut' || wsdata.event.type ===
                                 'UserBanned') {
-                                console.log(['User timed out or banned', wsdata]);
+                                console.debug(['User timed out or banned', wsdata]);
                                 remove_messages_by_user_id(wsdata.data.userId);
                             } else if (wsdata.event.type === 'ChatMessageDeleted') {
-                                console.log(['Message deleted', wsdata]);
+                                console.debug(['Message deleted', wsdata]);
                                 remove_messages_by_message_id(wsdata.data.targetMessageId);
                             } else {
-                                console.log(['Twitch Event not implemented', event]);
+                                console.warn(['Twitch Event not implemented', event]);
                             }
                         } else if (wsdata.event.source === 'YouTube') {
                             if (wsdata.event.type === 'Message') {
@@ -931,25 +936,25 @@
                                     m.user.isOwner, m.user.isModerator, m.user.isSponsor, m.user.isVerified);
                             } else if (wsdata.event.type === 'MessageDeleted') {
                                 // This doesn't seem to be implemented in Streamer.Bot
-                                console.log(['Message deleted', wsdata]);
+                                console.debug(['Message deleted', wsdata]);
                                 remove_messages_by_message_id(wsdata.data.eventId);
                             } else if (wsdata.event.type === 'UserBanned') {
-                                console.log(['User banned', wsdata]);
+                                console.debug(['User banned', wsdata]);
                                 remove_messages_by_user_id(wsdata.data.user.id);
                             } else {
-                                console.log(['YouTube Event not implemented', event]);
+                                console.warn(['YouTube Event not implemented', event]);
                             }
 
                             remove_old_messages();
                         }
                     } else {
-                        console.log(['Event source not implemented', event]);
+                        console.warn(['Event source not implemented', event]);
                     }
                 }
             }
 
             if (config['plugins']['beanbot']['enabled'] === true) {
-                console.log('Beanbot is enabled');
+                console.debug('Beanbot is enabled');
             }
         };
 
@@ -1193,7 +1198,7 @@
                 let pronoun = "";
                 if (pronouns) {
                     const rnd = getRnd(pronouns.length - 1);
-                    pronoun = pronouns[rnd];
+                    pronoun = pronouns[rnd].display;
                 }
                 let messagesEmote;
                 let username = names[getRnd(names.length - 1)];
@@ -1226,7 +1231,9 @@
                         messagesEmote,
                         getRnd(4, 0),
                         badges[getRnd(badges.length - 1)],
-                        !!getRnd(1)
+                        !!getRnd(1),
+                        !!getRnd(1),
+                        pronoun
                     );
                 } else {
                     StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
