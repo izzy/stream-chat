@@ -8,6 +8,20 @@
   <title></title>
 
   <style>
+    html {
+      --blue: blue;
+      --red: red;
+      --green: green;
+      --yellow: yellow;
+      --orange: orange;
+      --purple: purple;
+      --pink: pink;
+      --brown: brown;
+      --black: black;
+      --white: white;
+      --gray: gray;
+    }
+
     body {
       font-family: sans-serif;
       background: #41145F;
@@ -119,13 +133,13 @@
 
     }
 
-    #config>form>span {
+    #config>form>div>span {
       width: 100%;
       display: block;
       padding: 0.4rem 0rem;
     }
 
-    #config>form>span>label:first-child {
+    #config>form>div>span>label:first-child {
       width: 5rem;
       display: inline-block;
       width: 13rem;
@@ -159,6 +173,31 @@
 
     #drag-help {
       margin-left: 18rem;
+    }
+
+    .group {
+      display: block;
+      position: relative;
+      transform: scaleY(1);
+      height: 100%;
+      opacity: 1;
+    }
+
+    .group h2 {
+      border-bottom: 2px solid;
+      border-image-slice: 1;
+    }
+
+    .group-open {
+      transition: height 0.25s ease-in-out, opacity 0.4s ease-in-out;
+      height: 100%;
+      opacity: 1;
+    }
+
+    .group-closed {
+      transition: height 0.25s ease-in-out, opacity 0.4s ease-in-out;
+      height: 0; 
+      opacity: 0;
     }
   </style>
 </head>

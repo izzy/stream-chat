@@ -299,7 +299,7 @@
                 'youtube': false,
                 'websocket': '',
             };
-            if (streamerbotEnabled === true) {
+            if (streamerbotEnabled === searchParamIsTrue("sb_enabled")) {
                 let sb_ws_uri = 'ws://localhost:8080/';
                 if (url.searchParams.get("sb_ws_uri") !== null) {
                     sb_ws_uri = decodeURI(url.searchParams.get("sb_ws_uri"));
@@ -307,8 +307,8 @@
 
                 streamerbotConfig = {
                     'enabled': streamerbotEnabled,
-                    'twitch': true,
-                    'youtube': true,
+                    'twitch': searchParamIsTrue("sb_twitch", false),
+                    'youtube': searchParamIsTrue("sb_youtube", false),
                     'websocket': sb_ws_uri
                 }
             }
@@ -324,7 +324,7 @@
                 'plugins': {
                     'streamerbot': streamerbotConfig,
                     'beanbot': {
-                        'enabled': true
+                        'enabled': searchParamIsTrue("bb_enabled"),
                     }
                 },
                 'ui': {
@@ -1221,7 +1221,9 @@
                     return;
                 }
 
-                if (Math.random() < 0.5) {
+                if (Math.random() < 0.5 &&
+                    config["plugins"]["streamerbot"]["enabled"] === true &&
+                    config["plugins"]["streamerbot"]["twitch"] === true) {
                     StreamerBot["message"]["twitch"](
                         String(Math.random()),
                         Math.floor(Math.random() * 10000000),
@@ -1235,7 +1237,7 @@
                         !!getRnd(1),
                         pronoun
                     );
-                } else {
+                } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true)  {
                     StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
                         10000000), username, message, 0, false, false, false, false);
                 }

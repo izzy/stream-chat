@@ -6,32 +6,49 @@ const fontCheck = new Set([
 ].sort());
 
 const groups = {
+    Integrations: {
+        id: "integrations",
+        label: "Integrations",
+        color: "pink",
+    },
+
     StreamerBot: {
+        id: "streamerbot",
         label: "Streamer.Bot",
-        color: "#00ff00",
+        color: "purple",
     },
-    BeanBot: {
+
+    /*BeanBot: {
+        id: "beanbot",
         label: "Bean.Bot",
-        color: "#ff0000",
-    },
+        color: "green",
+    },*/
+
     Chat: {
+        id: "chat",
         label: "Chat",
-        color: "#00ffff",
+        color: "blue",
     },
+
     Theme: {
+        id: "theme",
         label: "Theme",
-        color: "#ffff00",
+        color: "orange",
     },
+
     Obs: {
+        id: "obs",
         label: "Obs",
-        color: "#0000ff",
+        color: "yellow",
     }
 }
 
 const fields = [
+    { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot integration when active." },
+
     { group: groups.StreamerBot, label: "Websocket URI", name: "sb_websocket", type: "text", defaultValue: "ws://localhost:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
-    { group: groups.StreamerBot, label: "Twitch", name: "sb_twitch", type: "checkbox", defaultValue: true, nullable: true, help: "Enable Twitch on Streamer.Bot" },
-    { group: groups.StreamerBot, label: "YouTube", name: "sb_youtube", type: "checkbox", defaultValue: true, nullable: true, help: "Enable YouTube on Streamer.Bot" },
+    { group: groups.StreamerBot, label: "Twitch", name: "sb_twitch", type: "checkbox", defaultValue: true, help: "Enable Twitch on Streamer.Bot" },
+    { group: groups.StreamerBot, label: "YouTube", name: "sb_youtube", type: "checkbox", defaultValue: true, help: "Enable YouTube on Streamer.Bot" },
 
     { group: groups.Chat, label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true, help: "A prefix for bot commands. If this is set, chat messages starting with this won't be displayed" },
     { group: groups.Chat, label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
@@ -72,15 +89,19 @@ const debugSwitch = document.querySelector("#debug");
 
 async function buildMarkup() {
 
-    const textElements = fields.map(({ group, label, name, type, defaultValue, nullable, help }) => {
-        if (!document.getElementById("group-" + group)) {
-            const groupEl = document.createElement("div");
-            groupEl.id = "group-" + group;
-            groupEl.classList.add("group");
-            groupEl.style.backgroundColor = group.color;
-            generatorEl.appendChild(groupEl);
-        }
+    for (const [groupName, group] of Object.entries(groups)) {
+        const groupEl = document.createElement("div");
+        groupEl.id = "group-" + group.id;
+        groupEl.classList.add("group");
+        groupHead = document.createElement("h2");
+        groupHead.innerText = group.label;
+        groupHead.style.borderImageSource = `linear-gradient(to right, var(--${group.color}), rgba(0,0,0,0))`;
+        groupEl.appendChild(groupHead);
+        generatorEl.appendChild(groupEl);
+    }
 
+    fields.map(({ group, label, name, type, defaultValue, nullable, help }) => {
+        const groupEl = document.getElementById("group-" + group.id);
         const rowEl = document.createElement("span");
 
         switch (type) {
@@ -109,6 +130,9 @@ async function buildMarkup() {
                 checkbox.value = name;
                 checkbox.name = name;
                 checkbox.type = type;
+                if (defaultValue === true) {
+                    checkbox.checked = true;
+                }
                 break;
             }
 
@@ -155,10 +179,10 @@ async function buildMarkup() {
             rowEl.append(helpEl);
         }
 
-        return rowEl;
+        groupEl.append(rowEl);
     })
 
-    generatorEl.append(...textElements);
+    
     generateURL();
 }
 
@@ -279,3 +303,16 @@ bubbles.addEventListener("change", (e) => {
 });
 
 bubbles.dispatchEvent(new Event("change"));
+
+const sb_enabled = document.querySelector("input[name=sb_enabled]");
+
+sb_enabled.addEventListener("change", (e) => {
+    const sb_group = document.getElementById("group-" + groups.StreamerBot.id);
+    if (e.target.checked) {
+        sb_group.classList.remove("group-closed");
+        sb_group.classList.add("group-open");
+    } else {
+        sb_group.classList.remove("group-open");
+        sb_group.classList.add("group-closed");
+    }
+});
