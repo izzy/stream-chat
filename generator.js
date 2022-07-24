@@ -44,11 +44,11 @@ const groups = {
 }
 
 const fields = [
-    { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot integration when active." },
+    { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot websocket integration when active." },
 
     { group: groups.StreamerBot, label: "Websocket URI", name: "sb_websocket", type: "text", defaultValue: "ws://localhost:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
-    { group: groups.StreamerBot, label: "Twitch", name: "sb_twitch", type: "checkbox", defaultValue: true, help: "Enable Twitch on Streamer.Bot" },
-    { group: groups.StreamerBot, label: "YouTube", name: "sb_youtube", type: "checkbox", defaultValue: true, help: "Enable YouTube on Streamer.Bot" },
+    { group: groups.StreamerBot, label: "Twitch", name: "sb_twitch", type: "checkbox", defaultValue: true, help: "Show Twitch messages from Streamer.Bot" },
+    { group: groups.StreamerBot, label: "YouTube", name: "sb_youtube", type: "checkbox", defaultValue: true, help: "Show YouTube messages from Streamer.Bot" },
 
     { group: groups.Chat, label: "Cmdprefix", name: "cmdprefix", type: "text", nullable: true, help: "A prefix for bot commands. If this is set, chat messages starting with this won't be displayed" },
     { group: groups.Chat, label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
