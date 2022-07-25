@@ -56,10 +56,10 @@ const fields = [
     { group: groups.Theme, label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox", help: "Set to 'horizontal' this will scroll the text from right to left instead of bottom to top" },
     { group: groups.Theme, label: "Bubbles", name: "bubbles", type: "checkbox", help: "Displays bubbles instead of the standard chat log" },
     { group: groups.Theme, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
-    { group: groups.Theme, label: "Background Color", name: "background_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
+    { group: groups.Theme, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
     { group: groups.Theme, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
     { group: groups.Theme, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
-    { group: groups.Theme, label: "Default Color", name: "background", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
+    { group: groups.Theme, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { group: groups.Theme, label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { group: groups.Theme, label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
     { group: groups.Theme, label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false, help: "If set to false this disables visual difference for highlighted messages" },
@@ -82,8 +82,10 @@ const obsLink = document.querySelector("#obs-url");
 const baseUrl = window.location.href.replace("generator.html", "chat.html?");
 
 const copyButton = document.querySelector("#copy-button");
+const loadButton = document.querySelector("#load-obs-button");
 const dragButton = document.querySelector("#obs-url");
 const urlEl = document.querySelector("#url")
+const loadUrlEl = document.querySelector("#load-url")
 const generatorEl = document.querySelector("#generator");
 const debugSwitch = document.querySelector("#debug");
 
@@ -200,6 +202,19 @@ const availableFonts = async () => {
     return [...fontAvailable.values()];
 };
 
+const changeDirection = (horizontal = false) => {
+    console.log("changeDirection", horizontal);
+    if (horizontal === true) {
+        iframe.style.width = "100%";
+        iframe.style.height = "6rem";
+        chatFrame.style.float = "none";
+    } else {
+        iframe.style.width = "300px";
+        iframe.style.height = "500px";
+        chatFrame.style.float = "left";
+    }
+}
+
 const generateURL = () => {
     const searchParams = new URLSearchParams
     const checkboxes = document.querySelectorAll("input[type=checkbox]");
@@ -215,9 +230,6 @@ const generateURL = () => {
             // Change the chat preview direction dynamically
             if (key === "direction" && value === "direction") {
                 searchParams.append(key, "horizontal");
-                iframe.style.width = "100%";
-                iframe.style.height = "6rem";
-                chatFrame.style.float = "none";
             }
 
             // Colour values
@@ -237,9 +249,6 @@ const generateURL = () => {
         if (c.checked === false && c.name) {
             if (c.name === "direction") {
                 searchParams.append(c.name, "vertical");
-                iframe.style.width = "300px";
-                iframe.style.height = "500px";
-                chatFrame.style.float = "left";
             } else {
                 searchParams.append(c.name, "false")
             }
@@ -261,19 +270,81 @@ const setUrl = (url) => {
     console.log(["new url: ", url]);
 }
 
+let toastTimeout;
+const showToast = (message, type = "success") => {
+    clearTimeout(toastTimeout);
+
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.classList = "toast-" + type;
+    toast.style.opacity = 1;
+    toastTimeout = setTimeout(() => {
+        toast.style.opacity = 0;
+    }, 5000);
+}
+
 const copyToClipBoard = () => {
     navigator.permissions.query({ name: "clipboard-write" }).then(result => {
         if (result.state == "granted" || result.state == "prompt") {
             navigator.clipboard.writeText(urlEl.value);
-            document.getElementById("copy-toast").style.opacity = 1;
-            setTimeout(() => {
-                document.getElementById("copy-toast").style.opacity = 0;
-            }, 3000);
+            showToast("Copied to clipboard!", "success");
         }
     });
 }
 
+const loadFromUrl = () => {
+    let url = loadUrlEl.value;
+    if (!url) { return; }
+
+    try {
+        url = new URL(url);
+    } catch (e) {
+        showToast("Invalid URL", "error");
+        return;
+    }
+    console.log(["load url: ", url.toString()]);
+
+    // deprecated parameters that will be rewritten
+    const deprecatedParams = {
+        "background_color": "bubble_color",
+    }
+
+    for (const [key, value] of url.searchParams.entries()) {
+        if (deprecatedParams[key]) {
+            url.searchParams.delete(key);
+            url.searchParams.append(deprecatedParams[key], value);
+        }
+    }
+
+    for (const [key, value] of url.searchParams) {
+        console.log(["Loading value: ", key, value])
+        const el = document.querySelector(`[name="${key}"]`);
+        if (el) {
+            if (el.type === "checkbox") {
+                el.checked = value === "true";
+                el.dispatchEvent(new Event("change"));
+            } else {
+                if (el.type === "color") {
+                    console.log(["color: ", value, el.name])
+                    el.value = `#${value}`;
+                } else {
+                    el.value = value;
+                }
+                const nullable = document.querySelector(`#${key}_nullable`)
+                if (nullable) {
+                    nullable.checked = true;
+                }
+            }
+        }
+    }
+
+    generateURL();
+
+    showToast("Loaded from url!", "success");
+}
+
 copyButton.addEventListener("click", copyToClipBoard)
+loadButton.addEventListener("click", loadFromUrl)
 generatorEl.addEventListener("change", generateURL)
 debugSwitch.addEventListener("change", generateURL)
 dragButton.addEventListener("click", (e) => {e.preventDefault();})
@@ -292,17 +363,22 @@ if (isLocal === true) {
 }
 
 const bubbles = document.querySelector("input[name=bubbles]");
-const background_color = document.querySelector("input[name=background_color]").parentNode;
+const bubble_color = document.querySelector("input[name=bubble_color]").parentNode;
 bubbles.addEventListener("change", (e) => {
     if (e.target.checked) {
-        background_color.style.display = "block";
+        bubble_color.style.display = "block";
     } else {
-        background_color.style.display = "none";
-        document.getElementById("background_color_nullable").checked = false;
+        bubble_color.style.display = "none";
+        document.getElementById("bubble_color_nullable").checked = false;
     }
 });
 
 bubbles.dispatchEvent(new Event("change"));
+
+const directionEl = document.querySelector("input[name=direction]");
+directionEl.addEventListener("change", (e) => {
+    changeDirection(e.target.checked);
+});
 
 const sb_enabled = document.querySelector("input[name=sb_enabled]");
 

@@ -254,7 +254,7 @@
             }
             let colors = {
                 'page_background': get_color('background'),
-                'text_background': get_color('background_color'),
+                'text_background': get_color('bubble_color'),
                 'text': get_color('text_color'),
                 'message': get_color('msg_color'),
                 'default': get_color('default_color', {
@@ -414,7 +414,7 @@
          * Get the text colour for a user.
          * TODO: change color to RGB object
          *
-         * @param {string} color The user's text color
+         * @param {Color} color The user's text color
          * @returns {string} The calculated color according to settings
          */
         function get_text_color(color) {
@@ -465,6 +465,11 @@
             }
         }
 
+        /**
+         * Returns a normalized version of the given color as RGB struct.
+         * @param {string} color A string containing a color in hexadecimal RGB notation
+         * @returns {Color} The normalized color tuple
+         */
         function get_color(color) {
             if (color === null || color === undefined) {
                 return config['ui']['colors']['default'];
@@ -478,6 +483,11 @@
             }
         }
 
+        /**
+         * Returns a hex code from an RGB color struct.
+         * @param {Color} color An RGB color struct
+         * @returns {string} A hex color code
+         */
         function get_color_hex(color) {
             if (color === 'transparent') {
                 return 'transparent';
@@ -503,7 +513,7 @@
             });
 
             if (config['ui']['colors']["message"]) {
-                el_message.style.color = config['ui']['colors']["message"];
+                el_message.style.color = get_color_hex(config['ui']['colors']["message"]);
             }
 
             let message_style = '';
@@ -811,6 +821,12 @@
 
             if (config['ui']['bubbles'] === true && config['ui']['direction'] === 'horizontal') {
                 document.getElementById('horizontal-bubbles').removeAttribute('type');
+            }
+
+            if (config['ui']['colors']['page_background'] !== null) {
+                document.body.style.background = get_color_hex(config['ui']['colors']['page_background']);
+            } else {
+                document.body.style.background = "transparent";
             }
 
             document.getElementById("chat").style.fontFamily = config['ui']['font']['family'];

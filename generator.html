@@ -99,7 +99,7 @@
       color: #00C8AF;
     }
 
-    #copy-toast {
+    #toast {
       background: #BEFAE1;
       position: absolute;
       top: 2rem;
@@ -110,6 +110,14 @@
       transition: opacity .4s ease-in-out;
       opacity: 0;
       text-shadow: none;
+    }
+
+    #toast.toast-success {
+      background: #8ff1e6;
+    }
+
+    #toast.toast-error {
+      background: #FAB4FF;
     }
 
     #chat-frame {
@@ -124,7 +132,8 @@
       border-image-source: linear-gradient(to left, #BE0078, #FA1ED2);
       border-image-slice: 1;
       background: white;
-      padding: 1rem 1rem 1rem 0.5rem;
+      padding: 0;
+      margin: 0.5rem;
     }
 
     #config>form {
@@ -220,7 +229,9 @@
       </div>
 
       <div>
-
+        <input class="input" type="text" id="load-url" />
+        <a id="load-obs-button" class="button">Load settings</a>
+        <span id="load-obs-help" class="help">?<span id="drag-help">Paste an existing URL here to load settings</span></span>
       </div>
     </div>
 
@@ -239,7 +250,7 @@
     </div>
   </section>
 
-  <div id="copy-toast">Link copied to clipboard!</div>
+  <div id="toast"></div>
   <script src="./generator.js"></script>
 </body>
 
