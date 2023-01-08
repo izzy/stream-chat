@@ -53,17 +53,29 @@
         }
 
         .msg-badges {
-            padding: 0rem 0.3rem;
             vertical-align: middle;
+        }
+
+        .msg-user::after {
+            content: ": ";
+        }
+
+        .msg-pronoun {
+            padding: 0rem 0.3rem;
         }
 
         .msg-badges>img {
             width: 1rem;
+            box-shadow: 0 0 2px black;
         }
 
         .msg-text>img {
             vertical-align: middle;
             width: 1.4rem;
+        }
+
+        .msg-text>.announcement {
+            font-weight: bold;
         }
 
         .msg-timestamp {
@@ -74,10 +86,6 @@
         .msg-user {
             font-weight: bold;
 
-        }
-
-        .msg-user::after {
-            content: ": ";
         }
     </style>
 
@@ -131,6 +139,10 @@
         .msg-user::after {
             content: "";
         }
+
+        .msg-text>.announcement {
+            display: block;
+        }
     </style>
 
     <style id="enable-horizontal" type="text">
@@ -159,6 +171,10 @@
         .msg-user {
             text-align: right;
         }
+
+        .msg-text>.announcement {
+            display: inline;
+        }
     </style>
 </head>
 
@@ -166,13 +182,25 @@
     <div id="chat"></div>
 
     <script>
-        const chat_badges = {
-            'staff': 'https://static-cdn.jtvnw.net/badges/v1/d97c37bd-a6f5-4c38-8f57-4e4bef88af34/1',
-            'admin': 'https://static-cdn.jtvnw.net/badges/v1/9ef7e029-4cdf-4d4d-a0d5-e2b3fb2583fe/1',
-            'broadcaster': 'https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/1',
-            'moderator': 'https://static-cdn.jtvnw.net/badges/v1/3267646d-33f0-4b17-b3df-f923a41db1d0/1',
-            'verified': 'https://static-cdn.jtvnw.net/badges/v1/d12a2e27-16f6-41d0-ab77-b780518f00a3/3',
-            'vip': 'https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3'
+        function getRnd(max, min = 0) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+
+        function searchParamIsTrue(p, d = false) {
+            let v = new URLSearchParams(window.location.search).get(p);
+            if (v === undefined || v === null) {
+                return d;
+            }
+
+            return String(v).toLowerCase() === 'true' || String(v) === '1';
+        }
+
+        function searchParamOrDefault(p, d = null) {
+            let v = new URLSearchParams(window.location.search).get(p);
+            if (v === null) {
+                return d;
+            }
+            return v;
         }
 
         function htmlentities(str) {
@@ -181,24 +209,30 @@
             });
         }
 
+        /**
+         * @param {string} tag The HTML tag name
+         * @param {object} attributes Attributes for the HTML tag
+         * @param {string} text The innerText of the HTML tag
+         * @returns {string}
+         */
+        function createElement(tag, attributes, text = false) {
+            let element = document.createElement(tag);
+
+            if (attributes !== undefined) {
+                for (let key in attributes) {
+                    element.setAttribute(key, attributes[key]);
+                }
+            }
+
+            if (text !== undefined && text !== false) {
+                element.innerText = text;
+            }
+
+            return element;
+        }
+
         function parseURL() {
             let url = new URL(document.URL);
-
-            if (url.searchParams.get("ws_uri") !== null) {
-                ws_uri = decodeURI(url.searchParams.get("ws_uri"));
-            } else {
-                ws_uri = 'ws://localhost:8080/';
-            }
-
-            let is_true = (v, d = false) => {
-                if (v === undefined || v === null) {
-                    return d;
-                }
-
-                return String(v).toLowerCase() === 'true' || String(v) === '1';
-            }
-
-            let bubbles = is_true(url.searchParams.get("bubbles"), false);
 
             direction = 'vertical';
             if (url.searchParams.get("direction") !== null) {
@@ -206,50 +240,29 @@
                     'vertical';
             }
 
-            if (is_true(bubbles)) {
-                console.log('Enabled bubble display');
-                document.getElementById('enable-bubbles').removeAttribute('type');
+            const get_color = (p, d = null) => {
+                let u = url.searchParams.get(p);
+                if (u === null) {
+                    return d;
+                }
+                let c = {
+                    r: u.slice(0, 2),
+                    g: u.slice(2, 4),
+                    b: u.slice(4, 6)
+                };
+                return c;
             }
-
-            if (direction === 'horizontal') {
-                console.log('Set text to horizontal scroll direction');
-                document.getElementById('enable-horizontal').removeAttribute('type');
-            }
-
-            if (is_true(bubbles) && direction === 'horizontal') {
-                document.getElementById('horizontal-bubbles').removeAttribute('type');
-            }
-
-            let background_color = null;
-            if (url.searchParams.get("background_color") !== null) {
-                background_color = '#' + url.searchParams.get("background_color");
-            }
-
-            let text_color = null;
-            if (url.searchParams.get("text_color") !== null) {
-                text_color = '#' + url.searchParams.get("text_color");
-            }
-
-            let message_color = null;
-            if (url.searchParams.get("msg_color") !== null) {
-                message_color = '#' + url.searchParams.get("msg_color");
-            }
-
-            let default_color = null;
-            if (url.searchParams.get("default_color") !== null) {
-                default_color = '#' + url.searchParams.get("default_color");
-            } else {
-                default_color = '#ffe0f0';
-            }
-
-            if (url.searchParams.get("background") !== null) {
-                document.body.style.background = '#' + url.searchParams.get("background");
-            }
-
-            if (url.searchParams.get("emote_size") !== null) {
-                emote_size = url.searchParams.get("emote_size");
-            } else {
-                emote_size = '1.4';
+            let colors = {
+                'page_background': get_color('background'),
+                'text_background': get_color('bubble_color'),
+                'text': get_color('text_color'),
+                'message': get_color('msg_color'),
+                'default': get_color('default_color', {
+                    r: 'ff',
+                    g: 'e0',
+                    b: 'f0'
+                }),
+                'pastel': searchParamIsTrue("pastel"),
             }
 
             let cmdprefix = null;
@@ -261,19 +274,6 @@
             if (url.searchParams.get("bots") !== null) {
                 bot_list = url.searchParams.get("bots").toLowerCase().split(',');
             }
-            // set font family with default 'Open Sans'
-            let fontfamily = 'Open Sans';
-            if (url.searchParams.get("fontfamily") !== null) {
-                fontfamily = url.searchParams.get("fontfamily");
-            }
-            document.getElementById("chat").style.fontFamily = fontfamily;
-
-            // set font size with default 'large'
-            let fontsize = 'large';
-            if (url.searchParams.get("fontsize") !== null) {
-                fontsize = url.searchParams.get("fontsize");
-            }
-            document.getElementById("chat").style.fontSize = fontsize;
 
             // TODO: Implement different timestamp formats
             let timestamp = false;
@@ -284,46 +284,91 @@
             };
 
             if (url.searchParams.get("timestamp") !== null) {
-                timestamp = is_true(url.searchParams.get("timestamp"));
+                timestamp = searchParamIsTrue("timestamp");
             }
 
             if (url.searchParams.get("timestamp_locale") !== null) {
                 timestamp_locale = url.searchParams.get("timestamp_locale");
             }
 
+            // Streamer.Bot specific configuration
+            let streamerbotEnabled = true;
+            let streamerbotConfig = {
+                'enabled': false,
+                'twitch': false,
+                'youtube': false,
+                'websocket': '',
+            };
+            if (streamerbotEnabled === searchParamIsTrue("sb_enabled")) {
+                let sb_ws_uri = 'ws://localhost:8080/';
+                if (url.searchParams.get("sb_ws_uri") !== null) {
+                    sb_ws_uri = decodeURI(url.searchParams.get("sb_ws_uri"));
+                }
+
+                streamerbotConfig = {
+                    'enabled': streamerbotEnabled,
+                    'twitch': searchParamIsTrue("sb_twitch", false),
+                    'youtube': searchParamIsTrue("sb_youtube", false),
+                    'websocket': sb_ws_uri
+                }
+            }
+
+            // Bean.Bot specific configuration
+            let beanbotEnabled = true;
+            let beanbotConfig = {
+                'enabled': false,
+                'twitch': false,
+                'websocket': 'ws://localhost:6969/',
+            };
             return {
-                'direction': direction,
-                'background_color': background_color,
-                'text_color': text_color,
-                'msg_color': message_color,
-                'default_color': default_color,
-                'pastel': is_true(url.searchParams.get("pastel")),
-                'highlights': is_true(url.searchParams.get("highlights"), true),
-                'badges': is_true(url.searchParams.get("badges"), true),
-                'badges_left': is_true(url.searchParams.get("badges_left"), false),
-                'bubbles': bubbles,
-                'emote_size': emote_size,
-                'pronouns': is_true(url.searchParams.get("pronouns"), true),
-                'timestamp': is_true(url.searchParams.get("timestamp"), false),
-                'timestamp-locale': timestamp_locale,
-                'timestamp-options': timestamp_options,
-                'cmdprefix': cmdprefix,
-                'bot_list': bot_list,
-                'fade_duration': url.searchParams.get("fade_duration") || false,
-                'max_messages': url.searchParams.get("max_messages") || false,
-                'debug': is_true(url.searchParams.get("debug")),
-                'ws_uri': ws_uri
+                'plugins': {
+                    'streamerbot': streamerbotConfig,
+                    'beanbot': {
+                        'enabled': searchParamIsTrue("bb_enabled"),
+                    }
+                },
+                'ui': {
+                    'direction': direction,
+                    'bubbles': searchParamIsTrue("bubbles"),
+                    'colors': colors,
+                    'timestamp': {
+                        'enabled': searchParamIsTrue("timestamp"),
+                        'locale': timestamp_locale,
+                        'options': timestamp_options,
+                    },
+                    'fade_duration': searchParamOrDefault("fade_duration", false),
+                    'max_messages': searchParamOrDefault("max_messages", false),
+                    'pronouns': searchParamIsTrue("pronouns", true),
+                    'highlights': searchParamIsTrue("highlights", true),
+                    'announcements': searchParamIsTrue("announcements", false),
+                    'badges': {
+                        'enabled': searchParamIsTrue("badges", true),
+                        'left': searchParamIsTrue("badges_left"),
+                    },
+                    'emote_size': searchParamOrDefault('emote_size', '1.4rem'),
+                    'font': {
+                        'family': searchParamOrDefault("fontfamily", "Open Sans"),
+                        'size': searchParamOrDefault("fontsize", "large")
+                    },
+                },
+                'exclusion': {
+                    'cmdprefix': cmdprefix,
+                    'bots': bot_list,
+                },
+                'debug': searchParamIsTrue("debug"),
+
             }
         }
 
         const config = parseURL();
 
-        console.log(['Loaded config', config]);
+        console.debug(['Loaded config', config]);
 
         let socket, pronouns_users = {},
             pronouns;
 
         // Fill the pronoun cache
+        // TODO: Handle errors on this
         fetch('https://pronouns.alejo.io/api/pronouns').then(response => response.json()).then(data => {
             pronouns = data;
         });
@@ -358,116 +403,134 @@
          * @returns {string|bool} The pronoun for the user
          */
         function get_pronoun(user) {
-            if (config['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
+            if (config['ui']['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
                 return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
             } else {
                 return false;
             }
         }
 
+        /**
+         * Get the text colour for a user.
+         * TODO: change color to RGB object
+         *
+         * @param {Color} color The user's text color
+         * @returns {string} The calculated color according to settings
+         */
         function get_text_color(color) {
             // TODO pastel mode for text color
-            if (config['text_color'] !== null) {
-                return config['text_color'];
+            if (config['ui']['colors']['text']) {
+                return config['ui']['colors']['text'];
             }
 
-            color = color.replace('#', '');
-            let color_r = parseInt((color.charAt(0) + color.charAt(1)), 16);
-            let color_g = parseInt((color.charAt(2) + color.charAt(3)), 16);
-            let color_b = parseInt((color.charAt(4) + color.charAt(5)), 16);
+            let color_r = parseInt((color.r), 16);
+            let color_g = parseInt((color.g), 16);
+            let color_b = parseInt((color.b), 16);
 
             let brightness = Math.round(((parseInt(color_r) * 299) +
                 (parseInt(color_g) * 587) +
                 (parseInt(color_b) * 114)) / 1000);
 
             if (brightness < 125) {
-                return 'white';
+                return {
+                    r: 'FF',
+                    g: 'FF',
+                    b: 'FF'
+                };
             } else {
-                return 'black';
+                return {
+                    r: '00',
+                    g: '00',
+                    b: '00'
+                };
             }
         }
 
         /**
          * Get the background color for a user.
-         * @param {string} color A six digit hex color code
+         * @param {Color} color An RGB tuple of the user's text color
          * @param {string} override_source Config attribute to take for overrides
-         * @returns {string} The background color for the user
+         * @returns {Color} The background color for the user
          */
-        function get_user_color(color, override_source = "background_color") {
+        function get_user_color(color, override_source = "text_background") {
             // TODO pastel mode for background color
-            if (config[override_source] !== null) {
-                return config[override_source];
+            if (config['ui']['colors'][override_source]) {
+                return config['ui']['colors'][override_source];
             }
 
-            if (!color) {
-                return config['default_color'];
+            if (color === null || color === undefined) {
+                return config['ui']['colors']['default'];
             } else {
                 return color;
             }
         }
 
-        function createElement(tag, attributes, text = false) {
-            let element = document.createElement(tag);
-
-            if (attributes !== undefined) {
-                for (let key in attributes) {
-                    element.setAttribute(key, attributes[key]);
-                }
+        /**
+         * Returns a normalized version of the given color as RGB struct.
+         * @param {string} color A string containing a color in hexadecimal RGB notation
+         * @returns {Color} The normalized color tuple
+         */
+        function get_color(color) {
+            if (color === null || color === undefined) {
+                return config['ui']['colors']['default'];
+            } else {
+                color = color.replace('#', '');
+                return {
+                    r: color.slice(0, 2),
+                    g: color.slice(2, 4),
+                    b: color.slice(4, 6)
+                };
             }
-
-            if (text !== undefined && text !== false) {
-                element.innerText = text;
-            }
-
-            return element;
         }
 
-        function add_sb_twitch_message(msg_id, user_id, author, author_color, message, pronoun = false, emotes = [],
-            role = 0, badges = [], highlight = false) {
-            // TODO handle cheermotes
-
-            // XSS protection for the message
-            message = htmlentities(message);
-
-            if (pronoun !== false) {
-                pronoun = `(${pronoun})`;
+        /**
+         * Returns a hex code from an RGB color struct.
+         * @param {Color} color An RGB color struct
+         * @returns {string} A hex color code
+         */
+        function get_color_hex(color) {
+            if (color === 'transparent') {
+                return 'transparent';
+            } else if (color === null || color === undefined) {
+                return get_color_hex(config['ui']['colors']['default']);
+            } else {
+                return `#${color.r}${color.g}${color.b}`;
             }
+        }
 
-            // Get colors based on settings / user data
-            // I hate the names of these variables because they're used inconsistently,
-            // but I'm not sure what else to call them
-            let background_color = get_user_color(author_color);
+        let add_message = (id, message, author, color, timestamp, badges = [], highlight = false) => {
+            let background_color = get_user_color(color);
             let text_color = get_text_color(background_color);
-
-            let message_style = '';
-            if (highlight === true && config['highlights'] === true) {
-                message_style = `background-color: ${background_color}; color: ${text_color};`;
-            }
 
             let el_badges = createElement('span', {
                 'class': 'msg-badges'
             });
             let el_pronoun = createElement('span', {
                 'class': 'msg-pronoun'
-            }, pronoun);
+            }, author['pronoun']);
             let el_message = createElement('span', {
                 'class': 'msg-text'
             });
 
-            let message_color = config["msg_color"];
-            if (message_color) {
-                el_message.style.color = message_color;
+            if (config['ui']['colors']["message"]) {
+                el_message.style.color = get_color_hex(config['ui']['colors']["message"]);
+            }
+
+            let message_style = '';
+            if (highlight === true && config['ui']['highlights'] === true) {
+                message_style =
+                    `background-color: ${get_color_hex(background_color)}; color: ${get_color_hex(text_color)};`;
             }
 
             let div_message = createElement('div', {
-                'id': msg_id,
-                'data-user-id': user_id,
+                'id': id,
+                'data-user-id': author['id'],
                 'class': 'chat-message',
-                'style': `border-color: ${background_color}; ${message_style}`
+                'style': `border-color: ${get_color_hex(background_color)}; ${message_style}`
             });
 
-            if (config['fade_duration'] !== null) {
-                fade_duration = config['fade_duration'];
+            if (config['ui']['fade_duration'] !== null) {
+                fade_duration = config['ui']['fade_duration'];
                 let tmp_style = div_message.getAttribute("style");
                 let fade_style = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fade_duration +
                     "s 1 normal forwards; margin-left: 0.5rem; float: left;";
@@ -475,59 +538,53 @@
             }
 
             // If we don't use bubbles, we don't use the user colour as background
-            if (config['bubbles'] === false) {
-                text_color = get_user_color(author_color, "text_color");
+            if (config['ui']['bubbles'] === false) {
+                text_color = get_user_color(color, "text_color");
                 background_color = "transparent";
             }
+
             let el_user = createElement('span', {
                 'class': 'msg-user',
-                'style': `color: ${text_color}; background-color: ${background_color}`
-            }, author);
+                'style': `color: ${get_color_hex(text_color)}; background-color: ${get_color_hex(background_color)}`
+            }, author.name);
 
-            if (config['badges'] === true) {
-                console.log(badges)
+            if (config['ui']['badges']['enabled'] === true && badges.length > 0) {
                 for (let badge of badges) {
-                    let el_badge = document.createElement('img');
-                    el_badge.src = badge["imageUrl"];
+                    let el_badge = createElement('img', {
+                        'src': badge["url"],
+                    });
                     el_badges.appendChild(el_badge);
                 }
-            }
-
-            for (const emote in emotes) {
-                let el_emote = document.createElement('img');
-                el_emote.src = emotes[emote].imageUrl;
-                if (parseInt(config['emote_size']) > 0) {
-                    el_emote.style = `height: ${config['emote_size']}rem; width: auto;`;
-                }
-
-                message = message.replace(emotes[emote].name, el_emote.outerHTML);
             }
 
             el_message.innerHTML = message;
 
             // Adds badges and pronouns to the user line
-            if (config['badges_left'] === false) {
+            if (config['ui']['badges']['left'] === false) {
                 el_user.appendChild(el_badges);
             } else {
                 el_user.prepend(el_badges);
             }
 
             // add timestamp
-            if (config['timestamp'] === true) {
+            if (config['ui']['timestamp']['enabled'] === true) {
                 var date = new Date();
-                let el_timestamp = createElement(
-                    'span', {
+                let el_timestamp = createElement('span', {
                         'class': 'msg-timestamp'
-                    }, date.toLocaleTimeString(config['timestamp-locale'], config['timestamp-options'])
-                );
-                if (config['bubbles'] === false) {
+                    },
+                    date.toLocaleTimeString(config['ui']['timestamp']['locale'], config['ui']['timestamp'][
+                        'options'
+                    ]));
+                if (config['ui']['bubbles'] === false) {
                     div_message.appendChild(el_timestamp);
                 } else {
                     el_user.prepend(el_timestamp);
                 }
             }
 
-            el_user.appendChild(el_pronoun);
+            if (author['pronoun']) {
+                el_user.appendChild(el_pronoun);
+            }
 
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
@@ -539,9 +596,139 @@
             element.scrollTop = element.scrollHeight;
         }
 
+        let StreamerBot = {
+            'message': {
+                'twitch': async (msg_id, user_id, author, author_color, message, emotes = [], role = 0,
+                    badges = [], highlight = false, announcement = false, pronoun = false) => {
+                    // TODO handle cheermotes
+
+                    if (skip_message(message, author)) {
+                        return;
+                    }
+
+                    if (pronoun === false) {
+                        await fetch_pronoun(author);
+                        pronoun = get_pronoun(author);
+                    }
+
+                    author = {
+                        name: author,
+                        id: user_id,
+                        pronoun: pronoun === false ? false : `(${pronoun})`,
+                    }
+
+                    // XSS protection for the message
+                    message = htmlentities(message);
+
+                    for (const emote in emotes) {
+                        let el_emote = document.createElement('img');
+                        el_emote.src = emotes[emote].imageUrl;
+                        if (parseInt(config['ui']['emote_size']) > 0) {
+                            el_emote.style = `height: ${config['ui']['emote_size']}rem; width: auto;`;
+                        }
+
+                        message = message.replace(emotes[emote].name, el_emote.outerHTML);
+                    }
+
+                    if (badges.length > 0) {
+                        badges = badges.map(badge => {
+                            return {
+                                url: badge["imageUrl"]
+                            };
+                        });
+                    }
+
+                    if (announcement === true) {
+                        message = '<span class="announcement">📢 Announcement: </span>' + message;
+                    }
+
+                    let color = get_color(author_color);
+                    add_message(msg_id, message, author, color, 0, badges, highlight);
+                },
+                'youtube': (message_id, user_id, user_name, message, timestamp, owner, moderator, sponsor,
+                    verified) => {
+                    // TODO: Add message
+                    // TODO: Add youtube logo as badge
+                    // TODO: Add badges for owner, moderator, sponsor, verified
+
+                    let author = {
+                        name: user_name,
+                        id: user_id,
+                        pronoun: false,
+                    }
+
+                    let color = get_user_color({
+                        r: 'FF',
+                        g: '00',
+                        b: '00'
+                    });
+                    let badges = [{
+                        'url': 'https://yt3.ggpht.com/m6yqTzfmHlsoKKEZRSZCkqf6cGSeHtStY4rIeeXLAk4N9GY_yw3dizdZoxTrjLhlY4r_rkz3GA=w24-h24-c-k-nd'
+                    }];
+                    message = htmlentities(message);
+
+                    const yt_emote_width = '28';
+                    const yt_emote_height = '28';
+
+                    if (parseInt(config['ui']['emote_size']) > 0) {
+                        const yt_emote_width = config['ui']['emote_size'];
+                        const yt_emote_height = config['ui']['emote_size'];
+                    }
+
+                    const yt_emotes = {
+                        ':yt:': `https://yt3.ggpht.com/m6yqTzfmHlsoKKEZRSZCkqf6cGSeHtStY4rIeeXLAk4N9GY_yw3dizdZoxTrjLhlY4r_rkz3GA=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':oops:': `https://yt3.ggpht.com/qByNS7xmuQXsb_5hxW2ggxwQZRN8-biWVnnKuL5FK1zudxIeim48zRVPk6DRq_HgaeKltHhm=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':buffering:': `https://yt3.ggpht.com/foWgzjN0ggMAA0CzDPfPZGyuGwv_7D7Nf6FGLAiomW5RRXj0Fs2lDqs2U6L52Z4J2Zb-D5tCUAA=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':stayhome:': `https://yt3.ggpht.com/u3QDxda8o4jrk_b01YtJYKb57l8Zw8ks8mCwGkiZ5hC5cQP_iszbsggxIWquZhuLRBzl5IEM2w=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':dothefive:': `https://yt3.ggpht.com/ktU04FFgK_a6yaXCS1US-ReFkLjD22XllcIMOyBRHuYKLsrxpVxsauV1gSC2RPraMJWXpWcY=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':elbowbump:': `https://yt3.ggpht.com/gt39CIfizoIAce9a8IzjfrADV5CjTbSyFKUlLMXzYILxJRjwAgYQQJ9PXXxnRvrnTec7ZpfHN4k=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':goodvibes:': `https://yt3.ggpht.com/6LPOiCw9bYr3ZXe8AhUoIMpDe_0BglC4mBmi-uC4kLDqDIuPu4J3ErgV0lEhgzXiBluq-I8j=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':thanksdoc:': `https://yt3.ggpht.com/Av7Vf8FxIp0_dQg4cJrPcGmmL7v9RXraOXMp0ZBDN693ewoMTHbbS7D7V3GXpbtZPSNcRLHTQw=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':videocall:': `https://yt3.ggpht.com/bP-4yir3xZBWh-NKO4eGJJglr8m4dRnHrAKAXikaOJ0E5YFNkJ6IyAz3YhHMyukQ1kJNgQAo=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':virtualhug:': `https://yt3.ggpht.com/-o0Di2mE5oaqf_lb_RI3igd0fptmldMWF9kyQpqKWkdAd7M4cT5ZKzDwlmSSXdcBp3zVLJ41yg=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':yougotthis:': `https://yt3.ggpht.com/WxLUGtJzyLd4dcGaWnmcQnw9lTu9BW3_pEuCp6kcM2pxF5p5J28PvcYIXWh6uCm78LxGJVGn9g=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':sanitizer:': `https://yt3.ggpht.com/4PaPj_5jR1lkidYakZ4EkxVqNr0Eqp4g0xvlYt_gZqjTtVeyHBszqf57nB9s6uLh7d2QtEhEWEc=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':takeout:': `https://yt3.ggpht.com/ehUiXdRyvel0hba-BopQoDWTvM9ogZcMPaaAeR6IA9wkocdG21aFVN_IylxRGHtl2mE6L9jg1Do=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':hydrate:': `https://yt3.ggpht.com/Plqt3RM7NBy-R_eA90cIjzMEzo8guwE0KqJ9QBeCkPEWO7FvUqKU_Vq03Lmv9XxMrG6A3Ouwpg=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':chillwcat:': `https://yt3.ggpht.com/ZN5h05TnuFQmbzgGvIfk3bgrV-_Wp8bAbecOqw92s2isI6GLHbYjTyZjcqf0rKQ5t4jBtlumzw=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':chillwdog:': `https://yt3.ggpht.com/jiaOCnfLX0rqed1sISxULaO7T-ktq2GEPizX9snaxvMLxQOMmWXMmAVGyIbYeFS2IvrMpxvFcQ=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':elbowcough:': `https://yt3.ggpht.com/kWObU3wBMdHS43q6-ib2KJ-iC5tWqe7QcEITaNApbXEZfrik9E57_ve_BEPHO86z4Xrv8ikMdW0=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':learning:': `https://yt3.ggpht.com/LiS1vw8KUXmczimKGfA-toRYXOcV1o-9aGSNRF0dGLk15Da2KTAsU-DXkIao-S7-kCkSnJwt=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':washhands:': `https://yt3.ggpht.com/66Fn-0wiOmLDkoKk4FSa9vD0yymtWEulbbQK2x-kTBswQ2auer_2ftvmrJGyMMoqEGNjJtipBA=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':socialdist': `https://yt3.ggpht.com/0WD780vTqUcS0pFq423D8WRuA_T8NKdTbRztChITI9jgOqOxD2r6dthbu86P6fIggDR6omAPfnQ=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                        ':shelterin:': `https://yt3.ggpht.com/KgaktgJ3tmEFB-gMtjUcuHd6UKq50b-S3PbHEOSUbJG7UddPoJSmrIzysXA77jJp5oRNLWG84Q=w${yt_emote_width}-h${yt_emote_height}-c-k-nd`,
+                    };
+
+                    for (const e in yt_emotes) {
+                        let el_emote = document.createElement('img');
+                        el_emote.src = yt_emotes[e];
+                        el_emote.style = `height: ${yt_emote_height}px; width: ${yt_emote_width}px;`;
+
+                        message = message.replaceAll(e, el_emote.outerHTML);
+                    }
+
+                    add_message(message_id, message, author, color, timestamp, badges, false);
+                }
+            },
+        }
+
+        let BeanBot = {
+            'message': {
+                'twitch': (message) => {
+                    console.log(message);
+                }
+            }
+        }
+
+        /**
+         * Checks if a message should be skipped.
+         * @param {string} message The message to check
+         * @param {string} user The user name to check
+         * @returns {boolean} True if the message should be skipped, false otherwise
+         */
         function skip_message(message, user) {
-            if ((config['cmdprefix'] !== false && message.startsWith(config['cmdprefix'])) ||
-                (config['bot_list'].includes(user))) {
+            if ((config['exclusion']['cmdprefix'] !== false && message.startsWith(config['exclusion']['cmdprefix'])) ||
+                (config['exclusion']['bots'].includes(user.toLowerCase()))) {
                 return true;
             } else {
                 return false;
@@ -554,8 +741,8 @@
             let messages_to_remove = [];
 
             // Remove old messages when there are more than the max_messages setting
-            if (config['max_messages'] !== false) {
-                let max_messages = config['max_messages'];
+            if (config['ui']['max_messages'] !== false) {
+                let max_messages = config['ui']['max_messages'];
                 if (messages.length > max_messages) {
                     for (let i = 0; i < messages.length - max_messages; i++) {
                         messages_to_remove.push(messages[i]);
@@ -568,14 +755,14 @@
                 // Remove messages that are outside the bounding box
                 // bottom when vertical scrolling is enabled,
                 // right when horizontal scrolling is enabled
-                if ((config['direction'] === 'vertical' && messages[i].getBoundingClientRect().bottom < 0) ||
-                    (config['direction'] === 'horizontal' && messages[i].getBoundingClientRect().right < 0)
+                if ((config['ui']['direction'] === 'vertical' && messages[i].getBoundingClientRect().bottom < 0) ||
+                    (config['ui']['direction'] === 'horizontal' && messages[i].getBoundingClientRect().right < 0)
                 ) {
                     messages_to_remove.push(messages[i]);
                 }
 
                 // Remove messages that are older than the max age (fade_duration)
-                else if (parseInt(config['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity ===
+                else if (parseInt(config['ui']['fade_duration']) > 0 && window.getComputedStyle(messages[i]).opacity ===
                     "0") {
                     messages_to_remove.push(messages[i]);
                 }
@@ -587,7 +774,7 @@
         }
 
         function remove_messages_by_user_id(user_id) {
-            console.log('Removing messages by user id: ' + user_id);
+            console.debug('Removing messages by user id: ' + user_id);
 
             let chat = document.getElementById('chat');
             let messages = chat.getElementsByClassName('chat-message');
@@ -605,7 +792,7 @@
         }
 
         function remove_messages_by_message_id(message_id) {
-            console.log('Removing messages by message id: ' + message_id);
+            console.debug('Removing messages by message id: ' + message_id);
 
             let chat = document.getElementById('chat');
             let messages = chat.getElementsByClassName('chat-message');
@@ -622,71 +809,174 @@
             }
         }
 
-        function connectws() {
-            socket = new WebSocket(config['ws_uri']);
+        function initializeTheme() {
+            // Set up the UI
+            if (config['ui']['bubbles'] === true) {
+                document.getElementById('enable-bubbles').removeAttribute('type');
+            }
 
-            socket.onmessage = async (event) => {
-                const wsdata = JSON.parse(event.data);
+            if (config['ui']['direction'] === 'horizontal') {
+                document.getElementById('enable-horizontal').removeAttribute('type');
+            }
 
-                console.log(['Event', wsdata]);
+            if (config['ui']['bubbles'] === true && config['ui']['direction'] === 'horizontal') {
+                document.getElementById('horizontal-bubbles').removeAttribute('type');
+            }
 
-                if (wsdata.id === 'obs-chat') {
-                    console.log([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
-                } else if (wsdata.event.source === 'Twitch' && wsdata.event.type === 'ChatMessage') {
-                    let m = wsdata.data.message;
+            if (config['ui']['colors']['page_background'] !== null) {
+                document.body.style.background = get_color_hex(config['ui']['colors']['page_background']);
+            } else {
+                document.body.style.background = "transparent";
+            }
 
-                    if (skip_message(m.message, m.username)) {
-                        return;
-                    }
+            document.getElementById("chat").style.fontFamily = config['ui']['font']['family'];
+            document.getElementById("chat").style.fontSize = config['ui']['font']['size'];
 
-                    await fetch_pronoun(m.username);
-                    pronoun = get_pronoun(m.username);
+        }
 
-                    add_sb_twitch_message(m.msgId, m.userId, m.displayName, m.color, m.message, pronoun, m
-                        .emotes, m.role, m.badges, m.isHighlighted);
+        function initializeConnections() {
+            // Streamer.Bot websocket connection
+            if (config['plugins']['streamerbot']['enabled'] === true) {
+                console.debug('Streamer.Bot is enabled');
 
-                    remove_old_messages();
-                } else if (wsdata.event.source === 'Twitch' && (wsdata.event.type === 'UserTimedOut' || wsdata
-                        .event.type === 'UserBanned')) {
-                    console.log(['User timed out or banned', wsdata]);
-                    remove_messages_by_user_id(wsdata.data.userId);
-                } else if (wsdata.event.source === 'Twitch' && (wsdata.event.type === 'ChatMessageDeleted')) {
-                    console.log(['Message deleted', wsdata]);
-                    remove_messages_by_message_id(wsdata.data.targetMessageId);
-                } else {
-                    console.log(['Event not implemented', event]);
-                }
+                socket = new WebSocket(config['plugins']['streamerbot']['websocket']);
 
-            };
+                socket.onopen = () => {
+                    subscribeEvents = {}
 
-            socket.onopen = () => {
-                socket.send(JSON.stringify({
-                    "request": "Subscribe",
-                    "id": "obs-chat",
-                    "events": {
-                        "Twitch": [
+                    if (config['plugins']['streamerbot']['twitch'] === true) {
+                        subscribeEvents['Twitch'] = [
                             "ChatMessage",
+                            "FirstWord",
+                            "Announcement",
                             "UserTimedOut",
                             "UserBanned",
                             "ChatMessageDeleted"
-                        ]
+                        ];
                     }
-                }));
 
-                console.log(`Connected to ${config['ws_uri']}`);
-            };
+                    if (config['plugins']['streamerbot']['youtube'] === true) {
+                        // it's "youTube", not "YouTube"
+                        // that's just what it's called in Streamer.Bot 🤷🏼‍♀️
+                        subscribeEvents['YouTube'] = [
+                            "Message",
+                            "MessageDeleted",
+                            "UserBanned",
+                            "SuperChat"
+                        ];
+                    }
 
-            socket.onclose = function () {
-                setTimeout(connectws, 10000);
-            };
-        }
+                    if (Object.keys(subscribeEvents).length > 0) {
+                        let s = {
+                            "request": "Subscribe",
+                            "id": "obs-chat",
+                            "events": subscribeEvents
+                        };
+                        
+                        socket.send(JSON.stringify(s));
+                    } else {
+                        console.debug('Streamer.Bot does not have any events to subscribe to');
+                    }
 
+                    console.debug(['Connected to Streamer.Bot socket:', socket]);
+                };
 
-        function getRnd(max, min = 0) {
-            return Math.floor(Math.random() * (max - min + 1) + min);
-        }
+                socket.onclose = function () {
+                    console.warn('Disconnected from Streamer.Bot socket.');
+                    setTimeout(initializeConnections, 10000);
+                };
 
+                socket.onmessage = async (event) => {
+                    const wsdata = JSON.parse(event.data);
+
+                    console.debug(['Event', wsdata]);
+
+                    if (wsdata.id === 'obs-chat') {
+                        console.debug([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
+                    } else if (wsdata.event) {
+                        if (wsdata.event.source === 'Twitch') {
+                            if (wsdata.event.type === 'ChatMessage') {
+                                let m = wsdata.data.message;
+
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, m.color, m
+                                    .message, m.emotes, m.role, m.badges, m.isHighlighted, false);
+
+                            } else if (wsdata.event.type === 'Announcement') {
+                                if (config["ui"]["announcements"] === false) {
+                                    return;
+                                }
+
+                                let m = wsdata.data;
+
+                                let color = '';
+                                switch (m.announcementColor.toLowerCase()) {
+                                    case 'blue':
+                                        color = '#0099ff';
+                                        break;
+                                    case 'green':
+                                        color = '#00ff00';
+                                        break;
+                                    case 'orange':
+                                        color = '#ff9900';
+                                        break;
+                                    case 'purple':
+                                        color = '#9900ff';
+                                        break;
+                                    default:
+                                        color = m.color;
+                                        break;
+                                }
+
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, color, m
+                                    .message, m.emotes, m.role, m.badges, true, true);
+
+                            } else if (wsdata.event.type === 'UserTimedOut' || wsdata.event.type ===
+                                'UserBanned') {
+                                console.debug(['User timed out or banned', wsdata]);
+                                remove_messages_by_user_id(wsdata.data.userId);
+                            } else if (wsdata.event.type === 'ChatMessageDeleted') {
+                                console.debug(['Message deleted', wsdata]);
+                                remove_messages_by_message_id(wsdata.data.targetMessageId);
+                            } else {
+                                console.warn(['Twitch Event not implemented', event]);
+                            }
+                        } else if (wsdata.event.source === 'YouTube') {
+                            if (wsdata.event.type === 'Message') {
+                                let m = wsdata.data;
+
+                                if (skip_message(m.message, m.user['name'])) {
+                                    return;
+                                }
+
+                                StreamerBot['message']['youtube'](m.eventId, m.user.id, m.user.name, m.message,
+                                    m.user.isOwner, m.user.isModerator, m.user.isSponsor, m.user.isVerified);
+                            } else if (wsdata.event.type === 'MessageDeleted') {
+                                // This doesn't seem to be implemented in Streamer.Bot
+                                console.debug(['Message deleted', wsdata]);
+                                remove_messages_by_message_id(wsdata.data.eventId);
+                            } else if (wsdata.event.type === 'UserBanned') {
+                                console.debug(['User banned', wsdata]);
+                                remove_messages_by_user_id(wsdata.data.user.id);
+                            } else {
+                                console.warn(['YouTube Event not implemented', event]);
+                            }
+
+                            remove_old_messages();
+                        }
+                    } else {
+                        console.warn(['Event source not implemented', event]);
+                    }
+                }
+            }
+
+            if (config['plugins']['beanbot']['enabled'] === true) {
+                console.debug('Beanbot is enabled');
+            }
+        };
+
+        initializeTheme();
         if (config["debug"] === true) {
+            // Debugging is used in the Overlay generator live preview
             const messages = [
                 "Are you a robot?",
                 "How are you?",
@@ -832,39 +1122,103 @@
                 "Joanna Cole",
             ];
 
-            const colors = [
-                "#B0BF1A",
-                "#0048BA",
-                "#7CB9E8",
-                "#C0E8D5",
-                "#B284BE",
-                "#72A0C1",
-                "#DB2D43",
-                "#EDEAE0",
-                "#C46210",
-                "#F0F8FF",
-                "#EFDECD",
-                "#9F2B68",
-                "#E52B50",
-                "#AB274F",
-                "#F19CBB",
-                "#3B7A57",
-                "#D3212D",
+            const colors = [{
+                    r: "B0",
+                    g: "BF",
+                    b: "1A"
+                },
+                {
+                    r: "00",
+                    g: "48",
+                    b: "BA"
+                },
+                {
+                    r: "7C",
+                    g: "B9",
+                    b: "E8"
+                },
+                {
+                    r: "C0",
+                    g: "E8",
+                    b: "D5"
+                },
+                {
+                    r: "B2",
+                    g: "84",
+                    b: "BE"
+                },
+                {
+                    r: "72",
+                    g: "A0",
+                    b: "C1"
+                },
+                {
+                    r: "DB",
+                    g: "2D",
+                    b: "43"
+                },
+                {
+                    r: "ED",
+                    g: "EA",
+                    b: "E0"
+                },
+                {
+                    r: "C4",
+                    g: "62",
+                    b: "10"
+                },
+                {
+                    r: "F0",
+                    g: "F8",
+                    b: "FF"
+                },
+                {
+                    r: "EF",
+                    g: "DE",
+                    b: "CD"
+                },
+                {
+                    r: "9F",
+                    g: "2B",
+                    b: "68"
+                },
+                {
+                    r: "E5",
+                    g: "2B",
+                    b: "50"
+                },
+                {
+                    r: "AB",
+                    g: "27",
+                    b: "4F"
+                },
+                {
+                    r: "F1",
+                    g: "9C",
+                    b: "BB"
+                },
+                {
+                    r: "3B",
+                    g: "7A",
+                    b: "57"
+                },
+                {
+                    r: "D3",
+                    g: "21",
+                    b: "2D"
+                },
                 null,
             ];
 
             setInterval(() => {
-                let pronoun = {
-                    display: "She/They"
-                };
+                let pronoun = "";
                 if (pronouns) {
                     const rnd = getRnd(pronouns.length - 1);
-                    pronoun = pronouns[rnd];
+                    pronoun = pronouns[rnd].display;
                 }
                 let messagesEmote;
+                let username = names[getRnd(names.length - 1)];
                 const message = (() => {
-
-
                     let message = messages[getRnd(messages.length - 1)];
                     if (!!getRnd(1)) {
                         messagesEmote = Array(getRnd(10)).fill(undefined).map(() => {
@@ -879,22 +1233,35 @@
                     return message;
                 })();
 
-                add_sb_twitch_message(
-                    String(Math.random()),
-                    Math.floor(Math.random() * 10000000),
-                    names[getRnd(names.length - 1)],
-                    colors[getRnd(colors.length - 1)],
-                    message,
-                    pronoun.display,
-                    messagesEmote,
-                    getRnd(4, 0),
-                    badges[getRnd(badges.length - 1)],
-                    !!getRnd(1)
-                );
+                if (skip_message(message, username) === true) {
+                    return;
+                }
+
+                if (Math.random() < 0.5 &&
+                    config["plugins"]["streamerbot"]["enabled"] === true &&
+                    config["plugins"]["streamerbot"]["twitch"] === true) {
+                    StreamerBot["message"]["twitch"](
+                        String(Math.random()),
+                        Math.floor(Math.random() * 10000000),
+                        username,
+                        get_color_hex(colors[getRnd(colors.length - 1)]),
+                        message,
+                        messagesEmote,
+                        getRnd(4, 0),
+                        badges[getRnd(badges.length - 1)],
+                        !!getRnd(1),
+                        !!getRnd(1),
+                        pronoun
+                    );
+                } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true)  {
+                    StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
+                        10000000), username, message, 0, false, false, false, false);
+                }
+
                 remove_old_messages();
             }, 2000);
         } else {
-            connectws();
+            initializeConnections();
         }
     </script>
 </body>

@@ -8,6 +8,20 @@
   <title></title>
 
   <style>
+    html {
+      --blue: blue;
+      --red: red;
+      --green: green;
+      --yellow: yellow;
+      --orange: orange;
+      --purple: purple;
+      --pink: pink;
+      --brown: brown;
+      --black: black;
+      --white: white;
+      --gray: gray;
+    }
+
     body {
       font-family: sans-serif;
       background: #41145F;
@@ -85,7 +99,7 @@
       color: #00C8AF;
     }
 
-    #copy-toast {
+    #toast {
       background: #BEFAE1;
       position: absolute;
       top: 2rem;
@@ -96,6 +110,14 @@
       transition: opacity .4s ease-in-out;
       opacity: 0;
       text-shadow: none;
+    }
+
+    #toast.toast-success {
+      background: #8ff1e6;
+    }
+
+    #toast.toast-error {
+      background: #FAB4FF;
     }
 
     #chat-frame {
@@ -110,7 +132,8 @@
       border-image-source: linear-gradient(to left, #BE0078, #FA1ED2);
       border-image-slice: 1;
       background: white;
-      padding: 1rem 1rem 1rem 0.5rem;
+      padding: 0;
+      margin: 0.5rem;
     }
 
     #config>form {
@@ -119,13 +142,13 @@
 
     }
 
-    #config>form>span {
+    #config>form>div>span {
       width: 100%;
       display: block;
       padding: 0.4rem 0rem;
     }
 
-    #config>form>span>label:first-child {
+    #config>form>div>span>label:first-child {
       width: 5rem;
       display: inline-block;
       width: 13rem;
@@ -160,6 +183,31 @@
     #drag-help {
       margin-left: 18rem;
     }
+
+    .group {
+      display: block;
+      position: relative;
+      transform: scaleY(1);
+      height: 100%;
+      opacity: 1;
+    }
+
+    .group h2 {
+      border-bottom: 2px solid;
+      border-image-slice: 1;
+    }
+
+    .group-open {
+      transition: height 0.25s ease-in-out, opacity 0.4s ease-in-out;
+      height: 100%;
+      opacity: 1;
+    }
+
+    .group-closed {
+      transition: height 0.25s ease-in-out, opacity 0.4s ease-in-out;
+      height: 0; 
+      opacity: 0;
+    }
   </style>
 </head>
 
@@ -181,7 +229,9 @@
       </div>
 
       <div>
-
+        <input class="input" type="text" id="load-url" />
+        <a id="load-obs-button" class="button">Load settings</a>
+        <span id="load-obs-help" class="help">?<span id="drag-help">Paste an existing URL here to load settings</span></span>
       </div>
     </div>
 
@@ -200,7 +250,7 @@
     </div>
   </section>
 
-  <div id="copy-toast">Link copied to clipboard!</div>
+  <div id="toast"></div>
   <script src="./generator.js"></script>
 </body>
 
