@@ -3,7 +3,7 @@
 [![https://img.shields.io/github/license/izzy/stream-chat](https://img.shields.io/github/license/izzy/stream-chat)](LICENSE.md)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/izzy/stream-chat)](https://github.com/izzy/stream-chat/releases)
 [![Discord](https://img.shields.io/discord/402126550004269073?color=7289DA&label=discord)](https://discord.com/invite/yRTM7H2tek)
-[![pages-build-deployment](https://github.com/izzy/stream-chat/actions/workflows/pages/pages-build-deployment/badge.svg?branch=main&name=Pages%20Build)](https://izzy.github.io/stream-chat/)
+[![pages-build-deployment](https://github.com/izzy/stream-chat/actions/workflows/pages/pages-build-deployment/badge.svg?branch=main&name=Pages%20Build)](https://chat.bean.tools/)
 
 Chat Overlay for OBS based on [streamer.bot](https://streamer.bot/)'s websocket, using pronouns from [pronouns.alejo.io](https://pronouns.alejo.io/).
 
@@ -21,7 +21,7 @@ While this is the easier method, using the online method comes with some drawbac
 
 Also keep in mind that Github has their own [data collection policies](https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#data-collection).
 
-To get started with using this method go to https://izzy.github.io/stream-chat/generator.html 
+To get started with using this method go to https://chat.bean.tools/generator.html 
 
 ### Config
 
