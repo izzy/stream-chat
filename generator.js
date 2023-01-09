@@ -44,6 +44,8 @@ const groups = {
 }
 
 const fields = [
+    { group: groups.Integrations, label: "Check for new stream-chat versions", name: "version_check", type: "checkbox", defaultValue: true, help: "Checks for new versions when starting the overlay and displays a warning when a new version is available." },
+    { group: groups.Integrations, label: "Use an alert popup for new versions(read the notice!)", name: "version_alert", type: "checkbox", defaultValue: false, help: "Uses a popup instead of the obnoxiously large notification. CAREFUL: If you have the overlay setup more than once or reload the overlay frequently this might be a bad idea!" },
     { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot websocket integration when active." },
 
     { group: groups.StreamerBot, label: "Websocket URI", name: "sb_websocket", type: "text", defaultValue: "ws://localhost:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
@@ -62,7 +64,8 @@ const fields = [
     { group: groups.Theme, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { group: groups.Theme, label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { group: groups.Theme, label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
-    { group: groups.Theme, label: "Highlights", name: "highlights", type: "checkbox", defaultValue: false, help: "If set to false this disables visual difference for highlighted messages" },
+    { group: groups.Theme, label: "Highlights", name: "highlights", type: "checkbox", defaultValue: true, help: "If set to false this disables visual difference for highlighted messages" },
+    { group: groups.Theme, label: "Announcements", name: "announcements", type: "checkbox", defaultValue: true, help: "If set to false this disables announcement messages" },
     { group: groups.Theme, label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
     { group: groups.Theme, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
     { group: groups.Theme, label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
@@ -341,6 +344,7 @@ const loadFromUrl = () => {
     generateURL();
 
     showToast("Loaded from url!", "success");
+    loadUrlEl.value = "";
 }
 
 copyButton.addEventListener("click", copyToClipBoard)
