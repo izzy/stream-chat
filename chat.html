@@ -87,6 +87,19 @@
             font-weight: bold;
 
         }
+
+        #version-notice {
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #ffc39a;
+            padding: 1rem;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #950000;
+            box-sizing: border-box;
+        }
     </style>
 
     <style type="text" id="enable-bubbles">
@@ -180,12 +193,55 @@
 
 <body>
     <div id="chat"></div>
+    <div id="version-notice" style="display: none;"></div>
 
     <script>
+        const STREAMCHAT_VERSION = '0.2.0';
+        const STREAMCHAT_GH_USER = 'izzy';
+        const STREAMCHAT_GH_REPO = 'stream-chat';
+
+        /**
+         * Checks the current version of streamchat against the latest release on GitHub.
+         * @returns {string} A message indicating whether the current version is up to date or not.
+         */
+        async function version_check() {
+            const res = await fetch(`https://api.github.com/repos/${STREAMCHAT_GH_USER}/${STREAMCHAT_GH_REPO}/releases/latest`)
+                .then(response => response.json())
+                .then(data => {
+                    const version = data.tag_name.replace(/^v/i, "");
+                    const version_parts = version.split('.');
+                    const current_version_parts = STREAMCHAT_VERSION.split('.');
+                    let upToDate = true;
+
+                    if (version_parts[0] > current_version_parts[0]) {
+                        console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is outdated. There is a major update to version ${data.tag_name} available.`);
+                        upToDate = false;
+                    } else if ((version_parts[0] === current_version_parts[0] && version_parts[1] > current_version_parts[1]) ||
+                        (version_parts[0] === current_version_parts[0] && version_parts[1] === current_version_parts[1] && version_parts[2] > current_version_parts[2]))
+                    {
+                        console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is outdated. Please update to version ${data.tag_name}`);
+                        upToDate = false;
+                    } else {
+                        console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is up to date or newer than the latest release ${data.tag_name}`);
+                    }
+
+                    return {version: version, upToDate: upToDate, error: null};
+                }).catch(error => {
+                    console.error(error);
+                    return {version: 'unknown', upToDate: false, error: error};
+                });
+            return res;
+        }
+
         function getRnd(max, min = 0) {
             return Math.floor(Math.random() * (max - min + 1) + min);
         }
 
+        /**
+         * @param {string} p The search parameter name
+         * @param {boolean} d The default value
+         * @returns {boolean} The value of the search parameter, or the default value if the parameter is not set.
+         */
         function searchParamIsTrue(p, d = false) {
             let v = new URLSearchParams(window.location.search).get(p);
             if (v === undefined || v === null) {
@@ -299,7 +355,7 @@
                 'youtube': false,
                 'websocket': '',
             };
-            if (streamerbotEnabled === searchParamIsTrue("sb_enabled")) {
+            if (streamerbotEnabled === searchParamIsTrue("sb_enabled", true)) {
                 let sb_ws_uri = 'ws://localhost:8080/';
                 if (url.searchParams.get("sb_ws_uri") !== null) {
                     sb_ws_uri = decodeURI(url.searchParams.get("sb_ws_uri"));
@@ -307,8 +363,8 @@
 
                 streamerbotConfig = {
                     'enabled': streamerbotEnabled,
-                    'twitch': searchParamIsTrue("sb_twitch", false),
-                    'youtube': searchParamIsTrue("sb_youtube", false),
+                    'twitch': searchParamIsTrue("sb_twitch", true),
+                    'youtube': searchParamIsTrue("sb_youtube", true),
                     'websocket': sb_ws_uri
                 }
             }
@@ -340,7 +396,7 @@
                     'max_messages': searchParamOrDefault("max_messages", false),
                     'pronouns': searchParamIsTrue("pronouns", true),
                     'highlights': searchParamIsTrue("highlights", true),
-                    'announcements': searchParamIsTrue("announcements", false),
+                    'announcements': searchParamIsTrue("announcements", true),
                     'badges': {
                         'enabled': searchParamIsTrue("badges", true),
                         'left': searchParamIsTrue("badges_left"),
@@ -356,12 +412,17 @@
                     'bots': bot_list,
                 },
                 'debug': searchParamIsTrue("debug"),
-
+                'version': {
+                    'current': STREAMCHAT_VERSION,
+                    'check': searchParamIsTrue("version_check", true),
+                    'alert': searchParamIsTrue("version_alert", false),
+                }
             }
         }
 
         const config = parseURL();
 
+        console.debug(`Starting stream chat version ${STREAMCHAT_VERSION}`);
         console.debug(['Loaded config', config]);
 
         let socket, pronouns_users = {},
@@ -1262,6 +1323,31 @@
             }, 2000);
         } else {
             initializeConnections();
+        }
+
+        if (config["version"]["check"] === true) {
+            version_check().then(version => {
+                let version_el = document.getElementById("version-notice");
+                let message = '';
+                let display = 'none';
+
+                console.log(version);
+                if (version.upToDate === false) {
+                    display = "block";
+                    message = `You are using version ${STREAMCHAT_VERSION} of ${STREAMCHAT_GH_REPO}.` + 
+                        `There is a new version available. Please update to the latest version ${version.version}.`;
+                } else if (version.error) {
+                    display = "block";
+                    message = `There was an error checking for updates. Error: ${version.error}`;
+                }
+                
+                if (config["version"]["alert"] === true && message !== '') {
+                    alert(message);
+                } else {
+                    version_el.style.display = display;
+                    version_el.innerHTML = message;
+                }
+            });
         }
     </script>
 </body>
