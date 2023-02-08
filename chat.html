@@ -243,51 +243,28 @@
             /**
             * @type {Object.<string, number>}
             */
-            #status = {
+            status = {
                 'StreamerBot': ConnectionStatus.DISCONNECTED,
                 'BeanBot': ConnectionStatus.DISCONNECTED
             }
 
-            get StreamerBot() {
-                    return this.#status['StreamerBot'];
-            }
-
-            set StreamerBot(val) {
-                this.#status['StreamerBot'] = val;
-                this.#update();
-            }
-
-            get BeanBot() {
-                return this.#status['BeanBot'];
-            }
-
-            set BeanBot(val) {
-                this.#status['BeanBot'] = val;
-                this.#update();
-            }
-
-            #update() {
-                console.debug("Updating connection status:", this);
-
+            update() {
                 let status = ConnectionStatus.CONNECTED;
-                for (let key in this.#status) {
-                    if (config['plugins'][key.toLowerCase()]['enabled'] == false) {
-                        console.debug("Skipping", key, "because it's disabled in the config.")
+                for (let key in this.status) {
+                    if (!config['plugins'].hasOwnProperty(key.toLowerCase()) || config['plugins'][key.toLowerCase()]['enabled'] == false) {
                         continue;
                     }
 
-                    if (this.#status[key] == ConnectionStatus.DISCONNECTED) {
+                    if (this.status[key] == ConnectionStatus.DISCONNECTED) {
                         status = ConnectionStatus.DISCONNECTED;
                         break;
-                    } else if (this.#status[key] == ConnectionStatus.CONNECTING) {
+                    } else if (this.status[key] == ConnectionStatus.CONNECTING) {
                         status = ConnectionStatus.CONNECTING;
                     }
                 }
 
-                console.debug("Connection status:", status);
-
-                let status_text = "";
-                let status_div = document.getElementById("connection-status");
+                let status_text = "",
+                    status_div = document.getElementById("connection-status");
 
                 switch (status) {
                     case ConnectionStatus.DISCONNECTED:
@@ -312,7 +289,25 @@
             }
         }
 
-        window.CONNECTION_STATUS = new ConnectionStatus();
+        const PLUGIN_LIST = Object.keys(new ConnectionStatus().status);
+        window.CONNECTION_STATUS = new Proxy(new ConnectionStatus(), {
+            get(target, name, receiver) {
+                if (PLUGIN_LIST.includes(name)) {
+                    return Reflect.get(target['status'], name, receiver);
+                } else {
+                    return Reflect.get(target, name, receiver);
+                }
+            },
+
+            set(target, name, value, receiver) {
+                if (PLUGIN_LIST.includes(name)) {
+                    target['status'][name] = value;
+                    target.update();
+                } else {
+                    return Reflect.set(target, name, value, receiver);
+                }
+            }
+        });
 
         /**
          * Checks the current version of streamchat against the latest release on GitHub.
