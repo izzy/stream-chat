@@ -288,19 +288,15 @@
 
                 let status_text = "";
                 let status_div = document.getElementById("connection-status");
-                status_div.classList.remove("disconnected");
-                status_div.classList.remove("connecting");
 
                 switch (status) {
                     case ConnectionStatus.DISCONNECTED:
                         status_text = "disconnected. Is your bot running?";
                         status_div.style.display = "block";
-                        status_div.classList.add("disconnected");
                         break;
                     case ConnectionStatus.CONNECTING:
                         status_text = "connecting";
                         status_div.style.display = "block";
-                        status_div.classList.add("connecting");
                         break;
                     case ConnectionStatus.CONNECTED:
                         status_div.style.display = "none";
@@ -308,7 +304,6 @@
                     case ConnectionStatus.ERROR:
                         status_text = "experiencing an error";
                         status_div.style.display = "block";
-                        status_div.classList.add("disconnected");
                         break;
                 }
 
