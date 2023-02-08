@@ -100,6 +100,19 @@
             color: #950000;
             box-sizing: border-box;
         }
+
+        #connection-status {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #410000;
+            background-color: #ff827c;
+            box-sizing: border-box;
+        }
     </style>
 
     <style type="text" id="enable-bubbles">
@@ -194,11 +207,117 @@
 <body>
     <div id="chat"></div>
     <div id="version-notice" style="display: none;"></div>
+    <div id="connection-status" style="display: none;"></div>
 
     <script>
-        const STREAMCHAT_VERSION = '0.2.0';
+        const STREAMCHAT_VERSION = '0.2.1';
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
+
+        class ConnectionStatus {
+
+            /**
+            * @type {number}
+            * @value 0
+            */
+            static DISCONNECTED = 0;
+
+            /**
+            * @type {number}
+            * @value 1
+            */
+            static CONNECTING = 1;
+
+            /**
+            * @type {number}
+            * @value 2
+            */
+            static CONNECTED = 2;
+
+            /**
+            * @type {number}
+            * @value 3
+            */
+            static ERROR = 3;
+            
+            /**
+            * @type {Object.<string, number>}
+            */
+            #status = {
+                'StreamerBot': ConnectionStatus.DISCONNECTED,
+                'BeanBot': ConnectionStatus.DISCONNECTED
+            }
+
+            get StreamerBot() {
+                    return this.#status['StreamerBot'];
+            }
+
+            set StreamerBot(val) {
+                this.#status['StreamerBot'] = val;
+                this.#update();
+            }
+
+            get BeanBot() {
+                return this.#status['BeanBot'];
+            }
+
+            set BeanBot(val) {
+                this.#status['BeanBot'] = val;
+                this.#update();
+            }
+
+            #update() {
+                console.debug("Updating connection status:", this);
+
+                let status = ConnectionStatus.CONNECTED;
+                for (let key in this.#status) {
+                    if (config['plugins'][key.toLowerCase()]['enabled'] == false) {
+                        console.debug("Skipping", key, "because it's disabled in the config.")
+                        continue;
+                    }
+
+                    if (this.#status[key] == ConnectionStatus.DISCONNECTED) {
+                        status = ConnectionStatus.DISCONNECTED;
+                        break;
+                    } else if (this.#status[key] == ConnectionStatus.CONNECTING) {
+                        status = ConnectionStatus.CONNECTING;
+                    }
+                }
+
+                console.debug("Connection status:", status);
+
+                let status_text = "";
+                let status_div = document.getElementById("connection-status");
+                status_div.classList.remove("disconnected");
+                status_div.classList.remove("connecting");
+
+                switch (status) {
+                    case ConnectionStatus.DISCONNECTED:
+                        status_text = "disconnected. Is your bot running?";
+                        status_div.style.display = "block";
+                        status_div.classList.add("disconnected");
+                        break;
+                    case ConnectionStatus.CONNECTING:
+                        status_text = "connecting";
+                        status_div.style.display = "block";
+                        status_div.classList.add("connecting");
+                        break;
+                    case ConnectionStatus.CONNECTED:
+                        status_div.style.display = "none";
+                        break;
+                    case ConnectionStatus.ERROR:
+                        status_text = "experiencing an error";
+                        status_div.style.display = "block";
+                        status_div.classList.add("disconnected");
+                        break;
+                }
+
+                status_div.innerText = "You are currently " + status_text;
+                
+            }
+        }
+
+        window.CONNECTION_STATUS = new ConnectionStatus();
 
         /**
          * Checks the current version of streamchat against the latest release on GitHub.
@@ -900,6 +1019,8 @@
             if (config['plugins']['streamerbot']['enabled'] === true) {
                 console.debug('Streamer.Bot is enabled');
 
+                CONNECTION_STATUS['StreamerBot'] = ConnectionStatus.CONNECTING;
+
                 socket = new WebSocket(config['plugins']['streamerbot']['websocket']);
 
                 socket.onopen = () => {
@@ -937,12 +1058,15 @@
                         socket.send(JSON.stringify(s));
                     } else {
                         console.debug('Streamer.Bot does not have any events to subscribe to');
+                        CONNECTION_STATUS['StreamerBot'] = ConnectionStatus.UNKNOWN;
                     }
 
                     console.debug(['Connected to Streamer.Bot socket:', socket]);
+                    CONNECTION_STATUS['StreamerBot'] = ConnectionStatus.CONNECTED;
                 };
 
                 socket.onclose = function () {
+                    CONNECTION_STATUS['StreamerBot'] = ConnectionStatus.DISCONNECTED;
                     console.warn('Disconnected from Streamer.Bot socket.');
                     setTimeout(initializeConnections, 10000);
                 };
