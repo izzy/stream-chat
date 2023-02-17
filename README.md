@@ -39,7 +39,7 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | option             | default              | valid options | description                                                                                    | example                          |
 |--------------------|----------------------|---------------|------------------------------------------------------------------------------------------------|----------------------------------|
 | `sb_enabled`       | true                 | boolean       | Enable Streamer.Bot integration                                                                | `sb_enabled=true`                |
-| `sb_ws_uri`        | ws://localhost:8080/ | uri           | The Streamer.Bot's local websocket URL                                                         | `ws_uri=ws://localhost:8080/`    |
+| `sb_ws_uri`        | ws://127.0.0.1:8080/ | uri           | The Streamer.Bot's local websocket URL                                                         | `ws_uri=ws://localhost:8080/`    |
 | `sb_twitch`        | true                 | boolean       | Enable Streamer.Bot Twitch Messsages                                                           | `sb_twitch=true`                 |
 | `sb_youtube`       | true                 | boolean       | Enable Streamer.Bot YouTube Messsages                                                          | `sb_youtube=true`                |
 | `version_check`    | true                 | boolean       | Checks for new versions when starting the overlay and displays a warning when a new version is available | `version_check=true`   |
@@ -74,10 +74,35 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 `locale`: [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)(i.e. 'de-DE' or 'en-GB')
 
 
-### I've read this README but I still have questions/problems, where can I get help?
+## Troubleshooting
+Generally the best way to troubleshoot is to open the browser console (F12) and check for any errors. Error messages in the console might differ depending on your browser. Given OBS is based on CEF(Chromium Embedded Framework) it's likely that Chrome's console is the most accurate.
+
+If you're not sure what to do, feel free to open an issue and we'll try to help. You can also join the discord(see below) and we can help you in text or voice chat.
+
+### Can't connect to WebSocket
+
+#### Possible errors in the console:
+
+* Firefox can’t establish a connection to the server at ws://127.0.0.1:8080/
+* Websocket connection to 'ws://127.0.0.1:8080/' failed: [...]
+
+#### Possible reasons:
+
+* Streamer.Bot is not running
+* Streamer.Bot is listening on a different port
+* Streamer.Bot is listening on a port that is not exclusively available
+
+#### Troubleshooting:
+
+* Make sure Streamer.Bot is running
+* If you're using a custom port, make sure it's the same as the one in the overlay's URL
+* If you're using a custom port, make sure it's not in use by another application(try a different port)
+* To make sure the port is exclusively available, close Streamer.Bot and run `Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess` in PowerShell. If the output is empty, the port is available, otherwise it's in use by another process and you should probably try a different port.
+
+## I've read this README but I still have questions/problems, where can I get help?
 
 If you have a Github account, opening an issue is the best way to give feedback. Otherwise feel free to join my [Discord](https://discord.gg/yRTM7H2tek) and ask your questions in #development.
 
-### Contributors / Thanks
+## Contributors / Thanks
 
 Thanks to @andi242 for his fork on https://github.com/andi242/twitch-chat

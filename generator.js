@@ -48,7 +48,7 @@ const fields = [
     { group: groups.Integrations, label: "Use an alert popup for new versions(read the notice!)", name: "version_alert", type: "checkbox", defaultValue: false, help: "Uses a popup instead of the obnoxiously large notification. CAREFUL: If you have the overlay setup more than once or reload the overlay frequently this might be a bad idea!" },
     { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot websocket integration when active." },
 
-    { group: groups.StreamerBot, label: "Websocket URI", name: "sb_websocket", type: "text", defaultValue: "ws://localhost:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
+    { group: groups.StreamerBot, label: "Websocket URI", name: "sb_ws_uri", type: "text", defaultValue: "ws://127.0.0.1:8080", help: "The address of your Streamer.Bot. See Streamer.Bot -> Server/Clients -> Websocket Server. Should look like 'ws://ADDRESS:PORT/ENDPOINT" },
     { group: groups.StreamerBot, label: "Twitch", name: "sb_twitch", type: "checkbox", defaultValue: true, help: "Show Twitch messages from Streamer.Bot" },
     { group: groups.StreamerBot, label: "YouTube", name: "sb_youtube", type: "checkbox", defaultValue: true, help: "Show YouTube messages from Streamer.Bot" },
 
@@ -310,10 +310,12 @@ const loadFromUrl = () => {
     // deprecated parameters that will be rewritten
     const deprecatedParams = {
         "background_color": "bubble_color",
+        "sb_websocket": "sb_ws_uri",
     }
 
     for (const [key, value] of url.searchParams.entries()) {
         if (deprecatedParams[key]) {
+            console.debug(["Deprecated parameter: ", key, value])
             url.searchParams.delete(key);
             url.searchParams.append(deprecatedParams[key], value);
         }
