@@ -465,7 +465,7 @@
                 'websocket': '',
             };
             if (streamerbotEnabled === searchParamIsTrue("sb_enabled", true)) {
-                let sb_ws_uri = 'ws://localhost:8080/';
+                let sb_ws_uri = 'ws://127.0.0.1:8080/';
                 if (url.searchParams.get("sb_ws_uri") !== null) {
                     sb_ws_uri = decodeURI(url.searchParams.get("sb_ws_uri"));
                 }
