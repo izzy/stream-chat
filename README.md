@@ -64,7 +64,8 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `fontfamily`       | Open Sans            | string        | set (any locally installed) font                                                               | `fontfamily=Calibri`             |
 | `fontsize`         | large                | number/string | CSS class font-size value (e.g. x-large, 2em, 22px)                                            | `fontsize=22px`                  |
 | `emote_size`       | 1.4rem               | number/string | CSS class size value (e.g. 2em, 22px)                                                          | `emote_size=22px`                |
-
+| `version_check`    | true               | boolean | Check for new stream-chat versions on startup                                                          | `version_check=false`                |
+| `version_alert`       | false               | boolean | Use an alert popup for new versions(can be clicked away, but be careful, might open several windows!)                                                          | `version_alert=true`                |
 #### Types
 
 `color`: 6-digit HEX colour code without the '#'
