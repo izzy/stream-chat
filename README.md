@@ -32,6 +32,15 @@ Generally the best way to troubleshoot is to open the browser console (F12) and 
 
 If you're not sure what to do, feel free to open an issue and we'll try to help. You can also join the discord(see below) and we can help you in text or voice chat.
 
+### Settings set in the generator aren't working in OBS
+#### Possible reasons:
+
+* You have not removed the `Local File` checkbox in the OBS Source
+
+#### Solution
+
+* Uncheck `Local File` and paste the generated URL again
+
 ### Can't connect to WebSocket
 
 #### Possible errors in the console:
