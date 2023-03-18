@@ -794,7 +794,8 @@
                         let el_emote = document.createElement('img');
                         el_emote.src = emotes[emote].imageUrl;
                         if (parseInt(config['ui']['emote_size']) > 0) {
-                            el_emote.style = `height: ${config['ui']['emote_size']}rem; width: auto;`;
+                            el_emote.style.height = `${config['ui']['emote_size']}`;
+                            el_emote.style.width = 'auto';
                         }
 
                         message = message.replace(emotes[emote].name, el_emote.outerHTML);
