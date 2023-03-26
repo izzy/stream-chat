@@ -792,7 +792,9 @@
 
                     for (const emote in emotes) {
                         let el_emote = document.createElement('img');
-                        el_emote.src = emotes[emote].imageUrl;
+                        // The replace call is a workaround for FFZ emotes, see #35
+                        // https://github.com/izzy/stream-chat/issues/35#issuecomment-1484156496
+                        el_emote.src = emotes[emote].imageUrl.replace('https:https', 'https');;
                         if (parseInt(config['ui']['emote_size']) > 0) {
                             el_emote.style.height = `${config['ui']['emote_size']}`;
                             el_emote.style.width = 'auto';
