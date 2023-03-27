@@ -36,15 +36,15 @@ const groups = {
         color: "orange",
     },
 
-    ThemeText: {
-        id: "theme_font",
-        label: "Theme Font",
+    ThemeColours: {
+        id: "theme_colours",
+        label: "Theme - Colours",
         color: "orange",
     },
 
-    ThemeColours: {
-        id: "theme_colours",
-        label: "Theme Colours",
+    ThemeText: {
+        id: "theme_font",
+        label: "Theme - Text & Size",
         color: "orange",
     },
 
@@ -69,26 +69,28 @@ const fields = [
 
     { group: groups.Theme, label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox", help: "Set to 'horizontal' this will scroll the text from right to left instead of bottom to top" },
     { group: groups.Theme, label: "Bubbles", name: "bubbles", type: "checkbox", help: "Displays bubbles instead of the standard chat log" },
-    { group: groups.Theme, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
-    { group: groups.Theme, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
-    { group: groups.Theme, label: "Chat Bubble Border Color", name: "bubble_border_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides chat bubble border colour" },
-    { group: groups.Theme, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border size" },
-    { group: groups.Theme, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border radius" },
-    { group: groups.Theme, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
-    { group: groups.Theme, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
-    { group: groups.Theme, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { group: groups.Theme, label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { group: groups.Theme, label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
     { group: groups.Theme, label: "Highlights", name: "highlights", type: "checkbox", defaultValue: true, help: "If set to false this disables visual difference for highlighted messages" },
     { group: groups.Theme, label: "Announcements", name: "announcements", type: "checkbox", defaultValue: true, help: "If set to false this disables announcement messages" },
-    { group: groups.ThemeText, label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
-    { group: groups.ThemeText, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
+    { group: groups.Theme, label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
+    { group: groups.Theme, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
+
     { group: groups.ThemeText, label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
     { group: groups.ThemeText, label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
     { group: groups.ThemeText, label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
     { group: groups.ThemeText, label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value (e.g. x-large, 2em, 22px)" },
     { group: groups.ThemeText, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: "CSS class size value (e.g. 2em, 22px)" },
+    { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border size" },
+    { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border radius" },
 
+    { group: groups.ThemeColours, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
+    { group: groups.ThemeColours, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
+    { group: groups.ThemeColours, label: "Chat Bubble Border Color", name: "bubble_border_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides chat bubble border colour" },
+    { group: groups.ThemeColours, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
+    { group: groups.ThemeColours, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
+    { group: groups.ThemeColours, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
+    
     { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
     { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
     { group: groups.Obs, label: "OBS Layer name", name: "layer-name", type: "text", defaultValue: "Chat Overlay", help: "The OBS layer name. Can be changed in OBS later." },
