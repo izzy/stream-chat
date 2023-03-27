@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<style>
+    * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    #previews {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        flex-direction: row;
+    }
+
+    #previews > div {
+        padding: 1rem;
+        border: 1px solid #000;
+        max-width: 400px;
+        margin: auto;
+    }
+
+    #previews > div.horizontal {
+        max-width: 550px;
+    }
+</style>
+</head>
+
+<body>
+    <div id="previews"></div>
+
+    <script>
+        let config_matrix = [
+            { k: 'direction', v: ['horizontal', 'vertical'] },
+            { k: 'bubbles', v: [true, false] },
+            { k: 'announcements', v: [true, false] },
+            { k: 'highlights', v: [true, false] },
+            { k: 'badges', v: [true, false] },
+            //{ k: 'badges_on_left', v: [true, false] },
+            //{ k: 'timestamp', v: [true, false] },
+        ]
+
+        function permutate_matrix(matrix) {
+            if (matrix.length === 0) return [[]]
+            let [current, ...rest] = matrix
+            let combinations = permutate_matrix(rest)
+            return current.v.reduce((a, string) =>
+                [...a, ...combinations.map(c => [string, ...c])], [])
+        }
+
+        let config_permutations = permutate_matrix(config_matrix);
+
+        console.log(config_permutations);
+        let previews = document.getElementById('previews');
+
+        let elements = [];
+        for (let i = 0; i < config_permutations.length; i++) {
+            let config = config_permutations[i].map((v, k) => {
+                return [config_matrix[k]['k'], v];
+            });
+
+            let h1 = document.createElement('h1');
+            
+            h1.innerText = config.map((v, k) => {
+                return v[0] + ': ' + v[1];
+            }).join(', ');
+
+            // Enable debug message generation
+            config.push(['debug', true]);
+            // Disable update check (to prevent getting rate limited by GitHub)
+            config.push(['version_check', false]);
+            config.push(['version_alert', false]);
+
+            let div = document.createElement('div');
+            
+            let iframe = document.createElement('iframe');
+            iframe.src = './chat.html?' + new URLSearchParams(config).toString();
+            iframe.width = '300';
+            iframe.height = '250';
+
+            if (config[0][1] == 'horizontal') {
+                iframe.width = '500';
+                iframe.height = '80';
+                div.classList.add('horizontal');
+            }
+
+            div.appendChild(h1);
+            div.appendChild(iframe);
+            elements.push(div);
+        }
+
+        for (let i = 0; i < elements.length; i++) {
+            previews.appendChild(elements[i]);
+        }
+    </script>
+
+</html>
