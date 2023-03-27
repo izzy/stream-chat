@@ -336,8 +336,9 @@
 
                     return {version: version, upToDate: upToDate, error: null};
                 }).catch(error => {
+                    
                     console.error(error);
-                    return {version: 'unknown', upToDate: false, error: error};
+                    return {version: 'unknown', upToDate: true, error: error};
                 });
             return res;
         }
@@ -1475,9 +1476,11 @@
                     display = "block";
                     message = `You are using version ${STREAMCHAT_VERSION} of ${STREAMCHAT_GH_REPO}.` + 
                         `There is a new version available. Please update to the latest version ${version.version}.`;
+                    timeout = 60000;
                 } else if (version.error) {
                     display = "block";
                     message = `There was an error checking for updates. Error: ${version.error}`;
+                    timeout = 10000;
                 }
                 
                 if (config["version"]["alert"] === true && message !== '') {
@@ -1485,6 +1488,10 @@
                 } else {
                     version_el.style.display = display;
                     version_el.innerHTML = message;
+
+                    setTimeout(() => {
+                        version_el.style.display = "none";
+                    }, timeout);
                 }
             });
         }
