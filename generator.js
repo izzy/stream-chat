@@ -90,6 +90,8 @@ const fields = [
     { group: groups.ThemeColours, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
     { group: groups.ThemeColours, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
     { group: groups.ThemeColours, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
+    { group: groups.ThemeColours, label: "Highlight Color", name: "highlight_color", type: "color", nullable: true, help: "This sets the background/bubble colour for highlighted messages" },
+    { group: groups.ThemeColours, label: "Announcement Color", name: "announcement_color", type: "color", nullable: true, help: "This sets the background/bubble colour for announcement messages" },
     
     { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
     { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
@@ -402,6 +404,28 @@ bubbles.addEventListener("change", (e) => {
         bubble_border_radius.style.display = "none";
         bubble_border_size.style.display = "none";
         document.getElementById("bubble_color_nullable").checked = false;
+    }
+});
+
+const highlights = document.querySelector("input[name=highlights]");
+const highlight_color = document.querySelector("input[name=highlight_color]").parentNode;
+highlights.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        highlight_color.style.display = "block";
+    } else {
+        highlight_color.style.display = "none";
+        document.getElementById("highlight_color_nullable").checked = false;
+    }
+});
+
+const announcements = document.querySelector("input[name=announcements]");
+const announcement_color = document.querySelector("input[name=announcement_color]").parentNode;
+announcements.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        announcement_color.style.display = "block";
+    } else {
+        announcement_color.style.display = "none";
+        document.getElementById("announcement_color_nullable").checked = false;
     }
 });
 
