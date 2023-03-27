@@ -422,12 +422,15 @@
                 'text_background': get_color('bubble_color'),
                 'text': get_color('text_color'),
                 'message': get_color('msg_color'),
+                'announcement': get_color('announcement_color'),
+                'highlight': get_color('highlight_color'),
                 'default': get_color('default_color', {
                     r: 'ff',
                     g: 'e0',
                     b: 'f0'
                 }),
                 'pastel': searchParamIsTrue("pastel"),
+                'bubble_border': get_color("bubble_border_color"),
             }
 
             let cmdprefix = null;
@@ -494,7 +497,13 @@
                 },
                 'ui': {
                     'direction': direction,
-                    'bubbles': searchParamIsTrue("bubbles"),
+                    'bubbles': {
+                        'enabled': searchParamIsTrue("bubbles"),
+                        'border': {
+                            'radius': searchParamOrDefault("bubble_border_radius", null),
+                            'size': searchParamOrDefault("bubble_border_size", null),
+                        }
+                    },
                     'colors': colors,
                     'timestamp': {
                         'enabled': searchParamIsTrue("timestamp"),
@@ -708,7 +717,7 @@
             }
 
             // If we don't use bubbles, we don't use the user colour as background
-            if (config['ui']['bubbles'] === false) {
+            if (config['ui']['bubbles']['enabled'] === false) {
                 text_color = get_user_color(color, "text_color");
                 background_color = "transparent";
             }
@@ -745,7 +754,7 @@
                     date.toLocaleTimeString(config['ui']['timestamp']['locale'], config['ui']['timestamp'][
                         'options'
                     ]));
-                if (config['ui']['bubbles'] === false) {
+                if (config['ui']['bubbles']['enabled'] === false) {
                     div_message.appendChild(el_timestamp);
                 } else {
                     el_user.prepend(el_timestamp);
@@ -759,6 +768,19 @@
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
             div_message.appendChild(el_message);
+
+            // Bubble specific styles
+            if (config['ui']['bubbles']['enabled'] === true) {
+                if (config['ui']['bubbles']['border']['radius']) {
+                    div_message.style.borderRadius = config['ui']['bubbles']['border']['radius'];
+                }
+                if (config['ui']['bubbles']['border']['size']) {
+                    div_message.style.borderWidth = config['ui']['bubbles']['border']['size'];
+                }
+                if (config['ui']['colors']['bubble_border']) {
+                    div_message.style.borderColor = get_color_hex(config['ui']['colors']['bubble_border']);
+                }
+            };
 
             document.getElementById('chat').appendChild(div_message);
 
@@ -984,7 +1006,7 @@
 
         function initializeTheme() {
             // Set up the UI
-            if (config['ui']['bubbles'] === true) {
+            if (config['ui']['bubbles']['enabled'] === true) {
                 document.getElementById('enable-bubbles').removeAttribute('type');
             }
 
@@ -992,7 +1014,7 @@
                 document.getElementById('enable-horizontal').removeAttribute('type');
             }
 
-            if (config['ui']['bubbles'] === true && config['ui']['direction'] === 'horizontal') {
+            if (config['ui']['bubbles']['enabled'] === true && config['ui']['direction'] === 'horizontal') {
                 document.getElementById('horizontal-bubbles').removeAttribute('type');
             }
 
