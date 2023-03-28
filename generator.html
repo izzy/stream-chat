@@ -20,13 +20,17 @@
       --black: black;
       --white: white;
       --gray: gray;
+      --bg: #41145F;
     }
 
     body {
       font-family: sans-serif;
-      background: #41145F;
+      background: var(--bg);
       color: #F0F0FF;
       text-shadow: 0px 0px 3px #000;
+      display: flex;
+      flex-flow: column;
+      height: 100%;
     }
 
     a {
@@ -45,7 +49,7 @@
     input:not([type="color"]) {
       padding: 1rem;
       border: none;
-      background: #41145F;
+      background: var(--bg);
       color: #F0F0FF;
       border-bottom: 2px solid;
       transition: all 0.4s;
@@ -106,7 +110,7 @@
       width: 15rem;
       padding: 1rem;
       left: 40%;
-      color: #41145F;
+      color: var(--bg);
       transition: opacity .4s ease-in-out;
       opacity: 0;
       text-shadow: none;
@@ -120,8 +124,18 @@
       background: #FAB4FF;
     }
 
+    #header {
+      flex: 0 1 auto;
+    }
+
+    #config {
+      flex: 1 1 auto;
+    }
+
     #chat-frame {
       float: left;
+      z-index: 1000;
+      background-color: var(--bg);
     }
 
     /* Chat preview iframe */
@@ -144,14 +158,14 @@
 
     #config>form>div>span {
       width: 100%;
-      display: block;
+      display: table-row;
       padding: 0.4rem 0rem;
     }
 
     #config>form>div>span>label:first-child {
-      width: 5rem;
-      display: inline-block;
-      width: 13rem;
+      display: table-cell;
+      max-width: 13rem;
+      margin-right: 1rem;
     }
 
     .help {
@@ -206,8 +220,35 @@
 
     .group-closed {
       transition: height 0.25s ease-in-out, opacity 0.4s ease-in-out;
-      height: 0; 
+      height: 0;
       opacity: 0;
+    }
+
+
+    #chat-frame {
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+    }
+
+    #config-section {
+      display: flex;
+    }
+
+    #generator {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: flex-start;
+      align-content: flex-start;
+    }
+
+    #generator>.group {
+      flex: 1 0 auto;
+      flex-grow: 1;
+      flex-shrink: 0;
+      flex-basis: auto;
     }
   </style>
 </head>
@@ -217,36 +258,36 @@
     <h1 class="title">Stream Chat Overlay URL generator</h1>
     <h2 class="subtitle">based on <a href="https://github.com/izzy/stream-chat" target="_blank"
         rel="noreferrer">https://github.com/izzy/stream-chat</a> </h2>
+    <section id="url-container">
+      <div>
+        <div>
+          <input class="input" type="text" readonly id="url" />
+          <a id="copy-button" class="button">Copy</a>
+
+          <a id="obs-url" class="button">Drag me into OBS</a>
+          <span id="obs-url-help" class="help">?<span id="drag-help">Drag and drop does not work when OBS is running
+              with Administrator privileges</span></span>
+        </div>
+
+        <div>
+          <input class="input" type="text" id="load-url" />
+          <a id="load-obs-button" class="button">Load settings</a>
+          <span id="load-obs-help" class="help">?<span id="drag-help">Paste an existing URL here to load
+              settings</span></span>
+        </div>
+      </div>
+    </section>
   </section>
 
-  <section id="url-">
-    <div>
-      <div>
-        <input class="input" type="text" readonly id="url" />
-        <a id="copy-button" class="button">Copy</a>
-
-        <a id="obs-url" class="button">Drag me into OBS</a>
-        <span id="obs-url-help" class="help">?<span id="drag-help">Drag and drop does not work when OBS is running with Administrator privileges</span></span>
-      </div>
-
-      <div>
-        <input class="input" type="text" id="load-url" />
-        <a id="load-obs-button" class="button">Load settings</a>
-        <span id="load-obs-help" class="help">?<span id="drag-help">Paste an existing URL here to load settings</span></span>
-      </div>
+  <section id="config-section">
+    <div id="chat-frame">
+      <h2>Preview:</h2>
+      <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview
+          mode</label></div>
+      <iframe src="./chat.html" height="100%" id="preview"></iframe>
     </div>
 
-  </section>
-
-  <section>
     <div id="config">
-      <div id="chat-frame">
-        <h2>Preview:</h2>
-        <div><label class="checkbox"><input type="checkbox" value="debug" checked id="debug" />Disable live preview
-            mode</label></div>
-        <iframe src="./chat.html" height="100%" id="preview"></iframe>
-      </div>
-
       <form id="generator"></form>
     </div>
   </section>
