@@ -214,6 +214,13 @@
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
 
+        const Highlights = {
+            None: Symbol('None'),
+            Highlight: Symbol('Highlight'),
+            Mention: Symbol('Mention'),
+            Announcement: Symbol('Announcement'),
+        };
+
         class ConnectionStatus {
 
             /**
@@ -423,8 +430,14 @@
                 'text_background': get_color('bubble_color'),
                 'text': get_color('text_color'),
                 'message': get_color('msg_color'),
-                'announcement': get_color('announcement_color'),
-                'highlight': get_color('highlight_color'),
+                'announcement': {
+                    'text': get_color('announcement_color'),
+                    'background': get_color('announcement_bg_color'),
+                },
+                'highlight': {
+                    'text': get_color('highlight_color'),
+                    'background': get_color('highlight_bg_color'),
+                },
                 'default': get_color('default_color', {
                     r: 'ff',
                     g: 'e0',
@@ -678,7 +691,8 @@
             }
         }
 
-        let add_message = (id, message, author, color, timestamp, badges = [], highlight = false) => {
+        let add_message = (id, message, author, color, timestamp, badges = [], highlight = Highlights.None) => {
+            console.log(highlight);
             let background_color = get_user_color(color);
             let text_color = get_text_color(background_color);
 
@@ -696,10 +710,38 @@
                 el_message.style.color = get_color_hex(config['ui']['colors']["message"]);
             }
 
+            // If we don't use bubbles, we don't use the user colour as background
+            if (config['ui']['bubbles']['enabled'] === false) {
+                text_color = get_user_color(color, "text_color");
+                background_color = "transparent";
+            }
+
             let message_style = '';
-            if (highlight === true && config['ui']['highlights'] === true) {
-                message_style =
-                    `background-color: ${get_color_hex(background_color)}; color: ${get_color_hex(text_color)};`;
+            if (highlight !== Highlights.None) {
+                let msg_bg, msg_text;
+
+                if (highlight === Highlights.Highlight && config['ui']['highlights'] === true) {
+                    console.log("HIGHLIGHT", message, author, color, timestamp, badges, highlight);
+                    msg_bg = config['ui']['colors']['highlight']['background'];
+                    msg_text = config['ui']['colors']['highlight']['text'];
+                } else if (highlight === Highlights.Announcement) {
+                    console.log("ANNOUNCE", message, author, color, timestamp, badges, highlight);
+                    let msg_bg = config['ui']['colors']['announcement']['background'];
+                    let msg_text = config['ui']['colors']['announcement']['text'];
+                }
+
+                if (msg_bg === 'transparent' || msg_bg === null || msg_bg === undefined) {
+                    msg_bg = background_color;
+                }
+
+                if (msg_text === 'transparent' || msg_text === null || msg_text === undefined) {
+                    msg_text = text_color;
+                }
+
+                text_color = get_text_color(get_color_hex(msg_text));
+                background_color = get_color_hex(msg_bg);
+                message_style = 'background-color: ' + get_color_hex(msg_bg) + ';';
+                message_style += 'color: ' + get_color_hex(text_color) + ';';
             }
 
             let div_message = createElement('div', {
@@ -715,12 +757,6 @@
                 let fade_style = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fade_duration +
                     "s 1 normal forwards; margin-left: 0.5rem; float: left;";
                 div_message.setAttribute("style", tmp_style + fade_style);
-            }
-
-            // If we don't use bubbles, we don't use the user colour as background
-            if (config['ui']['bubbles']['enabled'] === false) {
-                text_color = get_user_color(color, "text_color");
-                background_color = "transparent";
             }
 
             let el_user = createElement('span', {
@@ -792,7 +828,7 @@
         let StreamerBot = {
             'message': {
                 'twitch': async (msg_id, user_id, author, author_color, message, emotes = [], role = 0,
-                    badges = [], highlight = false, announcement = false, pronoun = false) => {
+                    badges = [], highlight = Highlights.None, pronoun = false) => {
                     // TODO handle cheermotes
 
                     if (skip_message(message, author)) {
@@ -834,7 +870,7 @@
                         });
                     }
 
-                    if (announcement === true) {
+                    if (Highlights.Announcement === highlight) {
                         message = '<span class="announcement">📢 Announcement: </span>' + message;
                     }
 
@@ -903,7 +939,7 @@
                         message = message.replaceAll(e, el_emote.outerHTML);
                     }
 
-                    add_message(message_id, message, author, color, timestamp, badges, false);
+                    add_message(message_id, message, author, color, timestamp, badges, Highlights.None);
                 }
             },
         }
@@ -1099,8 +1135,9 @@
                             if (wsdata.event.type === 'ChatMessage') {
                                 let m = wsdata.data.message;
 
-                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, m.color, m
-                                    .message, m.emotes, m.role, m.badges, m.isHighlighted, false);
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName,
+                                    m.color, m.message, m.emotes, m.role, m.badges,
+                                    m.isHighlighted ? Highlights.Highlight : Highlights.None, false);
 
                             } else if (wsdata.event.type === 'Announcement') {
                                 if (config["ui"]["announcements"] === false) {
@@ -1128,8 +1165,8 @@
                                         break;
                                 }
 
-                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, color, m
-                                    .message, m.emotes, m.role, m.badges, true, true);
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName, color,
+                                    m.message, m.emotes, m.role, m.badges, Highlights.Announcement, true);
 
                             } else if (wsdata.event.type === 'UserTimedOut' || wsdata.event.type ===
                                 'UserBanned') {
@@ -1441,6 +1478,7 @@
                 if (Math.random() < 0.5 &&
                     config["plugins"]["streamerbot"]["enabled"] === true &&
                     config["plugins"]["streamerbot"]["twitch"] === true) {
+                    let highlightkeys = Object.keys(Highlights);
                     StreamerBot["message"]["twitch"](
                         String(Math.random()),
                         Math.floor(Math.random() * 10000000),
@@ -1450,8 +1488,7 @@
                         messagesEmote,
                         getRnd(4, 0),
                         badges[getRnd(badges.length - 1)],
-                        !!getRnd(1),
-                        !!getRnd(1),
+                        Highlights[highlightkeys[ highlightkeys.length * Math.random() << 0]],
                         pronoun
                     );
                 } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true)  {
@@ -1470,13 +1507,13 @@
                 let version_el = document.getElementById("version-notice");
                 let message = '';
                 let display = 'none';
+                let timeout = 60000;
 
                 console.log(version);
                 if (version.upToDate === false) {
                     display = "block";
                     message = `You are using version ${STREAMCHAT_VERSION} of ${STREAMCHAT_GH_REPO}.` + 
                         `There is a new version available. Please update to the latest version ${version.version}.`;
-                    timeout = 60000;
                 } else if (version.error) {
                     display = "block";
                     message = `There was an error checking for updates. Error: ${version.error}`;
