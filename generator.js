@@ -5,7 +5,7 @@ const fontCheck = new Set([
     'American Typewriter', 'Andale Mono', 'Arial', 'Arial Black', 'Arial Narrow', 'Arial Rounded MT Bold', 'Arial Unicode MS', 'Avenir', 'Avenir Next', 'Avenir Next Condensed', 'Baskerville', 'Big Caslon', 'Bodoni 72', 'Bodoni 72 Oldstyle', 'Bodoni 72 Smallcaps', 'Bradley Hand', 'Brush Script MT', 'Chalkboard', 'Chalkboard SE', 'Chalkduster', 'Charter', 'Cochin', 'Comic Sans MS', 'Copperplate', 'Courier', 'Courier New', 'Didot', 'DIN Alternate', 'DIN Condensed', 'Futura', 'Geneva', 'Georgia', 'Gill Sans', 'Helvetica', 'Helvetica Neue', 'Herculanum', 'Hoefler Text', 'Impact', 'Lucida Grande', 'Luminari', 'Marker Felt', 'Menlo', 'Microsoft Sans Serif', 'Monaco', 'Noteworthy', 'Optima', 'Palatino', 'Papyrus', 'Phosphate', 'Rockwell', 'Savoye LET', 'SignPainter', 'Skia', 'Snell Roundhand', 'Tahoma', 'Times', 'Times New Roman', 'Trattatello', 'Trebuchet MS', 'Verdana', 'Zapfino',
 ].sort());
 
-const groups = {
+let groups = {
     Integrations: {
         id: "integrations",
         label: "Integrations",
@@ -47,12 +47,6 @@ const groups = {
         label: "Theme - Text & Size",
         color: "orange",
     },
-
-    Obs: {
-        id: "obs",
-        label: "Obs",
-        color: "yellow",
-    }
 }
 
 let fields = [
@@ -103,6 +97,12 @@ let fields = [
 // It's not ideal but it's the best we can do.
 const isLocal = window.location.protocol === "file:";
 if (isLocal === false) {
+    groups['Obs'] = {
+        id: "obs",
+        label: "Obs",
+        color: "yellow",
+    };
+    
     fields.push(
         { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
         { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
@@ -403,10 +403,10 @@ const bubble_border_radius = document.querySelector("input[name=bubble_border_ra
 const bubble_border_size = document.querySelector("input[name=bubble_border_size]").parentNode;
 bubbles.addEventListener("change", (e) => {
     if (e.target.checked) {
-        bubble_color.style.display = "block";
-        bubble_border_color.style.display = "block";
-        bubble_border_radius.style.display = "block";
-        bubble_border_size.style.display = "block";
+        bubble_color.style.display = "";
+        bubble_border_color.style.display = "";
+        bubble_border_radius.style.display = "";
+        bubble_border_size.style.display = "";
     } else {
         bubble_color.style.display = "none";
         bubble_border_color.style.display = "none";
@@ -421,8 +421,8 @@ const highlight_color = document.querySelector("input[name=highlight_color]").pa
 const highlight_bg_color = document.querySelector("input[name=highlight_bg_color]").parentNode;
 highlights.addEventListener("change", (e) => {
     if (e.target.checked) {
-        highlight_color.style.display = "block";
-        highlight_bg_color.style.display = "block";
+        highlight_color.style.display = "";
+        highlight_bg_color.style.display = "";
     } else {
         highlight_color.style.display = "none";
         highlight_bg_color.style.display = "none";
@@ -435,8 +435,8 @@ const announcement_color = document.querySelector("input[name=announcement_color
 const announcement_bg_color = document.querySelector("input[name=announcement_bg_color]").parentNode;
 announcements.addEventListener("change", (e) => {
     if (e.target.checked) {
-        announcement_color.style.display = "block";
-        announcement_bg_color.style.display = "block";
+        announcement_color.style.display = "";
+        announcement_bg_color.style.display = "";
     } else {
         announcement_color.style.display = "none";
         announcement_bg_color.style.display = "none";
