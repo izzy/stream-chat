@@ -708,8 +708,12 @@
 
             // If we don't use bubbles, we don't use the user colour as background
             if (config['ui']['bubbles']['enabled'] === false) {
-                text_color = get_user_color(color, "text_color");
-                background_color = "transparent";
+                if (!config['ui']['colors']['text_color']) {
+                    text_color = get_user_color(color, "text_color");
+                }
+                if (!config['ui']['colors']['text_background']) {
+                    background_color = "transparent";
+                }
             }
 
             let message_class = [];
@@ -723,10 +727,39 @@
 
             if (config['ui']['bubbles']['enabled'] === true) {
                 message_class.push('bubble');
+
+                if (!config['ui']['colors']['bubble_border']) {
+                    add_style = `${add_style} border-color: ${get_color_hex(background_color)};`;
+                }
             }
 
-            if (!config['ui']['colors']['bubble_border']) {
-                add_style += `border-color: ${get_color_hex(background_color)};`;
+            // TODO: omg this code is a mess and needs to get some a e s t h e t i c s
+            // For announcements we want the background to be filled
+            if (config['ui']['announcements'] === true &&
+                (highlight === Highlights.Announcement || highlight === Highlights.Highlight)) {
+
+                // Bubbles complicate things a bit
+                if (config['ui']['bubbles']['enabled'] === true) {
+                    if (config['ui']['colors']['announcement']['background']) {
+                        background_color = config['ui']['colors']['announcement']['background'];
+                    } else {
+                        background_color = get_user_color(color);
+                    }
+
+                    if (config['ui']['colors']['bubble_border']) {
+                        add_style = `${add_style} border-color: ${get_color_hex(config['ui']['colors']['bubble_border'])};`;
+                    } else {
+                        add_style = `${add_style} border-color: ${get_color_hex(background_color)};`;
+                    }
+                } else {
+                    background_color = text_color;
+                    text_color = get_text_color(background_color);
+                }
+
+                add_style = `${add_style} background-color: ${get_color_hex(background_color)};`;
+
+                // TODO: For announcement, get an enum for the colour of the announcement
+                //       and add a CSS class with nice colours and gradients
             }
 
             let div_message = createElement('div', {
@@ -1030,18 +1063,20 @@
             // configuration has a value for it
             function addCSSRule(config_item, selector, op, important = false) {
                 if (config_item != null) {
-                    // Add !important to the end of the rule if we need to
-                    if (important === true) {
-                        config_item += ' !important';
-                    }
-
                     // If we deal with a color, convert it to normalized hex value
                     if (op.includes('color')) {
                         config_item = get_color_hex(config_item);
                     }
 
+                    // Add !important to the end of the rule if we need to
+                    // This must happen *after* the color conversion above
+                    if (important === true) {
+                        config_item += ' !important';
+                    }
+
                     // Add the rule to the style element
                     customStyle.insertRule(`${selector} { ${op}: ${config_item}; }`);
+                    console.debug(`Added CSS rule: ${selector} { ${op}: ${config_item}; }`)
                 }
             }
 
@@ -1050,7 +1085,11 @@
 
             // We define some variables to make the code and reduce mistakes made
             // with class names
-            let [announce, message, username, bubble, highlight] = [".announcement", ".chat-message", ".msg-user", ".bubble", ".highlight"]
+            let announce = ".announcement",
+                message = ".chat-message",
+                username = ".msg-user",
+                bubble = ".bubble",
+                highlight = ".highlight";
 
             // Rules for sizes and fonts
             addCSSRule(config['ui']['font']['family'], 'body', 'font-family');
