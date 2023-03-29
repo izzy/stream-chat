@@ -22,6 +22,10 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `version_alert`    | false                | boolean       | Uses a popup instead of the obnoxiously large notification. CAREFUL: If you have the overlay setup more than once or reload the overlay frequently this might be a bad idea | `version_alert=true`   |
 | `direction`        |                      | horizontal    | Set to "horizontal" this will scroll the text from right to left instead of bottom to top      | `direction=horizontal`           |
 | `bubbles`          | false                | boolean       | Displays bubbles instead of the standard chat log display                                      | `bubbles=true`                   |
+| `bubble_color`     |                      | color         | If set overrides chat bubble color                                                             | `bubble_color=00FF00`            |
+| `bubble_border_color` |                   | color         | If set overrides chat bubble border color                                                             | `bubble_color=00FF00`            |
+| `bubble_border_size` |                    | string        | If set overrides chat bubble border size                                                       | `bubble_border_size=2em`         |
+| `bubble_border_radius` |                  | boolean       | If set overrides chat bubble border radius                                                     | `bubble_border_radius=1rem`      |
 | `background`       |                      | color         | Background of the whole chat page. Careful: By default this will be overridden by OBS          | `background=000000`              |
 | `bubble_color`     |                      | color         | If set overrides all chat bubble colours                                                       | `bubble_color=FF0000`            |
 | `text_color`       |                      | color         | If set overrides all user name colours                                                         | `text_color=FF0000`              |
@@ -30,7 +34,11 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `badges`           | true                 | boolean       | If set to false this disable broadcaster/VIP/moderator badges                                  | `badges=false`                   |
 | `badges_left`      | false                | boolean       | Moves broadcaster/VIP/moderator badges to the left                                             | `badges_left=true`               |
 | `highlights`       | true                 | boolean       | If set to false this disables visual difference for highlighted messages                       | `highlights=false`               |
+| `highlight_color`  |                      | color         | This sets the colour for highlighted messages                                                  | `highlight_color=FF0000`         |
+| `highlight_bg_color` |                    | color         | This sets the background/bubble colour for highlighted messages                                | `highlight_bg_color=FF0000`      |
 | `announcements`    | true                 | boolean       | If set to false this disables announcement messages                                            | `announcements=false`            |
+| `announcement_color` |                    | color         | This sets the colour for announcement messages                                                 | `announcement_color=FF0000`      |
+| `announcement_bg_color` |                 | color         | This sets the background/bubble colour for announcement messages                               | `announcement_bg_color=FF0000`   |
 | `timestamp`        | false                | boolean       | If set to true displays the time of the message                                                | `timestamp=true`                 |
 | `timestamp_locale` | en-US                | locale        | The regional setting to use for the message time                                               | `timestamp_locale=de-DE`         |
 | `cmdprefix`        |                      | string        | A prefix for bot commands. If this is set, chat messages starting with this won't be displayed | `cmdprefix=!`                    |

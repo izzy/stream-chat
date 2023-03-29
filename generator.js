@@ -77,16 +77,16 @@ let fields = [
     { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border size" },
     { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border radius" },
     { group: groups.ThemeText, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
-    
+
     { group: groups.ThemeColours, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
     { group: groups.ThemeColours, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
     { group: groups.ThemeColours, label: "Chat Bubble Border Color", name: "bubble_border_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides chat bubble border colour" },
     { group: groups.ThemeColours, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
     { group: groups.ThemeColours, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
     { group: groups.ThemeColours, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
-    { group: groups.ThemeColours, label: "Highlight Color", name: "highlight_color", type: "color", nullable: true, help: "This sets the background/bubble colour for highlighted messages" },
+    { group: groups.ThemeColours, label: "Highlight Color", name: "highlight_color", type: "color", nullable: true, help: "This sets the colour for highlighted messages" },
     { group: groups.ThemeColours, label: "Highlight Background Color", name: "highlight_bg_color", type: "color", nullable: true, help: "This sets the background/bubble colour for highlighted messages" },
-    { group: groups.ThemeColours, label: "Announcement Color", name: "announcement_color", type: "color", nullable: true, help: "This sets the background/bubble colour for announcement messages" },
+    { group: groups.ThemeColours, label: "Announcement Color", name: "announcement_color", type: "color", nullable: true, help: "This sets the colour for announcement messages" },
     { group: groups.ThemeColours, label: "Announcement Background Color", name: "announcement_bg_color", type: "color", nullable: true, help: "This sets the background/bubble colour for announcement messages" },
 ]
 
