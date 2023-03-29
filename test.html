@@ -69,7 +69,9 @@
             }).join(', ');
 
             // Enable debug message generation
+            // Disable this to use messages from the websocket
             config.push(['debug', true]);
+
             // Disable update check (to prevent getting rate limited by GitHub)
             config.push(['version_check', false]);
             config.push(['version_alert', false]);
