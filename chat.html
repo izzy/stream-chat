@@ -202,6 +202,8 @@
             display: inline;
         }
     </style>
+
+    <style id="user-styles" type="text/css"></style>
 </head>
 
 <body>
@@ -210,16 +212,9 @@
     <div id="connection-status" style="display: none;"></div>
 
     <script>
-        const STREAMCHAT_VERSION = '0.2.3';
+        const STREAMCHAT_VERSION = '0.3.0';
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
-
-        const Highlights = {
-            None: Symbol('None'),
-            Highlight: Symbol('Highlight'),
-            Mention: Symbol('Mention'),
-            Announcement: Symbol('Announcement'),
-        };
 
         class ConnectionStatus {
 
@@ -246,7 +241,7 @@
             * @value 3
             */
             static ERROR = 3;
-            
+
             /**
             * @type {Object.<string, number>}
             */
@@ -292,7 +287,7 @@
                 }
 
                 status_div.innerText = "You are currently " + status_text;
-                
+
             }
         }
 
@@ -333,19 +328,18 @@
                         console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is outdated. There is a major update to version ${data.tag_name} available.`);
                         upToDate = false;
                     } else if ((version_parts[0] === current_version_parts[0] && version_parts[1] > current_version_parts[1]) ||
-                        (version_parts[0] === current_version_parts[0] && version_parts[1] === current_version_parts[1] && version_parts[2] > current_version_parts[2]))
-                    {
+                        (version_parts[0] === current_version_parts[0] && version_parts[1] === current_version_parts[1] && version_parts[2] > current_version_parts[2])) {
                         console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is outdated. Please update to version ${data.tag_name}`);
                         upToDate = false;
                     } else {
                         console.debug(`${STREAMCHAT_GH_REPO} version ${STREAMCHAT_VERSION} is up to date or newer than the latest release ${data.tag_name}`);
                     }
 
-                    return {version: version, upToDate: upToDate, error: null};
+                    return { version: version, upToDate: upToDate, error: null };
                 }).catch(error => {
-                    
+
                     console.error(error);
-                    return {version: 'unknown', upToDate: true, error: error};
+                    return { version: 'unknown', upToDate: true, error: error };
                 });
             return res;
         }
@@ -581,8 +575,8 @@
                         pronouns_users[user] = data[0];
                         return data;
                     }).catch(() => {
-                    return '';
-                });
+                        return '';
+                    });
             }
 
         }
@@ -691,24 +685,26 @@
             }
         }
 
+        /**
+         * Enum to differenciate between different highlight styles
+         * Currently only used for Twitch messages
+         */
+        const Highlights = {
+            None: Symbol('None'),
+            Highlight: Symbol('Highlight'),
+            //Mention: Symbol('Mention'), // TODO: Might be worth implementing this?
+            Announcement: Symbol('Announcement'),
+        };
+
         let add_message = (id, message, author, color, timestamp, badges = [], highlight = Highlights.None) => {
             console.log(highlight);
             let background_color = get_user_color(color);
             let text_color = get_text_color(background_color);
+            let add_style = '';
 
-            let el_badges = createElement('span', {
-                'class': 'msg-badges'
-            });
-            let el_pronoun = createElement('span', {
-                'class': 'msg-pronoun'
-            }, author['pronoun']);
-            let el_message = createElement('span', {
-                'class': 'msg-text'
-            });
-
-            if (config['ui']['colors']["message"]) {
-                el_message.style.color = get_color_hex(config['ui']['colors']["message"]);
-            }
+            let el_badges = createElement('span', { 'class': 'msg-badges' });
+            let el_pronoun = createElement('span', { 'class': 'msg-pronoun' }, author['pronoun']);
+            let el_message = createElement('span', { 'class': 'msg-text' });
 
             // If we don't use bubbles, we don't use the user colour as background
             if (config['ui']['bubbles']['enabled'] === false) {
@@ -716,48 +712,29 @@
                 background_color = "transparent";
             }
 
-            let message_style = '';
+            let message_class = [];
             if (highlight !== Highlights.None) {
-                let msg_bg, msg_text;
-
                 if (highlight === Highlights.Highlight && config['ui']['highlights'] === true) {
-                    console.log("HIGHLIGHT", message, author, color, timestamp, badges, highlight);
-                    msg_bg = config['ui']['colors']['highlight']['background'];
-                    msg_text = config['ui']['colors']['highlight']['text'];
+                    message_class.push('highlight');
                 } else if (highlight === Highlights.Announcement) {
-                    console.log("ANNOUNCE", message, author, color, timestamp, badges, highlight);
-                    msg_bg = config['ui']['colors']['announcement']['background'];
-                    msg_text = config['ui']['colors']['announcement']['text'];
+                    message_class.push('announcement');
                 }
+            }
 
-                if (msg_bg === 'transparent' || msg_bg === null || msg_bg === undefined) {
-                    msg_bg = background_color;
-                }
+            if (config['ui']['bubbles']['enabled'] === true) {
+                message_class.push('bubble');
+            }
 
-                if (msg_text === 'transparent' || msg_text === null || msg_text === undefined) {
-                    msg_text = text_color;
-                }
-
-                text_color = get_text_color(get_color_hex(msg_text));
-                background_color = get_color_hex(msg_bg);
-                message_style = 'background-color: ' + get_color_hex(msg_bg) + ';';
-                message_style += 'color: ' + get_color_hex(text_color) + ';';
+            if (!config['ui']['colors']['bubble_border']) {
+                add_style += `border-color: ${get_color_hex(background_color)};`;
             }
 
             let div_message = createElement('div', {
                 'id': id,
                 'data-user-id': author['id'],
-                'class': 'chat-message',
-                'style': `border-color: ${get_color_hex(background_color)}; ${message_style}`
+                'class': 'chat-message' + (message_class.length > 0 ? ' ' + message_class.join(' ') : ''),
+                'style': add_style
             });
-
-            if (config['ui']['fade_duration'] !== null) {
-                fade_duration = config['ui']['fade_duration'];
-                let tmp_style = div_message.getAttribute("style");
-                let fade_style = "transition: max-height 0.3s ease-out; animation: chat 1s ease " + fade_duration +
-                    "s 1 normal forwards; margin-left: 0.5rem; float: left;";
-                div_message.setAttribute("style", tmp_style + fade_style);
-            }
 
             let el_user = createElement('span', {
                 'class': 'msg-user',
@@ -782,12 +759,12 @@
                 el_user.prepend(el_badges);
             }
 
-            // add timestamp
+            // Add the timestamp
             if (config['ui']['timestamp']['enabled'] === true) {
                 var date = new Date();
                 let el_timestamp = createElement('span', {
-                        'class': 'msg-timestamp'
-                    },
+                    'class': 'msg-timestamp'
+                },
                     date.toLocaleTimeString(config['ui']['timestamp']['locale'], config['ui']['timestamp'][
                         'options'
                     ]));
@@ -798,6 +775,7 @@
                 }
             }
 
+            // Add the pronoun
             if (author['pronoun']) {
                 el_user.appendChild(el_pronoun);
             }
@@ -805,19 +783,6 @@
             // Adds the user line and message to the message div
             div_message.appendChild(el_user);
             div_message.appendChild(el_message);
-
-            // Bubble specific styles
-            if (config['ui']['bubbles']['enabled'] === true) {
-                if (config['ui']['bubbles']['border']['radius']) {
-                    div_message.style.borderRadius = config['ui']['bubbles']['border']['radius'];
-                }
-                if (config['ui']['bubbles']['border']['size']) {
-                    div_message.style.borderWidth = config['ui']['bubbles']['border']['size'];
-                }
-                if (config['ui']['colors']['bubble_border']) {
-                    div_message.style.borderColor = get_color_hex(config['ui']['colors']['bubble_border']);
-                }
-            };
 
             document.getElementById('chat').appendChild(div_message);
 
@@ -1055,14 +1020,71 @@
                 document.getElementById('horizontal-bubbles').removeAttribute('type');
             }
 
-            if (config['ui']['colors']['page_background'] !== null) {
-                document.body.style.background = get_color_hex(config['ui']['colors']['page_background']);
-            } else {
-                document.body.style.background = "transparent";
+            /*document.getElementById("chat").style.fontFamily = config['ui']['font']['family'];
+            document.getElementById("chat").style.fontSize = config['ui']['font']['size'];*/
+
+            // Create a new CSS style element and add it to the DOM
+            const customStyle = document.getElementById('user-styles').sheet;
+
+            // Function to add a new rule to the custom style element if the user
+            // configuration has a value for it
+            function addCSSRule(config_item, selector, op, important = false) {
+                if (config_item != null) {
+                    // Add !important to the end of the rule if we need to
+                    if (important === true) {
+                        config_item += ' !important';
+                    }
+
+                    // If we deal with a color, convert it to normalized hex value
+                    if (op.includes('color')) {
+                        config_item = get_color_hex(config_item);
+                    }
+
+                    // Add the rule to the style element
+                    customStyle.insertRule(`${selector} { ${op}: ${config_item}; }`);
+                }
             }
 
-            document.getElementById("chat").style.fontFamily = config['ui']['font']['family'];
-            document.getElementById("chat").style.fontSize = config['ui']['font']['size'];
+            // Add the custom CSS defined by the user configuration to the style element
+            // we defined above
+
+            // We define some variables to make the code and reduce mistakes made
+            // with class names
+            let [announce, message, username, bubble, highlight] = [".announcement", ".chat-message", ".msg-user", ".bubble", ".highlight"]
+
+            // Rules for sizes and fonts
+            addCSSRule(config['ui']['font']['family'], 'body', 'font-family');
+            addCSSRule(config['ui']['font']['size'], 'body', 'font-size');
+            addCSSRule(config['ui']['emote_size'], `${message} > img`, 'width');
+
+            // Rules for colors
+            //addCSSRule(config['ui']['colors']['default'], `${message}.defaultcolor`, 'color');
+            addCSSRule(config['ui']['colors']['page_background'], 'body', 'background-color');
+
+            // Some colors are applied to different elements depending on the bubble settings
+            if (config['ui']['bubbles']['enabled'] === true) {
+                addCSSRule(config['ui']['colors']['bubble_border'], bubble, 'border-color');
+                addCSSRule(config['ui']['bubbles']['border']['radius'], bubble, 'border-radius');
+                addCSSRule(config['ui']['bubbles']['border']['size'], bubble, 'border-width');
+
+                addCSSRule(config['ui']['colors']['text_background'], username, 'background-color');
+                addCSSRule(config['ui']['colors']['message'], message, 'color');
+                addCSSRule(config['ui']['colors']['text'], username, 'color');
+            } else {
+                addCSSRule(config['ui']['colors']['text'], username, 'color', true);
+                addCSSRule(config['ui']['colors']['message'], message, 'color', true);
+            }
+
+            // Rules for animations
+            addCSSRule(config['ui']['fade_duration'], message, "transition: max-height 0.3s ease-out; animation: chat 1s ease " + config['ui']['fade_duration'] + "s 1 normal forwards; margin-left: 0.5rem; float: left;");
+
+            // Rules for announcements
+            addCSSRule(config['ui']['colors']['announcement']['text'], announce, 'color');
+            addCSSRule(config['ui']['colors']['announcement']['background'], announce, 'background-color');
+
+            // Rules for highlights
+            addCSSRule(config['ui']['colors']['highlight']['text'], highlight, 'color');
+            addCSSRule(config['ui']['colors']['highlight']['background'], highlight, 'background-color');
 
         }
 
@@ -1106,7 +1128,7 @@
                             "id": "obs-chat",
                             "events": subscribeEvents
                         };
-                        
+
                         socket.send(JSON.stringify(s));
                     } else {
                         console.debug('Streamer.Bot does not have any events to subscribe to');
@@ -1223,15 +1245,15 @@
 
             const badges = [
                 [{
-                        "name": "vip",
-                        "version": "1",
-                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3"
-                    },
-                    {
-                        "name": "subscriber",
-                        "version": "0",
-                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
-                    }
+                    "name": "vip",
+                    "version": "1",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/b817aba4-fad8-49e2-b88a-7cc744dfa6ec/3"
+                },
+                {
+                    "name": "subscriber",
+                    "version": "0",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
+                }
                 ],
                 [{
                     "name": "premium",
@@ -1239,110 +1261,110 @@
                     "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/bbbe0db0-a598-423e-86d0-f9fb98ca1933/3"
                 }],
                 [{
-                        "name": "broadcaster",
-                        "version": "1",
-                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3"
-                    },
-                    {
-                        "name": "subscriber",
-                        "version": "0",
-                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
-                    },
-                    {
-                        "name": "glhf-pledge",
-                        "version": "1",
-                        "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3"
-                    }
+                    "name": "broadcaster",
+                    "version": "1",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5527c58c-fb7d-422d-b71b-f309dcb85cc1/3"
+                },
+                {
+                    "name": "subscriber",
+                    "version": "0",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/5d9f2208-5dd8-11e7-8513-2ff4adfae661/3"
+                },
+                {
+                    "name": "glhf-pledge",
+                    "version": "1",
+                    "imageUrl": "https://static-cdn.jtvnw.net/badges/v1/3158e758-3cb4-43c5-94b3-7639810451c5/3"
+                }
                 ]
             ]
             const emotes = [{
-                    id: "555555597",
-                    type: "Twitch",
-                    name: ";p",
-                    startIndex: 3,
-                    endIndex: 4,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555597/default/dark/2.0",
-                },
-                {
-                    id: "555555593",
-                    type: "Twitch",
-                    name: ":p",
-                    startIndex: 6,
-                    endIndex: 7,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555593/default/dark/2.0",
-                },
-                {
-                    id: "555555562",
-                    type: "Twitch",
-                    name: ">(",
-                    startIndex: 12,
-                    endIndex: 13,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555562/default/dark/2.0",
-                },
-                {
-                    id: "555555563",
-                    type: "Twitch",
-                    name: ":|",
-                    startIndex: 15,
-                    endIndex: 16,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555563/default/dark/2.0",
-                },
-                {
-                    id: "6",
-                    type: "Twitch",
-                    name: "O_o",
-                    startIndex: 18,
-                    endIndex: 20,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/6/default/dark/2.0",
-                },
-                {
-                    id: "555555557",
-                    type: "Twitch",
-                    name: ":-)",
-                    startIndex: 33,
-                    endIndex: 35,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555557/default/dark/2.0",
-                },
-                {
-                    id: "555555599",
-                    type: "Twitch",
-                    name: "R)",
-                    startIndex: 0,
-                    endIndex: 1,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555599/default/dark/2.0",
-                },
-                {
-                    id: "555555589",
-                    type: "Twitch",
-                    name: ";)",
-                    startIndex: 9,
-                    endIndex: 10,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555589/default/dark/2.0",
-                },
-                {
-                    id: "555555578",
-                    type: "Twitch",
-                    name: "B-)",
-                    startIndex: 22,
-                    endIndex: 24,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555578/default/dark/2.0",
-                },
-                {
-                    id: "555555580",
-                    type: "Twitch",
-                    name: ":O",
-                    startIndex: 26,
-                    endIndex: 27,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555580/default/dark/2.0",
-                },
-                {
-                    id: "555555559",
-                    type: "Twitch",
-                    name: ":-(",
-                    startIndex: 29,
-                    endIndex: 31,
-                    imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555559/default/dark/2.0",
-                },
+                id: "555555597",
+                type: "Twitch",
+                name: ";p",
+                startIndex: 3,
+                endIndex: 4,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555597/default/dark/2.0",
+            },
+            {
+                id: "555555593",
+                type: "Twitch",
+                name: ":p",
+                startIndex: 6,
+                endIndex: 7,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555593/default/dark/2.0",
+            },
+            {
+                id: "555555562",
+                type: "Twitch",
+                name: ">(",
+                startIndex: 12,
+                endIndex: 13,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555562/default/dark/2.0",
+            },
+            {
+                id: "555555563",
+                type: "Twitch",
+                name: ":|",
+                startIndex: 15,
+                endIndex: 16,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555563/default/dark/2.0",
+            },
+            {
+                id: "6",
+                type: "Twitch",
+                name: "O_o",
+                startIndex: 18,
+                endIndex: 20,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/6/default/dark/2.0",
+            },
+            {
+                id: "555555557",
+                type: "Twitch",
+                name: ":-)",
+                startIndex: 33,
+                endIndex: 35,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555557/default/dark/2.0",
+            },
+            {
+                id: "555555599",
+                type: "Twitch",
+                name: "R)",
+                startIndex: 0,
+                endIndex: 1,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555599/default/dark/2.0",
+            },
+            {
+                id: "555555589",
+                type: "Twitch",
+                name: ";)",
+                startIndex: 9,
+                endIndex: 10,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555589/default/dark/2.0",
+            },
+            {
+                id: "555555578",
+                type: "Twitch",
+                name: "B-)",
+                startIndex: 22,
+                endIndex: 24,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555578/default/dark/2.0",
+            },
+            {
+                id: "555555580",
+                type: "Twitch",
+                name: ":O",
+                startIndex: 26,
+                endIndex: 27,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555580/default/dark/2.0",
+            },
+            {
+                id: "555555559",
+                type: "Twitch",
+                name: ":-(",
+                startIndex: 29,
+                endIndex: 31,
+                imageUrl: "https://static-cdn.jtvnw.net/emoticons/v2/555555559/default/dark/2.0",
+            },
             ];
 
             const names = [
@@ -1361,90 +1383,90 @@
             ];
 
             const colors = [{
-                    r: "B0",
-                    g: "BF",
-                    b: "1A"
-                },
-                {
-                    r: "00",
-                    g: "48",
-                    b: "BA"
-                },
-                {
-                    r: "7C",
-                    g: "B9",
-                    b: "E8"
-                },
-                {
-                    r: "C0",
-                    g: "E8",
-                    b: "D5"
-                },
-                {
-                    r: "B2",
-                    g: "84",
-                    b: "BE"
-                },
-                {
-                    r: "72",
-                    g: "A0",
-                    b: "C1"
-                },
-                {
-                    r: "DB",
-                    g: "2D",
-                    b: "43"
-                },
-                {
-                    r: "ED",
-                    g: "EA",
-                    b: "E0"
-                },
-                {
-                    r: "C4",
-                    g: "62",
-                    b: "10"
-                },
-                {
-                    r: "F0",
-                    g: "F8",
-                    b: "FF"
-                },
-                {
-                    r: "EF",
-                    g: "DE",
-                    b: "CD"
-                },
-                {
-                    r: "9F",
-                    g: "2B",
-                    b: "68"
-                },
-                {
-                    r: "E5",
-                    g: "2B",
-                    b: "50"
-                },
-                {
-                    r: "AB",
-                    g: "27",
-                    b: "4F"
-                },
-                {
-                    r: "F1",
-                    g: "9C",
-                    b: "BB"
-                },
-                {
-                    r: "3B",
-                    g: "7A",
-                    b: "57"
-                },
-                {
-                    r: "D3",
-                    g: "21",
-                    b: "2D"
-                },
+                r: "B0",
+                g: "BF",
+                b: "1A"
+            },
+            {
+                r: "00",
+                g: "48",
+                b: "BA"
+            },
+            {
+                r: "7C",
+                g: "B9",
+                b: "E8"
+            },
+            {
+                r: "C0",
+                g: "E8",
+                b: "D5"
+            },
+            {
+                r: "B2",
+                g: "84",
+                b: "BE"
+            },
+            {
+                r: "72",
+                g: "A0",
+                b: "C1"
+            },
+            {
+                r: "DB",
+                g: "2D",
+                b: "43"
+            },
+            {
+                r: "ED",
+                g: "EA",
+                b: "E0"
+            },
+            {
+                r: "C4",
+                g: "62",
+                b: "10"
+            },
+            {
+                r: "F0",
+                g: "F8",
+                b: "FF"
+            },
+            {
+                r: "EF",
+                g: "DE",
+                b: "CD"
+            },
+            {
+                r: "9F",
+                g: "2B",
+                b: "68"
+            },
+            {
+                r: "E5",
+                g: "2B",
+                b: "50"
+            },
+            {
+                r: "AB",
+                g: "27",
+                b: "4F"
+            },
+            {
+                r: "F1",
+                g: "9C",
+                b: "BB"
+            },
+            {
+                r: "3B",
+                g: "7A",
+                b: "57"
+            },
+            {
+                r: "D3",
+                g: "21",
+                b: "2D"
+            },
                 null,
             ];
 
@@ -1488,10 +1510,10 @@
                         messagesEmote,
                         getRnd(4, 0),
                         badges[getRnd(badges.length - 1)],
-                        Highlights[highlightkeys[ highlightkeys.length * Math.random() << 0]],
+                        Highlights[highlightkeys[highlightkeys.length * Math.random() << 0]],
                         pronoun
                     );
-                } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true)  {
+                } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true) {
                     StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
                         10000000), username, message, 0, false, false, false, false);
                 }
@@ -1502,7 +1524,7 @@
             initializeConnections();
         }
 
-        if (config["version"]["check"] === true) {
+        if (config["version"]["check"] === true && config["debug"] === false) {
             version_check().then(version => {
                 let version_el = document.getElementById("version-notice");
                 let message = '';
@@ -1512,14 +1534,14 @@
                 console.log(version);
                 if (version.upToDate === false) {
                     display = "block";
-                    message = `You are using version ${STREAMCHAT_VERSION} of ${STREAMCHAT_GH_REPO}.` + 
+                    message = `You are using version ${STREAMCHAT_VERSION} of ${STREAMCHAT_GH_REPO}.` +
                         `There is a new version available. Please update to the latest version ${version.version}.`;
                 } else if (version.error) {
                     display = "block";
                     message = `There was an error checking for updates. Error: ${version.error}`;
                     timeout = 10000;
                 }
-                
+
                 if (config["version"]["alert"] === true && message !== '') {
                     alert(message);
                 } else {

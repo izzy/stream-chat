@@ -102,7 +102,7 @@ if (isLocal === false) {
         label: "Obs",
         color: "yellow",
     };
-    
+
     fields.push(
         { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
         { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
@@ -427,6 +427,16 @@ highlights.addEventListener("change", (e) => {
         highlight_color.style.display = "none";
         highlight_bg_color.style.display = "none";
         document.getElementById("highlight_color_nullable").checked = false;
+    }
+});
+
+const default_color = document.querySelector("input[name=default_color]").parentNode;
+const username_color = document.querySelector("input[name=text_color]").parentNode;
+username_color.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        default_color.style.display = "none";
+    } else {
+        default_color.style.display = "";
     }
 });
 
