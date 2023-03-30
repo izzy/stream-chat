@@ -697,7 +697,6 @@
         };
 
         let add_message = (id, message, author, color, timestamp, badges = [], highlight = Highlights.None) => {
-            console.log(highlight);
             let background_color = get_user_color(color);
             let text_color = get_text_color(background_color);
             let add_style = '';
