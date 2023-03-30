@@ -328,6 +328,14 @@ const copyToClipBoard = () => {
             navigator.clipboard.writeText(urlEl.value);
             showToast("Copied to clipboard!", "success");
         }
+    }).catch(_err => {
+        // Firefox doesn't support querying for clipboard-write and only needs
+        // an active tab so we just try it the fuck anyway.
+        try {
+            navigator.clipboard.writeText(urlEl.value);
+        } catch(e) {
+            console.debug("Clipboard write failed", e);
+        }
     });
 }
 
