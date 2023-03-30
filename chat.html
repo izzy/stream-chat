@@ -1255,12 +1255,15 @@
                             } else {
                                 console.warn(['YouTube Event not implemented', event]);
                             }
-
-                            remove_old_messages();
                         }
                     } else {
                         console.warn(['Event source not implemented', event]);
                     }
+
+                    // The browser is creating elements faster than it can count them
+                    // If we don't wait a bit, the message count will be wrong and 
+                    // some messages won't be removed according to the user's settings
+                    setTimeout(remove_old_messages, 400);
                 }
             }
 
