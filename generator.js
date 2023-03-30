@@ -49,6 +49,8 @@ let groups = {
     },
 }
 
+const css_size_hint = "CSS class font-size value (e.g. x-large, 2em, 22px)";
+
 let fields = [
     { group: groups.Integrations, label: "Check for new stream-chat versions", name: "version_check", type: "checkbox", defaultValue: true, help: "Checks for new versions when starting the overlay and displays a warning when a new version is available." },
     { group: groups.Integrations, label: "Use an alert popup for new versions(read the notice!)", name: "version_alert", type: "checkbox", defaultValue: false, help: "Uses a popup instead of the obnoxiously large notification. CAREFUL: If you have the overlay setup more than once or reload the overlay frequently this might be a bad idea!" },
@@ -72,10 +74,10 @@ let fields = [
     { group: groups.ThemeText, label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
     { group: groups.ThemeText, label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
     { group: groups.ThemeText, label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
-    { group: groups.ThemeText, label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value (e.g. x-large, 2em, 22px)" },
-    { group: groups.ThemeText, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: "CSS class size value (e.g. 2em, 22px)" },
-    { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border size" },
-    { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: "If set overrides chat bubble border radius" },
+    { group: groups.ThemeText, label: "Font size", name: "fontsize", type: "text", nullable: true, help: `${css_size_hint}` },
+    { group: groups.ThemeText, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: `${css_size_hint}` },
+    { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border size. ${css_size_hint}` },
+    { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border radius ${css_size_hint}` },
     { group: groups.ThemeText, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
 
     { group: groups.ThemeColours, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
