@@ -736,11 +736,13 @@
             // For announcements we want the background to be filled
             if (config['ui']['announcements'] === true &&
                 (highlight === Highlights.Announcement || highlight === Highlights.Highlight)) {
+                
+                let config_key = highlight === Highlights.Announcement ? 'announcement' : 'highlight';
 
                 // Bubbles complicate things a bit
                 if (config['ui']['bubbles']['enabled'] === true) {
-                    if (config['ui']['colors']['announcement']['background']) {
-                        background_color = config['ui']['colors']['announcement']['background'];
+                    if (config['ui']['colors'][config_key]['background']) {
+                        background_color = config['ui']['colors'][config_key]['background'];
                     } else {
                         background_color = get_user_color(color);
                     }
