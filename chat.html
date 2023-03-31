@@ -733,6 +733,12 @@
             }
 
             // TODO: omg this code is a mess and needs to get some a e s t h e t i c s
+            // For one, if we have user configs for some colours, we don't need to overwrite them
+            // Also, we should probably use CSS variables for some things
+            // Alternatively maybe just a data attribute with the user's color like
+            // data-user-color="#123456" and then use that in the CSS with color: attr(data-user-color)
+            // which would be a lot cleaner and would get the style issues out of the JS code
+
             // For announcements we want the background to be filled
             if (config['ui']['announcements'] === true &&
                 (highlight === Highlights.Announcement || highlight === Highlights.Highlight)) {
@@ -745,6 +751,15 @@
                         background_color = config['ui']['colors'][config_key]['background'];
                     } else {
                         background_color = get_user_color(color);
+                    }
+
+                    if (!config['ui']['colors'][config_key]['text']) {
+                        // We calculate the text color based on the new background color
+                        // If we don't do this, the text might be completely unreadable
+                        text_color = get_text_color(background_color);
+                        add_style = `${add_style} color: ${get_color_hex(text_color)}!important;`;
+                    } else {
+                        text_color = config['ui']['colors'][config_key]['text'];
                     }
 
                     if (config['ui']['colors']['bubble_border']) {
