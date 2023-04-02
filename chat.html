@@ -760,6 +760,7 @@
                         add_style = `${add_style} color: ${get_color_hex(text_color)}!important;`;
                     } else {
                         text_color = config['ui']['colors'][config_key]['text'];
+                        el_message.style.color = get_color_hex(text_color);
                     }
 
                     if (config['ui']['colors']['bubble_border']) {
