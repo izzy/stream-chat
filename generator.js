@@ -5,7 +5,7 @@ const fontCheck = new Set([
     'American Typewriter', 'Andale Mono', 'Arial', 'Arial Black', 'Arial Narrow', 'Arial Rounded MT Bold', 'Arial Unicode MS', 'Avenir', 'Avenir Next', 'Avenir Next Condensed', 'Baskerville', 'Big Caslon', 'Bodoni 72', 'Bodoni 72 Oldstyle', 'Bodoni 72 Smallcaps', 'Bradley Hand', 'Brush Script MT', 'Chalkboard', 'Chalkboard SE', 'Chalkduster', 'Charter', 'Cochin', 'Comic Sans MS', 'Copperplate', 'Courier', 'Courier New', 'Didot', 'DIN Alternate', 'DIN Condensed', 'Futura', 'Geneva', 'Georgia', 'Gill Sans', 'Helvetica', 'Helvetica Neue', 'Herculanum', 'Hoefler Text', 'Impact', 'Lucida Grande', 'Luminari', 'Marker Felt', 'Menlo', 'Microsoft Sans Serif', 'Monaco', 'Noteworthy', 'Optima', 'Palatino', 'Papyrus', 'Phosphate', 'Rockwell', 'Savoye LET', 'SignPainter', 'Skia', 'Snell Roundhand', 'Tahoma', 'Times', 'Times New Roman', 'Trattatello', 'Trebuchet MS', 'Verdana', 'Zapfino',
 ].sort());
 
-const groups = {
+let groups = {
     Integrations: {
         id: "integrations",
         label: "Integrations",
@@ -36,14 +36,22 @@ const groups = {
         color: "orange",
     },
 
-    Obs: {
-        id: "obs",
-        label: "Obs",
-        color: "yellow",
-    }
+    ThemeColours: {
+        id: "theme_colours",
+        label: "Theme - Colours",
+        color: "orange",
+    },
+
+    ThemeText: {
+        id: "theme_font",
+        label: "Theme - Text & Size",
+        color: "orange",
+    },
 }
 
-const fields = [
+const css_size_hint = "CSS class font-size value (e.g. x-large, 2em, 22px)";
+
+let fields = [
     { group: groups.Integrations, label: "Check for new stream-chat versions", name: "version_check", type: "checkbox", defaultValue: true, help: "Checks for new versions when starting the overlay and displays a warning when a new version is available." },
     { group: groups.Integrations, label: "Use an alert popup for new versions(read the notice!)", name: "version_alert", type: "checkbox", defaultValue: false, help: "Uses a popup instead of the obnoxiously large notification. CAREFUL: If you have the overlay setup more than once or reload the overlay frequently this might be a bad idea!" },
     { group: groups.Integrations, label: "Streamer.Bot enabled", name: "sb_enabled", type: "checkbox", defaultValue: true, help: "Enables Streamer.Bot websocket integration when active." },
@@ -57,30 +65,56 @@ const fields = [
 
     { group: groups.Theme, label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox", help: "Set to 'horizontal' this will scroll the text from right to left instead of bottom to top" },
     { group: groups.Theme, label: "Bubbles", name: "bubbles", type: "checkbox", help: "Displays bubbles instead of the standard chat log" },
-    { group: groups.Theme, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
-    { group: groups.Theme, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
-    { group: groups.Theme, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
-    { group: groups.Theme, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
-    { group: groups.Theme, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
     { group: groups.Theme, label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { group: groups.Theme, label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
     { group: groups.Theme, label: "Highlights", name: "highlights", type: "checkbox", defaultValue: true, help: "If set to false this disables visual difference for highlighted messages" },
     { group: groups.Theme, label: "Announcements", name: "announcements", type: "checkbox", defaultValue: true, help: "If set to false this disables announcement messages" },
     { group: groups.Theme, label: "Timestamp", name: "timestamp", type: "checkbox", defaultValue: false, help: "If set to true displays the time of the message" },
-    { group: groups.Theme, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
-    { group: groups.Theme, label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
-    { group: groups.Theme, label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
-    { group: groups.Theme, label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
-    { group: groups.Theme, label: "Font size", name: "fontsize", type: "text", nullable: true, help: "CSS class font-size value (e.g. x-large, 2em, 22px)" },
-    { group: groups.Theme, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: "CSS class size value (e.g. 2em, 22px)" },
 
-    { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
-    { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
-    { group: groups.Obs, label: "OBS Layer name", name: "layer-name", type: "text", defaultValue: "Chat Overlay", help: "The OBS layer name. Can be changed in OBS later." },
+    { group: groups.ThemeText, label: "Fade duration", name: "fade_duration", type: "number", nullable: true, help: "Time in seconds until messages are removed" },
+    { group: groups.ThemeText, label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
+    { group: groups.ThemeText, label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
+    { group: groups.ThemeText, label: "Font size", name: "fontsize", type: "text", nullable: true, help: `${css_size_hint}` },
+    { group: groups.ThemeText, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: `${css_size_hint}` },
+    { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border size. ${css_size_hint}` },
+    { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border radius ${css_size_hint}` },
+    { group: groups.ThemeText, label: "Timestamp locale", name: "timestamp_locale", type: "text", defaultValue: "en-US", help: "The regional setting to use for the message time as ISO 639-1 language code." },
+
+    { group: groups.ThemeColours, label: "Background", name: "background", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "Background of the whole chat page. Careful: By default this will be overridden by OBS" },
+    { group: groups.ThemeColours, label: "Chat Bubble Color", name: "bubble_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides all chat bubble colours" },
+    { group: groups.ThemeColours, label: "Chat Bubble Border Color", name: "bubble_border_color", type: "color", defaultValue: "#FFFFFF", nullable: true, help: "If set overrides chat bubble border colour" },
+    { group: groups.ThemeColours, label: "Username Color", name: "text_color", type: "color", nullable: true, help: "If set overrides all user name colours"},
+    { group: groups.ThemeColours, label: "Message Color", name: "msg_color", type: "color", nullable: true, help: "If set overrides message colours" },
+    { group: groups.ThemeColours, label: "Default Color", name: "default_color", type: "color", nullable: true, help: "This sets the default background/bubble colour for users who don't have a colour set" },
+    { group: groups.ThemeColours, label: "Highlight Color", name: "highlight_color", type: "color", nullable: true, help: "This sets the colour for highlighted messages" },
+    { group: groups.ThemeColours, label: "Highlight Background Color", name: "highlight_bg_color", type: "color", nullable: true, help: "This sets the background/bubble colour for highlighted messages" },
+    { group: groups.ThemeColours, label: "Announcement Color", name: "announcement_color", type: "color", nullable: true, help: "This sets the colour for announcement messages" },
+    { group: groups.ThemeColours, label: "Announcement Background Color", name: "announcement_bg_color", type: "color", nullable: true, help: "This sets the background/bubble colour for announcement messages" },
 ]
+
+// OBS will relentlessly ignore any options when dragging a local file:// URL
+// into it. To reduce issues with people getting confused over the settings 
+// not working we just disable the drag button and instead leave the user with
+// the copy button. 
+// It's not ideal but it's the best we can do.
+const isLocal = window.location.protocol === "file:";
+if (isLocal === false) {
+    groups['Obs'] = {
+        id: "obs",
+        label: "Obs",
+        color: "yellow",
+    };
+
+    fields.push(
+        { group: groups.Obs, label: "OBS Layer width", name: "layer-width", type: "number", defaultValue: "300", help: "The OBS layer width. Can be changed in OBS later." },
+        { group: groups.Obs, label: "OBS Layer height", name: "layer-height", type: "number", defaultValue: "500", help: "The OBS layer height. Can be changed in OBS later." },
+        { group: groups.Obs, label: "OBS Layer name", name: "layer-name", type: "text", defaultValue: "Chat Overlay", help: "The OBS layer name. Can be changed in OBS later." },
+    );
+}
 
 const iframe = document.querySelector("#preview");
 const chatFrame = document.querySelector("#chat-frame");
+const configSection = document.querySelector("#config-section");
 const obsLink = document.querySelector("#obs-url");
 const baseUrl = window.location.href.replace("generator.html", "chat.html?");
 
@@ -208,13 +242,15 @@ const availableFonts = async () => {
 const changeDirection = (horizontal = false) => {
     console.log("changeDirection", horizontal);
     if (horizontal === true) {
-        iframe.style.width = "100%";
+        iframe.style.width = "98%";
         iframe.style.height = "6rem";
         chatFrame.style.float = "none";
+        configSection.style.display = "block";
     } else {
         iframe.style.width = "300px";
         iframe.style.height = "500px";
         chatFrame.style.float = "left";
+        configSection.style.display = "flex";
     }
 }
 
@@ -292,6 +328,14 @@ const copyToClipBoard = () => {
             navigator.clipboard.writeText(urlEl.value);
             showToast("Copied to clipboard!", "success");
         }
+    }).catch(_err => {
+        // Firefox doesn't support querying for clipboard-write and only needs
+        // an active tab so we just try it the fuck anyway.
+        try {
+            navigator.clipboard.writeText(urlEl.value);
+        } catch(e) {
+            console.debug("Clipboard write failed", e);
+        }
     });
 }
 
@@ -357,12 +401,6 @@ dragButton.addEventListener("click", (e) => {e.preventDefault();})
 
 buildMarkup();
 
-// OBS will relentlessly ignore any options when dragging a local file:// URL
-// into it. To reduce issues with people getting confused over the settings 
-// not working we just disable the drag button and instead leave the user with
-// the copy button. 
-// It's not ideal but it's the best we can do.
-const isLocal = window.location.protocol === "file:";
 if (isLocal === true) {
     document.getElementById("obs-url").style.display = "none";
     document.getElementById("obs-url-help").style.display = "none";
@@ -370,12 +408,59 @@ if (isLocal === true) {
 
 const bubbles = document.querySelector("input[name=bubbles]");
 const bubble_color = document.querySelector("input[name=bubble_color]").parentNode;
+const bubble_border_color = document.querySelector("input[name=bubble_border_color]").parentNode;
+const bubble_border_radius = document.querySelector("input[name=bubble_border_radius]").parentNode;
+const bubble_border_size = document.querySelector("input[name=bubble_border_size]").parentNode;
 bubbles.addEventListener("change", (e) => {
     if (e.target.checked) {
-        bubble_color.style.display = "block";
+        bubble_color.style.display = "";
+        bubble_border_color.style.display = "";
+        bubble_border_radius.style.display = "";
+        bubble_border_size.style.display = "";
     } else {
         bubble_color.style.display = "none";
+        bubble_border_color.style.display = "none";
+        bubble_border_radius.style.display = "none";
+        bubble_border_size.style.display = "none";
         document.getElementById("bubble_color_nullable").checked = false;
+    }
+});
+
+const highlights = document.querySelector("input[name=highlights]");
+const highlight_color = document.querySelector("input[name=highlight_color]").parentNode;
+const highlight_bg_color = document.querySelector("input[name=highlight_bg_color]").parentNode;
+highlights.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        highlight_color.style.display = "";
+        highlight_bg_color.style.display = "";
+    } else {
+        highlight_color.style.display = "none";
+        highlight_bg_color.style.display = "none";
+        document.getElementById("highlight_color_nullable").checked = false;
+    }
+});
+
+const default_color = document.querySelector("input[name=default_color]").parentNode;
+const username_color = document.querySelector("input[name=text_color]").parentNode;
+username_color.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        default_color.style.display = "none";
+    } else {
+        default_color.style.display = "";
+    }
+});
+
+const announcements = document.querySelector("input[name=announcements]");
+const announcement_color = document.querySelector("input[name=announcement_color]").parentNode;
+const announcement_bg_color = document.querySelector("input[name=announcement_bg_color]").parentNode;
+announcements.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        announcement_color.style.display = "";
+        announcement_bg_color.style.display = "";
+    } else {
+        announcement_color.style.display = "none";
+        announcement_bg_color.style.display = "none";
+        document.getElementById("announcement_color_nullable").checked = false;
     }
 });
 
