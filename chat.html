@@ -113,6 +113,40 @@
             background-color: #ff827c;
             box-sizing: border-box;
         }
+
+        #pause-button {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background: #000;
+            color: #fff;
+            font-size: 0.1rem;
+            padding: 0.1rem;
+            cursor: pointer;
+        }
+
+        #pause-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 1rem 1rem 0;
+            border-color: transparent black transparent transparent;
+            right: 0;
+            top: 0;
+            position: absolute;
+        }
+
+        #pause-button:hover {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background: #000;
+            color: #fff;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
     </style>
 
     <style type="text" id="enable-bubbles">
@@ -215,6 +249,13 @@
         const STREAMCHAT_VERSION = '0.3.0';
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
+
+        class ChatMessage extends HTMLDivElement {
+            constructor() {
+                super();
+                this.classList.add('chat-message');
+            }
+        }
 
         class ConnectionStatus {
 
@@ -1293,6 +1334,7 @@
         };
 
         initializeTheme();
+
         if (config["debug"] === true) {
             // Debugging is used in the Overlay generator live preview
             const messages = [
@@ -1528,56 +1570,79 @@
                 null,
             ];
 
-            setInterval(() => {
-                let pronoun = "";
-                if (pronouns) {
-                    const rnd = getRnd(pronouns.length - 1);
-                    pronoun = pronouns[rnd].display;
+            window.currentDebugInterval = 0;
+
+            const pauseButton = createElement("div", { id: "pause-button" }, "Pause");
+
+            pauseButton.addEventListener("click", () => {
+                if (window.currentDebugInterval === 0) {
+                    startInterval();
+                } else {
+                    clearInterval(window.currentDebugInterval);
+                    window.currentDebugInterval = 0;
                 }
-                let messagesEmote;
-                let username = names[getRnd(names.length - 1)];
-                const message = (() => {
-                    let message = messages[getRnd(messages.length - 1)];
-                    if (!!getRnd(1)) {
-                        messagesEmote = Array(getRnd(10)).fill(undefined).map(() => {
-                            return emotes[getRnd(emotes.length - 1)];
-                        });
-                        messagesEmote.forEach(({
-                            name
-                        }) => {
-                            message = `${message} ${name}`;
-                        });
+                pauseButton.innerText = window.currentDebugInterval === 0 ? "Unpause" : "Pause";
+            });
+
+            document.body.appendChild(pauseButton);
+
+            function startInterval() {
+                window.currentDebugInterval = setInterval(() => {
+                    if (window.currentDebugInterval === 0) {
+                        return;
                     }
-                    return message;
-                })();
+                    let pronoun = "";
+                    if (pronouns) {
+                        const rnd = getRnd(pronouns.length - 1);
+                        pronoun = pronouns[rnd].display;
+                    }
+                    let messagesEmote;
+                    let username = names[getRnd(names.length - 1)];
+                    const message = (() => {
+                        let message = messages[getRnd(messages.length - 1)];
+                        if (!!getRnd(1)) {
+                            messagesEmote = Array(getRnd(10)).fill(undefined).map(() => {
+                                return emotes[getRnd(emotes.length - 1)];
+                            });
+                            messagesEmote.forEach(({
+                                name
+                            }) => {
+                                message = `${message} ${name}`;
+                            });
+                        }
+                        return message;
+                    })();
 
-                if (skip_message(message, username) === true) {
-                    return;
-                }
+                    if (skip_message(message, username) === true) {
+                        return;
+                    }
 
-                if (Math.random() < 0.5 &&
-                    config["plugins"]["streamerbot"]["enabled"] === true &&
-                    config["plugins"]["streamerbot"]["twitch"] === true) {
-                    let highlightkeys = Object.keys(Highlights);
-                    StreamerBot["message"]["twitch"](
-                        String(Math.random()),
-                        Math.floor(Math.random() * 10000000),
-                        username,
-                        get_color_hex(colors[getRnd(colors.length - 1)]),
-                        message,
-                        messagesEmote,
-                        getRnd(4, 0),
-                        badges[getRnd(badges.length - 1)],
-                        Highlights[highlightkeys[highlightkeys.length * Math.random() << 0]],
-                        pronoun
-                    );
-                } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true) {
-                    StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
-                        10000000), username, message, 0, false, false, false, false);
-                }
+                    if (Math.random() < 0.5 &&
+                        config["plugins"]["streamerbot"]["enabled"] === true &&
+                        config["plugins"]["streamerbot"]["twitch"] === true) {
+                        let highlightkeys = Object.keys(Highlights);
+                        StreamerBot["message"]["twitch"](
+                            String(Math.random()),
+                            Math.floor(Math.random() * 10000000),
+                            username,
+                            get_color_hex(colors[getRnd(colors.length - 1)]),
+                            message,
+                            messagesEmote,
+                            getRnd(4, 0),
+                            badges[getRnd(badges.length - 1)],
+                            Highlights[highlightkeys[highlightkeys.length * Math.random() << 0]],
+                            pronoun
+                        );
+                    } else if (config["plugins"]["streamerbot"]["enabled"] === true && config["plugins"]["streamerbot"]["youtube"] === true) {
+                        StreamerBot["message"]["youtube"](String(Math.random()), Math.floor(Math.random() *
+                            10000000), username, message, 0, false, false, false, false);
+                    }
 
-                remove_old_messages();
-            }, 2000);
+                    remove_old_messages();
+                }, 2000);
+            };
+            startInterval();
+
         } else {
             initializeConnections();
         }
