@@ -604,9 +604,9 @@
          * @param {Color} color The user's text color
          * @returns {string} The calculated color according to settings
          */
-        function get_text_color(color) {
+        function get_text_color(color, noDefault = false) {
             // TODO pastel mode for text color
-            if (config['ui']['colors']['text']) {
+            if (config['ui']['colors']['text'] && noDefault === false) {
                 return config['ui']['colors']['text'];
             }
 
@@ -699,36 +699,24 @@
         let add_message = (id, message, author, color, timestamp, badges = [], highlight = Highlights.None) => {
             let background_color = get_user_color(color);
             let text_color = get_text_color(background_color);
-            let add_style = '';
 
             let el_badges = createElement('span', { 'class': 'msg-badges' });
             let el_pronoun = createElement('span', { 'class': 'msg-pronoun' }, author['pronoun']);
             let el_message = createElement('span', { 'class': 'msg-text' });
+            let el_user = createElement('span', { 'class': 'msg-user' }, author.name);
 
-            // If we don't use bubbles, we don't use the user colour as background
-            if (config['ui']['bubbles']['enabled'] === false) {
-                if (!config['ui']['colors']['text_color']) {
-                    text_color = get_user_color(color, "text_color");
-                }
-                if (!config['ui']['colors']['text_background']) {
-                    background_color = "transparent";
-                }
-            }
+            let div_message = createElement('div', {
+                'id': id,
+                'data-user-id': author['id'],
+                'class': 'chat-message',
+            });
 
             let message_class = [];
             if (highlight !== Highlights.None) {
                 if (highlight === Highlights.Highlight && config['ui']['highlights'] === true) {
-                    message_class.push('highlight');
+                    div_message.classList.add('highlight');
                 } else if (highlight === Highlights.Announcement) {
-                    message_class.push('announcement');
-                }
-            }
-
-            if (config['ui']['bubbles']['enabled'] === true) {
-                message_class.push('bubble');
-
-                if (!config['ui']['colors']['bubble_border']) {
-                    add_style = `${add_style} border-color: ${get_color_hex(background_color)};`;
+                    div_message.classList.add('announcement');
                 }
             }
 
@@ -742,54 +730,68 @@
             // For announcements we want the background to be filled
             if (config['ui']['announcements'] === true &&
                 (highlight === Highlights.Announcement || highlight === Highlights.Highlight)) {
-                
+
                 let config_key = highlight === Highlights.Announcement ? 'announcement' : 'highlight';
 
-                // Bubbles complicate things a bit
-                if (config['ui']['bubbles']['enabled'] === true) {
-                    if (config['ui']['colors'][config_key]['background']) {
-                        background_color = config['ui']['colors'][config_key]['background'];
-                    } else {
-                        background_color = get_user_color(color);
-                    }
-
-                    if (!config['ui']['colors'][config_key]['text']) {
-                        // We calculate the text color based on the new background color
-                        // If we don't do this, the text might be completely unreadable
-                        text_color = get_text_color(background_color);
-                        add_style = `${add_style} color: ${get_color_hex(text_color)}!important;`;
-                    } else {
-                        text_color = config['ui']['colors'][config_key]['text'];
-                        el_message.style.color = get_color_hex(text_color);
-                    }
-
-                    if (config['ui']['colors']['bubble_border']) {
-                        add_style = `${add_style} border-color: ${get_color_hex(config['ui']['colors']['bubble_border'])};`;
-                    } else {
-                        add_style = `${add_style} border-color: ${get_color_hex(background_color)};`;
-                    }
+                if (config['ui']['colors'][config_key]['background']) {
+                    background_color = config['ui']['colors'][config_key]['background'];
                 } else {
-                    background_color = text_color;
-                    text_color = get_text_color(background_color);
+                    background_color = get_user_color(color);
                 }
 
-                add_style = `${add_style} background-color: ${get_color_hex(background_color)};`;
+                if (config['ui']['colors'][config_key]['text']) {
+                    text_color = config['ui']['colors'][config_key]['text'];
+                } else {
+                    // We calculate the text color based on the new background color
+                    // If we don't do this, the text might be completely unreadable
+                    // Second parameter is noDefault to prevent getting the default
+                    // text color which might or might not work with the new background
+                    text_color = get_text_color(background_color, true);
+                }
+
+                if (config['ui']['bubbles']['enabled'] === true) {
+                    // Announcement/Highlight styling for message bubbles
+                    div_message.style.color = get_color_hex(text_color);
+
+                    if (config['ui']['colors']['bubble_border']) {
+                        div_message.style.borderColor = get_color_hex(config['ui']['colors']['bubble_border']);
+                    } else {
+                        div_message.style.borderColor = get_color_hex(background_color);
+                    }
+
+                    el_user.style.color = get_color_hex(text_color);
+                    el_user.style.backgroundColor = get_color_hex(background_color);
+                } else {
+                    // Announcement/Highlight styling for regular text messages
+                    div_message.style.color = get_color_hex(text_color);
+                    el_message.style.color = get_color_hex(text_color);
+                }
+
+                div_message.style.backgroundColor = get_color_hex(background_color);
 
                 // TODO: For announcement, get an enum for the colour of the announcement
                 //       and add a CSS class with nice colours and gradients
+            } else {
+
+                // Everything specific for anything that's not announcement or highlight
+                if (config['ui']['bubbles']['enabled'] === true) {
+                    div_message.classList.add('bubble');
+
+                    if (!config['ui']['colors']['bubble_border']) {
+                        div_message.style.borderColor = get_color_hex(background_color);
+                    }
+
+                    el_user.style.backgroundColor = get_color_hex(background_color);
+
+                } else {
+                    // If we don't use bubbles, we don't use the user colour as background
+                    if (!config['ui']['colors']['text_color']) {
+                        text_color = get_user_color(color, "text_color");
+                    }
+                }
+
+                el_user.style.color = get_color_hex(text_color);
             }
-
-            let div_message = createElement('div', {
-                'id': id,
-                'data-user-id': author['id'],
-                'class': 'chat-message' + (message_class.length > 0 ? ' ' + message_class.join(' ') : ''),
-                'style': add_style
-            });
-
-            let el_user = createElement('span', {
-                'class': 'msg-user',
-                'style': `color: ${get_color_hex(text_color)}; background-color: ${get_color_hex(background_color)}`
-            }, author.name);
 
             if (config['ui']['badges']['enabled'] === true && badges.length > 0) {
                 for (let badge of badges) {
@@ -798,16 +800,16 @@
                     });
                     el_badges.appendChild(el_badge);
                 }
+
+                // Add badges to the user line
+                if (config['ui']['badges']['left'] === false) {
+                    el_user.appendChild(el_badges);
+                } else {
+                    el_user.prepend(el_badges);
+                }
             }
 
             el_message.innerHTML = message;
-
-            // Adds badges and pronouns to the user line
-            if (config['ui']['badges']['left'] === false) {
-                el_user.appendChild(el_badges);
-            } else {
-                el_user.prepend(el_badges);
-            }
 
             // Add the timestamp
             if (config['ui']['timestamp']['enabled'] === true) {
@@ -825,7 +827,7 @@
                 }
             }
 
-            // Add the pronoun
+            // Add the pronoun to the user line
             if (author['pronoun']) {
                 el_user.appendChild(el_pronoun);
             }
@@ -1124,19 +1126,21 @@
                 addCSSRule(config['ui']['colors']['message'], message, 'color');
                 addCSSRule(config['ui']['colors']['text'], username, 'color');
             } else {
-                addCSSRule(config['ui']['colors']['text'], username, 'color', true);
-                addCSSRule(config['ui']['colors']['message'], message, 'color', true);
+                addCSSRule(config['ui']['colors']['text'], `${message}:not(${highlight}, ${announce}) ${username}`, 'color', true);
+                addCSSRule(config['ui']['colors']['message'], `${message}:not(${highlight}, ${announce})`, 'color', true);
             }
 
             // Rules for animations
             addCSSRule(config['ui']['fade_duration'], message, "transition: max-height 0.3s ease-out; animation: chat 1s ease " + config['ui']['fade_duration'] + "s 1 normal forwards; margin-left: 0.5rem; float: left;");
 
             // Rules for announcements
-            addCSSRule(config['ui']['colors']['announcement']['text'], announce, 'color');
+            addCSSRule(config['ui']['colors']['announcement']['text'], announce, 'color', true);
+            addCSSRule(config['ui']['colors']['announcement']['text'], `${announce} ${username}`, 'color', true);
             addCSSRule(config['ui']['colors']['announcement']['background'], announce, 'background-color');
 
             // Rules for highlights
-            addCSSRule(config['ui']['colors']['highlight']['text'], highlight, 'color');
+            addCSSRule(config['ui']['colors']['highlight']['text'], highlight, 'color', true);
+            addCSSRule(config['ui']['colors']['highlight']['text'], `${highlight} ${username}`, 'color', true);
             addCSSRule(config['ui']['colors']['highlight']['background'], highlight, 'background-color');
 
         }
