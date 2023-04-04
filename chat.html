@@ -726,6 +726,9 @@
             // Alternatively maybe just a data attribute with the user's color like
             // data-user-color="#123456" and then use that in the CSS with color: attr(data-user-color)
             // which would be a lot cleaner and would get the style issues out of the JS code
+            if (config['ui']['bubbles']['enabled'] === true) {
+                div_message.classList.add('bubble');
+            }
 
             // For announcements we want the background to be filled
             if (config['ui']['announcements'] === true &&
@@ -775,8 +778,6 @@
 
                 // Everything specific for anything that's not announcement or highlight
                 if (config['ui']['bubbles']['enabled'] === true) {
-                    div_message.classList.add('bubble');
-
                     if (!config['ui']['colors']['bubble_border']) {
                         div_message.style.borderColor = get_color_hex(background_color);
                     }
@@ -813,13 +814,10 @@
 
             // Add the timestamp
             if (config['ui']['timestamp']['enabled'] === true) {
-                var date = new Date();
-                let el_timestamp = createElement('span', {
-                    'class': 'msg-timestamp'
-                },
-                    date.toLocaleTimeString(config['ui']['timestamp']['locale'], config['ui']['timestamp'][
-                        'options'
-                    ]));
+                let el_timestamp = createElement('span', { 'class': 'msg-timestamp' },
+                    new Date().toLocaleTimeString(config['ui']['timestamp']['locale'],
+                        config['ui']['timestamp']['options'])
+                );
                 if (config['ui']['bubbles']['enabled'] === false) {
                     div_message.appendChild(el_timestamp);
                 } else {
