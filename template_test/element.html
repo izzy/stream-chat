@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Izzy could have inserted a really cool title here</title>
+    <style>
+        :root {
+            --user-color: #00ff00;
+            --time-color: #ff0000;
+            --message-color: #0000ff;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <template id="message-line">
+        <style>
+            .message-text {
+                color: var(--message-color);
+            }
+
+            .message-date {
+                color: var(--time-color);
+            }
+
+            .message-user {
+                color: var(--user-color);
+            }
+        </style>
+        <div class="message-text"></div>
+        <div class="message-date"></div>
+        <div class="message-user"></div>
+    </template>
+
+    <message-line user="izzy9000">Hello World</message-line>
+    
+    <hr>
+    
+    <message-bubble>Message Bubble</message-bubble>
+
+    <script>
+        window._templates = {}
+        window._classList = {}
+
+        var BASE_PATH = window.location.href.replace(/[^/]*?\.html/, '');
+
+        function loadTemplate(template, callback) {
+            if (document.getElementById(`import-template-${template}`) === null) {
+                let import_script = document.createElement('script');
+                import_script.id = `import-template-${template}`;
+                import_script.src = `themes/${template}/index.js`;
+
+                let script = document.body.appendChild(import_script);
+                script.onload = callback;
+            } else {
+                callback();
+            }
+        }
+
+        let tag_names = ['message-line', 'message-bubble'];
+
+        function addTemplateToPage(tag_name) {
+            loadTemplate(tag_name, () => {
+                window.customElements.define(tag_name, window._classList[tag_name]);
+            });
+        };
+
+        for (let tag_name of tag_names) {
+            if (tag_name !== undefined) {
+                addTemplateToPage(tag_name);
+            }
+        }
+    </script>
+</body>
+
+</html>

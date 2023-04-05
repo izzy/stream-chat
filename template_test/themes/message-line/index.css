@@ -1,0 +1,14 @@
+.message-bubble {
+    background-color: #333;
+    border-radius: 10px;
+    padding: 10px;
+}
+.message-text {
+    color: var(--message-color);
+}
+.message-date {
+    color: var(--time-color);
+}
+.message-user {
+    color: var(--user-color);
+}
