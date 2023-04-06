@@ -22,11 +22,20 @@ class MessageLine extends HTMLElement {
 
         template = template.content.cloneNode(true);
 
-        template.querySelector(".message-text").innerText = this._message;
-        template.querySelector(".message-date").innerText = this._date;
-        template.querySelector(".message-user").innerText = this._user;
+        this.setField("text", this._message);
+        this.setField("date", this._date);
+        this.setField("user", this._user);
+        template.querySelector(".message-user").style.color = this.getAttribute('color') ?? "black";
 
         this.shadowRoot.appendChild(template);
+    }
+
+    setField(field, value) {
+        if( this.shadowRoot.querySelector(`.message-${field}`) ) {
+            this.shadowRoot.querySelector(`.message-${field}`).innerText = value;
+        } else {
+            console.debug(`Field ${field} not found in template, ignoring`);
+        }
     }
 }
 

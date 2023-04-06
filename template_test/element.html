@@ -9,6 +9,26 @@
             --user-color: #00ff00;
             --time-color: #ff0000;
             --message-color: #0000ff;
+
+            --user-color: #00ff00;
+            --time-color: #ff0000;
+            --message-color: #0000ff;
+            --message-background: #000000;
+
+            --user-default-color: #00ff00;
+            
+            --highlight-text-color: #ff0000;
+            --highlight-background-color: #0000ff;
+
+            --announcement-text-color: #0000ff;
+            --announcement-background-color: #000000;
+
+            --fade-duration: 0.5s;
+
+            --font-family: 'Roboto', sans-serif;
+            --font-size: 16px;
+
+            --emote-size: 32px;
         }
 
         html,
@@ -23,11 +43,12 @@
 </head>
 
 <body>
-    <message-line user="izzy9000">Hello World</message-line>
+    <message-line user="izzy9000" user-color="#000000">Hello World</message-line>
     
     <hr>
     
     <message-bubble>Message Bubble</message-bubble>
+
 
     <script>
         window._templates = {}
