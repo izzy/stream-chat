@@ -872,7 +872,7 @@
                         let message_index = 0;
                         let message_new = '';
 
-                        for (const emote in emotes) {
+                        for (const emote in emotes.sort((a, b) => { if (a.startIndex > b.startIndex) { return 1; } else { return -1; } })) {
                             const el_emote = document.createElement('img');
                             // The replace call is a workaround for FFZ emotes, see #35
                             // https://github.com/izzy/stream-chat/issues/35#issuecomment-1484156496
@@ -887,7 +887,7 @@
                             message_new +=
                                 htmlentities(message.substring(message_index, emotes[emote].startIndex))
                                 + el_emote.outerHTML;
-                            
+
                             // This is the index of the next character after the emote
                             // so we can continue the loop from there
                             message_index = emotes[emote].endIndex + 1;
