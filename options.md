@@ -39,6 +39,8 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `announcements`    | true                 | boolean       | If set to false this disables announcement messages                                            | `announcements=false`            |
 | `announcement_color` |                    | color         | This sets the colour for announcement messages                                                 | `announcement_color=FF0000`      |
 | `announcement_bg_color` |                 | color         | This sets the background/bubble colour for announcement messages                               | `announcement_bg_color=FF0000`   |
+| `scrollback`       | false                | boolean       | If set to true this enables the scrollback feature                                             | `scrollback=true`                |
+| `scrollback_length`| 100                  | number        | This sets the number of messages to keep in scrollback                                         | `scrollback_length=100`          |
 | `timestamp`        | false                | boolean       | If set to true displays the time of the message                                                | `timestamp=true`                 |
 | `timestamp_locale` | en-US                | locale        | The regional setting to use for the message time                                               | `timestamp_locale=de-DE`         |
 | `cmdprefix`        |                      | string        | A prefix for bot commands. If this is set, chat messages starting with this won't be displayed | `cmdprefix=!`                    |
@@ -50,6 +52,7 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `emote_size`       | 1.4rem               | number/string | CSS class size value (e.g. 2em, 22px)                                                          | `emote_size=22px`                |
 | `version_check`    | true               | boolean | Check for new stream-chat versions on startup                                                          | `version_check=false`                |
 | `version_alert`       | false               | boolean | Use an alert popup for new versions(can be clicked away, but be careful, might open several windows!)                                                          | `version_alert=true`                |
+
 #### Types
 
 `color`: 6-digit HEX colour code without the '#'

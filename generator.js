@@ -64,6 +64,8 @@ let fields = [
     { group: groups.Chat, label: "Bots", name: "bots", type: "text", nullable: true, help: "A comma-separated list of accounts whose messages will not be shown(case-insensitive)" },
 
     { group: groups.Theme, label: "Direction (horizontal if enabled)", name: "direction", type: "checkbox", help: "Set to 'horizontal' this will scroll the text from right to left instead of bottom to top" },
+    { group: groups.Theme, label: "Allow Scrollback", name: "scrollback", type: "checkbox", defaultValue: false, help: "If set to true this enables scrolling backwards in chat. Useful for chat monitoring. Not available with vertical chat or bubbles." },
+    { group: groups.Theme, label: "Scrollback length", name: "scrollback_length", type: "number", defaultValue: 100, help: "The number of messages to keep in scrollback" },
     { group: groups.Theme, label: "Bubbles", name: "bubbles", type: "checkbox", help: "Displays bubbles instead of the standard chat log" },
     { group: groups.Theme, label: "Badges", name: "badges", type: "checkbox", help: "If set to false this disable broadcaster/VIP/moderator badges"},
     { group: groups.Theme, label: "Badges on the left", name: "badges_left", type: "checkbox", help: "Moves broadcaster/VIP/moderator badges to the left"},
@@ -467,9 +469,42 @@ announcements.addEventListener("change", (e) => {
 bubbles.dispatchEvent(new Event("change"));
 
 const directionEl = document.querySelector("input[name=direction]");
+const scrollback = document.querySelector("input[name=scrollback]");
+const scrollback_length = document.querySelector("input[name=scrollback_length]").parentNode;
+
 directionEl.addEventListener("change", (e) => {
     changeDirection(e.target.checked);
+
+    if (e.target.checked) {
+        scrollback.parentNode.parentNode.style.display = "none";
+        scrollback_length.style.display = "none";
+    } else {
+        scrollback.parentNode.parentNode.style.display = "";
+        scrollback_length.style.display = "";
+    }
 });
+
+scrollback.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        scrollback_length.style.display = "";
+
+        // We do not support scrollback with many other options to avoid
+        // issues with layout or scrolling behaviour.
+        bubbles.checked = false;
+        bubbles.dispatchEvent(new Event("change"));
+        bubbles.parentNode.parentNode.style.display = "none";
+        
+        directionEl.checked = false;
+        directionEl.dispatchEvent(new Event("change"));
+        directionEl.parentNode.parentNode.style.display = "none";
+
+    } else {
+        scrollback_length.style.display = "none";
+        bubbles.parentNode.parentNode.style.display = "";
+        directionEl.parentNode.parentNode.style.display = "";
+    }
+});
+scrollback.dispatchEvent(new Event("change"));
 
 const sb_enabled = document.querySelector("input[name=sb_enabled]");
 

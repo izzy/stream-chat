@@ -113,6 +113,33 @@
             background-color: #ff827c;
             box-sizing: border-box;
         }
+
+        #scrollback-resume {
+            box-sizing: border-box;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+
+            padding: 1rem;
+            
+            color: white;
+            background: rgba(0,0,0,0.8);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #scrollback-resume:hover > .float-up-down {
+            position: relative;
+            bottom: 0;
+            animation: float-up-down 1s infinite alternate;
+        }
+
+        @keyframes float-up-down {
+            0% { bottom: -3px; }
+            100% { bottom: 7px; }
+        }
     </style>
 
     <style type="text" id="enable-bubbles">
@@ -208,11 +235,14 @@
 
 <body>
     <div id="chat"></div>
+    <div id="scrollback-resume" style="display: none;" onclick="document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;">
+        <span class="float-up-down">⬇️</span> Back to present <span class="float-up-down">⬇️</span>
+    </div>
     <div id="version-notice" style="display: none;"></div>
     <div id="connection-status" style="display: none;"></div>
 
     <script>
-        const STREAMCHAT_VERSION = '0.3.2';
+        const STREAMCHAT_VERSION = '0.4.0';
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
 
@@ -532,6 +562,11 @@
                         'family': searchParamOrDefault("fontfamily", "Open Sans"),
                         'size': searchParamOrDefault("fontsize", "large")
                     },
+                    'scrollback': {
+                        'enabled': searchParamIsTrue("scrollback", false),
+                        'length': parseInt(searchParamOrDefault("scrollback_length", 100)),
+                    }
+
                 },
                 'exclusion': {
                     'cmdprefix': cmdprefix,
@@ -552,7 +587,7 @@
         console.debug(['Loaded config', config]);
 
         let socket, pronouns_users = {},
-            pronouns;
+            pronouns, scroll_paused = false;
 
         // Fill the pronoun cache
         // TODO: Handle errors on this
@@ -840,8 +875,27 @@
 
             document.getElementById('chat').appendChild(div_message);
 
-            const element = document.getElementById('chat');
-            element.scrollTop = element.scrollHeight;
+            const chat = document.getElementById('chat');
+
+            if (config['ui']['scrollback']['enabled'] === false ||
+              (config['ui']['scrollback']['enabled'] === true && scroll_paused === false)) {
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+
+        if (config['ui']['scrollback']['enabled'] === true) {
+            document.getElementById('chat').addEventListener('scroll', () => {
+                const chat = document.getElementById('chat');
+                const scrollheight = chat.childNodes[chat.childNodes.length - 1].offsetHeight;
+
+                if (chat.scrollTop + window.innerHeight < chat.scrollHeight - scrollheight) {
+                    scroll_paused = true;
+                    document.getElementById('scrollback-resume').style.display = 'block';
+                } else {
+                    scroll_paused = false;
+                    document.getElementById('scrollback-resume').style.display = 'none';
+                }
+            });
         }
 
         let StreamerBot = {
@@ -1002,13 +1056,14 @@
         }
 
         function remove_old_messages() {
-            let chat = document.getElementById('chat');
-            let messages = chat.getElementsByClassName('chat-message');
+            const chat = document.getElementById('chat');
+            const messages = chat.getElementsByClassName('chat-message');
             let messages_to_remove = [];
 
             // Remove old messages when there are more than the max_messages setting
             if (config['ui']['max_messages'] !== false) {
-                let max_messages = config['ui']['max_messages'];
+                const max_messages = config['ui']['max_messages'];
+
                 if (messages.length > max_messages) {
                     for (let i = 0; i < messages.length - max_messages; i++) {
                         messages_to_remove.push(messages[i]);
@@ -1017,14 +1072,17 @@
             }
 
             for (let i = 0; i < messages.length; i++) {
-
                 // Remove messages that are outside the bounding box
-                // bottom when vertical scrolling is enabled,
-                // right when horizontal scrolling is enabled
                 if ((config['ui']['direction'] === 'vertical' && messages[i].getBoundingClientRect().bottom < 0) ||
                     (config['ui']['direction'] === 'horizontal' && messages[i].getBoundingClientRect().right < 0)
                 ) {
-                    messages_to_remove.push(messages[i]);
+                    if (config['ui']['scrollback']['enabled'] === false ||
+                        (messages.length > config['ui']['scrollback']['length'] &&
+                            i < messages.length - config['ui']['scrollback']['length']
+                        )
+                    ) {
+                        messages_to_remove.push(messages[i]);
+                    } 
                 }
 
                 // Remove messages that are older than the max age (fade_duration)
@@ -1160,6 +1218,10 @@
             addCSSRule(config['ui']['colors']['highlight']['text'], `${highlight} ${username}`, 'color', true);
             addCSSRule(config['ui']['colors']['highlight']['background'], highlight, 'background-color');
 
+            // Rules for scrollback
+            if (config['ui']['scrollback']['enabled'] === true) {
+                addCSSRule(config['ui']['scrollback']['length'], '#chat', 'overflow: auto;');
+            }
         }
 
         function initializeConnections() {
