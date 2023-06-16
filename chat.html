@@ -891,8 +891,6 @@
                 const chat = document.getElementById('chat');
                 const scrollheight = chat.childNodes[chat.childNodes.length - 1].scrollHeight;
 
-                console.log(scrollheight, chat.scrollTop + window.innerHeight, chat.scrollHeight - scrollheight*5);
-
                 if (chat.scrollTop + window.innerHeight < chat.scrollHeight - scrollheight*5) {
                     scroll_paused = true;
                     document.getElementById('scrollback-resume').style.display = 'block';
