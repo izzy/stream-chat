@@ -77,6 +77,7 @@ let fields = [
     { group: groups.ThemeText, label: "Max. messages", name: "max_messages", type: "number", nullable: true, help: "Maximum number of messages before old ones get deleted" },
     { group: groups.ThemeText, label: "Font Family", name: "fontfamily", type: "text", nullable: true, help: "Sets any (locally installed) font" },
     { group: groups.ThemeText, label: "Font size", name: "fontsize", type: "text", nullable: true, help: `${css_size_hint}` },
+    { group: groups.ThemeText, label: "Line Height", name: "line_height", type: "text", nullable: true, help: `${css_size_hint}` },
     { group: groups.ThemeText, label: "Emote size", name: "emote_size", type: "text", nullable: true, help: `${css_size_hint}` },
     { group: groups.ThemeText, label: "Chat Bubble Border Size", name: "bubble_border_size", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border size. ${css_size_hint}` },
     { group: groups.ThemeText, label: "Chat Bubble Border Radius", name: "bubble_border_radius", type: "text", defaultValue: 0, nullable: true, help: `If set overrides chat bubble border radius ${css_size_hint}` },

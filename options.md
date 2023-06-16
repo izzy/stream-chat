@@ -49,6 +49,7 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `max_messages`     |                      | number        | Maximum number of messages before old ones get deleted                                         | `max_messages=10`                |
 | `fontfamily`       | Open Sans            | string        | set (any locally installed) font                                                               | `fontfamily=Calibri`             |
 | `fontsize`         | large                | number/string | CSS class font-size value (e.g. x-large, 2em, 22px)                                            | `fontsize=22px`                  |
+| `line_height`      | normal               | string        | CSS class line-height value (e.g. 2em, 1rem)                                                   | `line_height=1rem`               |
 | `emote_size`       | 1.4rem               | number/string | CSS class size value (e.g. 2em, 22px)                                                          | `emote_size=22px`                |
 | `version_check`    | true                 | boolean       | Check for new stream-chat versions on startup                                                  | `version_check=false`            |
 | `version_alert`    | false                | boolean       | Use an alert popup for new versions(can be clicked away, but be careful, might open several windows!)| `version_alert=true`       |

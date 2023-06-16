@@ -561,7 +561,8 @@
                     'emote_size': searchParamOrDefault('emote_size', '1.4rem'),
                     'font': {
                         'family': searchParamOrDefault("fontfamily", "Open Sans"),
-                        'size': searchParamOrDefault("fontsize", "large")
+                        'size': searchParamOrDefault("fontsize", "large"),
+                        'line_height': searchParamOrDefault("line_height", "normal"),
                     },
                     'scrollback': {
                         'enabled': searchParamIsTrue("scrollback", false),
@@ -1196,6 +1197,7 @@
             // Rules for sizes and fonts
             addCSSRule(config['ui']['font']['family'], 'body', 'font-family');
             addCSSRule(config['ui']['font']['size'], 'body', 'font-size');
+            addCSSRule(config['ui']['font']['line_height'], '.chat-message', 'line-height');
             addCSSRule(config['ui']['emote_size'], `${message} > img`, 'width');
 
             // Rules for colors
