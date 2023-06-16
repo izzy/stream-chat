@@ -23,7 +23,7 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `direction`        |                      | horizontal    | Set to "horizontal" this will scroll the text from right to left instead of bottom to top      | `direction=horizontal`           |
 | `bubbles`          | false                | boolean       | Displays bubbles instead of the standard chat log display                                      | `bubbles=true`                   |
 | `bubble_color`     |                      | color         | If set overrides chat bubble color                                                             | `bubble_color=00FF00`            |
-| `bubble_border_color` |                   | color         | If set overrides chat bubble border color                                                             | `bubble_color=00FF00`            |
+| `bubble_border_color` |                   | color         | If set overrides chat bubble border color                                                      | `bubble_color=00FF00`            |
 | `bubble_border_size` |                    | string        | If set overrides chat bubble border size                                                       | `bubble_border_size=2em`         |
 | `bubble_border_radius` |                  | boolean       | If set overrides chat bubble border radius                                                     | `bubble_border_radius=1rem`      |
 | `background`       |                      | color         | Background of the whole chat page. Careful: By default this will be overridden by OBS          | `background=000000`              |
@@ -50,8 +50,10 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `fontfamily`       | Open Sans            | string        | set (any locally installed) font                                                               | `fontfamily=Calibri`             |
 | `fontsize`         | large                | number/string | CSS class font-size value (e.g. x-large, 2em, 22px)                                            | `fontsize=22px`                  |
 | `emote_size`       | 1.4rem               | number/string | CSS class size value (e.g. 2em, 22px)                                                          | `emote_size=22px`                |
-| `version_check`    | true               | boolean | Check for new stream-chat versions on startup                                                          | `version_check=false`                |
-| `version_alert`       | false               | boolean | Use an alert popup for new versions(can be clicked away, but be careful, might open several windows!)                                                          | `version_alert=true`                |
+| `version_check`    | true                 | boolean       | Check for new stream-chat versions on startup                                                  | `version_check=false`            |
+| `version_alert`    | false                | boolean       | Use an alert popup for new versions(can be clicked away, but be careful, might open several windows!)| `version_alert=true`       |
+| `debug`            | false                | boolean       | If set to true this will ignore the websocket and add generated messages                       | `debug=true`                     |
+| `debug_interval`   | 2000                 | number        | Interval in milliseconds for debug messages to be added                                        | `debug_interval=2000`            |
 
 #### Types
 

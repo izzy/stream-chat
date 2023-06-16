@@ -5,6 +5,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@500;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body,
@@ -573,6 +574,7 @@
                     'bots': bot_list,
                 },
                 'debug': searchParamIsTrue("debug"),
+                'debug_interval': searchParamOrDefault("debug_interval", 2000),
                 'version': {
                     'current': STREAMCHAT_VERSION,
                     'check': searchParamIsTrue("version_check", true),
@@ -886,9 +888,11 @@
         if (config['ui']['scrollback']['enabled'] === true) {
             document.getElementById('chat').addEventListener('scroll', () => {
                 const chat = document.getElementById('chat');
-                const scrollheight = chat.childNodes[chat.childNodes.length - 1].offsetHeight;
+                const scrollheight = chat.childNodes[chat.childNodes.length - 1].scrollHeight;
 
-                if (chat.scrollTop + window.innerHeight < chat.scrollHeight - scrollheight) {
+                console.log(scrollheight, chat.scrollTop + window.innerHeight, chat.scrollHeight - scrollheight*5);
+
+                if (chat.scrollTop + window.innerHeight < chat.scrollHeight - scrollheight*5) {
                     scroll_paused = true;
                     document.getElementById('scrollback-resume').style.display = 'block';
                 } else {
@@ -1150,8 +1154,15 @@
             // Create a new CSS style element and add it to the DOM
             const customStyle = document.getElementById('user-styles').sheet;
 
-            // Function to add a new rule to the custom style element if the user
-            // configuration has a value for it
+            /**
+             * Function to add a new rule to the custom style element if the user
+             * configuration has a value for it
+             * 
+             * @param {string} config_item The user configuration item to check
+             * @param {string} selector The CSS selector to add the rule to
+             * @param {string} op The CSS property to add the rule for
+             * @param {boolean} important Whether or not to add !important to the rule
+             */
             function addCSSRule(config_item, selector, op, important = false) {
                 if (config_item != null) {
                     // If we deal with a color, convert it to normalized hex value
@@ -1221,6 +1232,15 @@
             // Rules for scrollback
             if (config['ui']['scrollback']['enabled'] === true) {
                 addCSSRule(config['ui']['scrollback']['length'], '#chat', 'overflow: auto;');
+
+                // Mobile-specific rules so we can get a proper scrollbar
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar', 'width: 12px;');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar:vertical', 'width: 12px;');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar-thumb', 'background-color: rgba(0, 0, 0, .5);');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar-thumb', 'border-radius: 10px;');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar-thumb', 'border: 2px solid #ffffff;');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar-track', 'border-radius: 10px;');
+                addCSSRule(config['ui']['scrollback']['length'], '::-webkit-scrollbar-track', 'background-color: #ffffff;');
             }
         }
 
@@ -1658,7 +1678,7 @@
                 }
 
                 remove_old_messages();
-            }, 2000);
+            }, config["debug_interval"]);
         } else {
             initializeConnections();
         }
