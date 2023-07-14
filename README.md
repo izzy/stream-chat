@@ -63,7 +63,7 @@ If you're not sure what to do, feel free to open an issue and we'll try to help.
 
 ## I've read this README but I still have questions/problems, where can I get help?
 
-If you have a Github account, opening an issue is the best way to give feedback. Otherwise feel free to join my [Discord](https://discord.gg/yRTM7H2tek) and ask your questions in #development.
+If you have a Github account, opening an issue is the best way to give feedback. Otherwise feel free to join my [Discord](https://discord.gg/yRTM7H2tek) and ask your questions in the appropriate support channels.
 
 ## Contributors / Thanks
 
