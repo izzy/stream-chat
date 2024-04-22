@@ -595,7 +595,11 @@
             user = user.toLowerCase();
 
             if (config['ui']['pronouns'] === true && (user in pronouns_users && pronouns_users[user] !== undefined)) {
-                return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
+                if (pronouns_users[user]['pronoun_id'] === "any") {
+                    return "Any";
+                } else {
+                    return pronouns.filter(p => p.name === pronouns_users[user]['pronoun_id'])[0].display;
+                }
             } else {
                 return false;
             }
