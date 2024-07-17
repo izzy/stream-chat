@@ -61,6 +61,21 @@ If you're not sure what to do, feel free to open an issue and we'll try to help.
 * If you're using a custom port, make sure it's not in use by another application(try a different port)
 * To make sure the port is exclusively available, close Streamer.Bot and run `Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess` in PowerShell. If the output is empty, the port is available, otherwise it's in use by another process and you should probably try a different port.
 
+### WebSocket connected but doesn't show messages
+
+#### Possible errors in the console:
+
+* No direct errors
+* Log will say connected, but not say `SUBSCRIBE: ok`
+
+#### Possible reasons:
+
+* Wrong kind of Streamer.Bot websocket server started
+
+#### Troubleshooting:
+
+* Make sure that in Streamer.Bot you started the internal Websocket server(under "Websocket Server"), not a custom one(under "Websocket Servers" - mind the plural)
+
 ## I've read this README but I still have questions/problems, where can I get help?
 
 If you have a Github account, opening an issue is the best way to give feedback. Otherwise feel free to join my [Discord](https://discord.gg/yRTM7H2tek) and ask your questions in the appropriate support channels.
