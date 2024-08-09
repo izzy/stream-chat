@@ -1245,7 +1245,6 @@
                         if (wsdata.event.source === 'Twitch') {
                             if (wsdata.event.type === 'ChatMessage') {
                                 let m = wsdata.data.message;
-                                console.log(m)
 
                                 StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName,
                                     m.color, m.message, m.emotes, m.role, m.badges,
@@ -1253,7 +1252,6 @@
 
                             } else if (wsdata.event.type === 'Cheer') {
                                 let m = wsdata.data.message;
-                                console.log(m)
                                 
                                 // Add m.cheerEmotes and replace Cheers with cheerEmotes in add_message
                                 StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName,
@@ -1298,7 +1296,6 @@
                                 remove_messages_by_message_id(wsdata.data.targetMessageId);
                             } else if (wsdata.event.type === 'RewardRedemption') {
                                 let m = wsdata.data;
-                                console.log(m)
 
                                 StreamerBot['message']['twitch'](m.id, m.user_id, m.user_name, "#adadb8",
                                     `| ${m.user_name} redeemed ${m.reward.title} - ${m.reward.cost}`, [], 1, [], Highlights.Redemption);
