@@ -702,6 +702,7 @@
             Highlight: Symbol('Highlight'),
             //Mention: Symbol('Mention'), // TODO: Might be worth implementing this?
             Announcement: Symbol('Announcement'),
+            Redemption: Symbol('Redemption')
         };
 
         let add_message = (id, message, author, color, timestamp, badges = [], highlight = Highlights.None) => {
@@ -839,7 +840,15 @@
             }
 
             // Adds the user line and message to the message div
-            div_message.appendChild(el_user);
+            if (highlight !== Highlights.Redemption) {
+                div_message.appendChild(el_user);
+            } else {
+                el_message.style.color = get_color_hex({
+                    r: 'ad',
+                    g: 'ad',
+                    b: 'b8'
+                });
+            }
             div_message.appendChild(el_message);
 
             document.getElementById('chat').appendChild(div_message);
@@ -1264,7 +1273,9 @@
                             "Announcement",
                             "UserTimedOut",
                             "UserBanned",
-                            "ChatMessageDeleted"
+                            "ChatMessageDeleted",
+                            "RewardRedemption",
+                            "Cheer"
                         ];
                     }
 
@@ -1318,6 +1329,14 @@
                                     m.color, m.message, m.emotes, m.role, m.badges,
                                     m.isHighlighted ? Highlights.Highlight : Highlights.None);
 
+                            } else if (wsdata.event.type === 'Cheer') {
+                                let m = wsdata.data.message;
+                                
+                                // Add m.cheerEmotes and replace Cheers with cheerEmotes in add_message
+                                StreamerBot['message']['twitch'](m.msgId, m.userId, m.displayName,
+                                    m.color, m.message, m.emotes, m.role, m.badges,
+                                    m.isHighlighted ? Highlights.Highlight : Highlights.None);
+
                             } else if (wsdata.event.type === 'Announcement') {
                                 if (config["ui"]["announcements"] === false) {
                                     return;
@@ -1354,6 +1373,11 @@
                             } else if (wsdata.event.type === 'ChatMessageDeleted') {
                                 console.debug(['Message deleted', wsdata]);
                                 remove_messages_by_message_id(wsdata.data.targetMessageId);
+                            } else if (wsdata.event.type === 'RewardRedemption') {
+                                let m = wsdata.data;
+
+                                StreamerBot['message']['twitch'](m.id, m.user_id, m.user_name, "#adadb8",
+                                    `| ${m.user_name} redeemed ${m.reward.title} - ${m.reward.cost}`, [], 1, [], Highlights.Redemption);
                             } else {
                                 console.warn(['Twitch Event not implemented', event]);
                             }
@@ -1683,7 +1707,7 @@
         } else {
             initializeConnections();
         }
-
+        
         if (config["version"]["check"] === true && config["debug"] === false) {
             version_check().then(version => {
                 let version_el = document.getElementById("version-notice");
