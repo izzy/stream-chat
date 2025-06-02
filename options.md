@@ -33,6 +33,7 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 | `default_color`    |                      | color         | This sets the default background/bubble colour for users who don't have a colour set           | `default_color=FF0000`           |
 | `badges`           | true                 | boolean       | If set to false this disable broadcaster/VIP/moderator badges                                  | `badges=false`                   |
 | `badges_left`      | false                | boolean       | Moves broadcaster/VIP/moderator badges to the left                                             | `badges_left=true`               |
+| `group_badges`     | false                | group_badges  | Add additional badges for groups       | `group_badges=%7B%22Example%20group%22%3A%22https%3A%2F%2Fexample.com%2Fgroup.png%22%7D`               |
 | `highlights`       | true                 | boolean       | If set to false this disables visual difference for highlighted messages                       | `highlights=false`               |
 | `highlight_color`  |                      | color         | This sets the colour for highlighted messages                                                  | `highlight_color=FF0000`         |
 | `highlight_bg_color` |                    | color         | This sets the background/bubble colour for highlighted messages                                | `highlight_bg_color=FF0000`      |
@@ -57,3 +58,8 @@ file:///C:/path/to/stream-chat/chat.html?sb_enabled=true&bubbles=true
 `boolean`: true or 1, false or 0
 
 `locale`: [ISO 639-1 language code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)(i.e. 'de-DE' or 'en-GB')
+
+`group_badges`: URI encoded JSON Object. Example:
+```js
+encodeURIComponent(JSON.stringify({'GroupA': 'https://example.com/groupA.png', 'GroupB': 'https://example.com/groupB.png'}))
+```
