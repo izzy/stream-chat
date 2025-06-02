@@ -212,7 +212,7 @@
     <div id="connection-status" style="display: none;"></div>
 
     <script>
-        const STREAMCHAT_VERSION = '0.3.4';
+        const STREAMCHAT_VERSION = '0.3.5';
         const STREAMCHAT_GH_USER = 'izzy';
         const STREAMCHAT_GH_REPO = 'stream-chat';
 
@@ -467,6 +467,15 @@
                 timestamp_locale = url.searchParams.get("timestamp_locale");
             }
 
+            let group_badges = null;
+            if (url.searchParams.get("group_badges") !== null) {
+                try {
+                    group_badges = JSON.parse(url.searchParams.get('group_badges'));
+                } catch (e) {
+                    console.error("Could not parse group_badges: ", e);
+                }
+            }
+
             // Streamer.Bot specific configuration
             let streamerbotEnabled = true;
             let streamerbotConfig = {
@@ -526,6 +535,7 @@
                     'badges': {
                         'enabled': searchParamIsTrue("badges", true),
                         'left': searchParamIsTrue("badges_left"),
+                        'group_badges': group_badges,
                     },
                     'emote_size': searchParamOrDefault('emote_size', '1.4rem'),
                     'font': {
@@ -552,7 +562,23 @@
         console.debug(['Loaded config', config]);
 
         let socket, pronouns_users = {},
-            pronouns;
+            pronouns, groups = {};
+
+        function update_viewer_groups(viewer) {
+            // Clear viewer from all groups they're not a member of
+            for(group in groups) {
+                if (!(group in viewer.groups)) {
+                    groups[group]["users"] = groups[group]["users"].filter((login) => login !== viewer.login);
+                }
+            }
+
+            for (group of viewer.groups) {
+                if (!(group in groups)) {
+                    groups[group] = {users: [], badge: null};
+                }
+                groups[group]["users"].push(viewer.login);
+            }
+        }
 
         // Fill the pronoun cache
         // TODO: Handle errors on this
@@ -1257,6 +1283,18 @@
                 socket.onopen = () => {
                     subscribeEvents = {}
 
+                    subscribeEvents['Group'] = [
+                        "Added",
+                        "Removed",
+                        "Cleared",
+                        "UsersAdded",
+                        "UsersRemoved",
+                    ];
+
+                    subscribeEvents["General"] = [
+                        "Custom",
+                    ];
+
                     if (config['plugins']['streamerbot']['twitch'] === true) {
                         subscribeEvents['Twitch'] = [
                             "ChatMessage",
@@ -1299,16 +1337,38 @@
                 socket.onclose = function () {
                     CONNECTION_STATUS['StreamerBot'] = ConnectionStatus.DISCONNECTED;
                     console.warn('Disconnected from Streamer.Bot socket.');
+                    if (socket && socket.get_viewer_interval > 0) {
+                        clearInterval(socket.get_viewer_interval);
+                    }
                     setTimeout(initializeConnections, 10000);
                 };
 
                 socket.onmessage = async (event) => {
+                    function get_active_viewers() {
+                        let request = {
+                            "request": "GetActiveViewers",
+                            "id": "get-viewers"
+                        };
+
+                        socket.send(JSON.stringify(request));
+                    }
+
                     const wsdata = JSON.parse(event.data);
 
                     console.debug(['Event', wsdata]);
 
                     if (wsdata.id === 'obs-chat') {
                         console.debug([`SUBSCRIBE: ${wsdata.status}`, wsdata]);
+
+                        socket.get_viewer_interval = setInterval(() => {
+                            get_active_viewers();
+                        }, 5000);
+                    } else if (wsdata.id === 'get-viewers') {
+                        console.debug("ActiveViewers update", wsdata);
+
+                        wsdata.viewers.forEach(viewer => {
+                            update_viewer_groups(viewer);
+                        });
                     } else if (wsdata.event) {
                         if (wsdata.event.source === 'Twitch') {
                             if (wsdata.event.type === 'ChatMessage') {
@@ -1377,6 +1437,10 @@
                             } else {
                                 console.warn(['YouTube Event not implemented', event]);
                             }
+                        } else if (wsdata.event.source === 'Group') {
+                            console.debug("Group data update", wsdata.event.type, wsdata.data)
+                            // If the groups changed, we get a new list of current viewers with their groups
+                            get_active_viewers();
                         }
                     } else {
                         console.warn(['Event source not implemented', event]);
