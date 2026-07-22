@@ -1,12 +1,15 @@
 # Deprecation notice
 
 > [!CAUTION]
+> # <button style="background:red">[**Please visit narnacle/stream-chat-rebooted for the actively maintained fork**](https://github.com/narnacle/stream-chat-rebooted)</button>
+
+> [!CAUTION]
 > 
-> This repository will not see any further development. It will be archived in March 2026.
+> This repository will not see any further development. It was archived in March 2026.
 >
-> If you want to take over and continue development, see https://github.com/izzy/stream-chat/issues/60
+> ~If you want to take over and continue development, see https://github.com/izzy/stream-chat/issues/60~
 > 
-> If you want to continue using the overlay as is, please download it and use it as a local version(see below). Please keep in mind that any further fixes will be provided by someone else.
+> Continuation of development takes place at https://github.com/narnacle/stream-chat-rebooted
 
 # stream-chat
 
